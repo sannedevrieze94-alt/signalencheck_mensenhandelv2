@@ -332,19 +332,11 @@ function resetCheck() {
 function setupMenu() {
   const btn = document.getElementById('menuBtn');
   const panel = document.getElementById('menuPanel');
-  btn.onclick = () => panel.classList.toggle('open');
-  document.addEventListener('click', e => {
-    if (!panel.contains(e.target) && e.target !== btn) panel.classList.remove('open');
-  });
-  document.getElementById('resetBtn').onclick = () => {
-    resetCheck();
-    panel.classList.remove('open');
-  };
+  if (!btn || !panel) return;
 }
 
 function setupLogin() {
   const overlay = document.getElementById('loginOverlay');
-  document.getElementById('loginBtn').onclick = () => overlay.classList.add('show');
   document.getElementById('closeLoginBtn').onclick = () => overlay.classList.remove('show');
   document.getElementById('submitLoginBtn').onclick = () => {
     const u = document.getElementById('loginUser').value.trim();
@@ -383,7 +375,58 @@ document.addEventListener('DOMContentLoaded', () => {
   setupLogin();
 
   document.getElementById('calcBtn').onclick = calcResult;
-  document.getElementById('buildReportBtn').onclick = buildReport;
-  document.getElementById('downloadPdfBtn').onclick = downloadPdf;
-  document.getElementById('printBtn').onclick = () => window.print();
+});
+
+
+function toggleMainMenu(e){
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  const panel = document.getElementById('menuPanel');
+  if (panel) panel.classList.toggle('open');
+}
+function closeMainMenu(){
+  const panel = document.getElementById('menuPanel');
+  if (panel) panel.classList.remove('open');
+}
+function handleResetAndCloseMenu(e){
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  try { resetCheck(); } catch(err) { console.error(err); }
+  closeMainMenu();
+}
+function openLoginOverlay(e){
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  const overlay = document.getElementById('loginOverlay');
+  if (overlay) overlay.classList.add('show');
+}
+function handleBuildReport(e){
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  try {
+    buildReport();
+    const report = document.getElementById('rapportage');
+    if (report) report.scrollIntoView({behavior:'smooth'});
+  } catch(err) {
+    console.error('Rapportage fout', err);
+    alert('Rapportage kon niet worden opgesteld.');
+  }
+}
+function handleDownloadPdf(e){
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  try {
+    if (!state.calculated) calcResult();
+    buildReport();
+    downloadPdf();
+  } catch(err) {
+    console.error('PDF fout', err);
+    alert('PDF kon niet worden gemaakt.');
+  }
+}
+function handlePrint(e){
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  window.print();
+}
+document.addEventListener('click', function(e){
+  const panel = document.getElementById('menuPanel');
+  const btn = document.getElementById('menuBtn');
+  if (!panel || !btn) return;
+  if (panel.contains(e.target) || btn.contains(e.target)) return;
+  panel.classList.remove('open');
 });
