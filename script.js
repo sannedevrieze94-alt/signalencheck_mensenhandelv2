@@ -83,16 +83,56 @@ function escapeAttr(text) {
   return String(text).replace(/"/g, '&quot;');
 }
 
+
+function signalWeight(text, bucket) {
+  const t = String(text || '').toLowerCase();
+
+  // Kritische / acute signalen
+  if (/minderjarig|minderjarigheid/.test(t)) return 4;
+  if (/geweld|mishandeling|bedreig|gechanteerd|dwang/.test(t)) return 4;
+  if (/geen vrijheid|niet vrij|niet zelf kunnen bepalen|onder controle/.test(t)) return 4;
+
+  // Sterke signalen
+  if (/paspoort|identiteitsbewijs|documenten/.test(t)) return 3;
+  if (/schuld|afdragen|opbrengst.*afgeven|afhankelijkheid/.test(t)) return 3;
+  if (/gedwongen|exploitant|prostitutie|strafbare taken|geldezel/.test(t)) return 3;
+  if (/koeriersbewegingen|risicolocaties|aangestuurd/.test(t)) return 3;
+
+  // Basisweging per type signaal
+  if (bucket === 'specific') return 3;
+  if (bucket === 'general') return 2;
+  if (bucket === 'environment') return 2;
+
+  return 2;
+}
+
+function isCriticalSignal(text) {
+  const t = String(text || '').toLowerCase();
+  return /minderjarig|minderjarigheid|dwang|geweld|mishandeling|bedreig|gechanteerd|geen vrijheid|niet vrij|onder controle/.test(t);
+}
+
 function calcResult() {
   const selected = selectedSignals();
   const all = window.APP_SIGNALS[state.active];
-  const maxPossible = (all.specific.length * 4) + (all.general.length * 2) + (all.environment.length * 2);
+
+  const allSignals = [
+    ...all.specific.map(text => ({ text, bucket: 'specific' })),
+    ...all.general.map(text => ({ text, bucket: 'general' })),
+    ...all.environment.map(text => ({ text, bucket: 'environment' }))
+  ];
 
   let S = 0;
+  let maxPossible = 0;
+  let critical = false;
+
   selected.forEach(item => {
-    if (item.bucket === 'specific') S += 4;
-    else if (item.bucket === 'general') S += 2;
-    else if (item.bucket === 'environment') S += 2;
+    const w = signalWeight(item.text, item.bucket);
+    S += w;
+    if (isCriticalSignal(item.text)) critical = true;
+  });
+
+  allSignals.forEach(item => {
+    maxPossible += 4; // maximale theoretische score per indicator
   });
 
   const Snorm = maxPossible > 0 ? (S / maxPossible) : 0;
@@ -105,10 +145,9 @@ function calcResult() {
   else if (selected.length >= 3) B = 2;
   else if (selected.length >= 1) B = 1;
 
-  const critical = selected.some(s => /minderjarig|dwang|bedreig|geweld|schuld|paspoort|controle|geen vrijheid/i.test(s.text));
   let G = 1;
   if (critical && selected.length >= 7) G = 40;
-  else if (critical) G = 10;
+  else if (critical) G = 10; // belangrijke randvoorwaarde: minimaal ernstig bij kritische indicator
   else if (selected.length >= 6) G = 10;
   else if (selected.length >= 3) G = 3;
   else G = 1;
@@ -118,21 +157,26 @@ function calcResult() {
   let level = 'low';
   let badge = 'Laag risico';
   let needle = -70;
-  if (R >= 180) { level = 'high'; badge = 'Hoog risico'; needle = 70; }
+
+  if (R >= 400) { level = 'high'; badge = 'Zeer hoog risico'; needle = 70; }
+  else if (R >= 180) { level = 'high'; badge = 'Hoog risico'; needle = 50; }
   else if (R >= 50) { level = 'mid'; badge = 'Middel risico'; needle = 0; }
+  else if (R >= 10) { level = 'mid'; badge = 'Verhoogd risico'; needle = -20; }
 
   state.calculated = true;
-  state.result = {R, K, G, B, S, Snorm, level, badge, selected};
+  state.result = { R, K, G, B, S, Snorm, level, badge, selected, critical };
 
   document.getElementById('scoreValue').textContent = R.toFixed(1);
   const badgeEl = document.getElementById('scoreBadge');
-  badgeEl.className = 'badge ' + (level === 'high' ? 'badge-high' : level === 'mid' ? 'badge-mid' : 'badge-low');
+  badgeEl.className = 'badge ' + (R >= 180 ? 'badge-high' : R >= 10 ? 'badge-mid' : 'badge-low');
   badgeEl.textContent = badge;
   document.getElementById('gaugeNeedle').style.transform = `translateX(-50%) rotate(${needle}deg)`;
   document.getElementById('scoreList').innerHTML = `
     <li>Hoofdvorm: ${window.APP_SIGNALS[state.active].title}</li>
     <li>Aantal geselecteerde signalen: ${selected.length}</li>
+    <li>Gewogen signaalscore: ${S}</li>
     <li>Risiconiveau: ${badge}</li>
+    ${critical ? '<li>Kritisch signaal aanwezig: directe alertheid en mogelijke opschaling noodzakelijk.</li>' : ''}
   `;
 
   renderAdvice();
@@ -147,7 +191,9 @@ function renderAdvice() {
     return;
   }
   const list = contacts[state.result.level];
-  const intro = state.result.level === 'high'
+  const intro = state.result.critical
+    ? 'Er is minimaal één kritisch signaal aanwezig. Directe alertheid en afstemming zijn noodzakelijk.'
+    : state.result.level === 'high'
     ? 'Opschaling en snelle afstemming liggen voor de hand.'
     : state.result.level === 'mid'
     ? 'Verrijk het beeld en stem af met relevante partners.'
@@ -170,12 +216,6 @@ function renderAdvice() {
 function getField(id) {
   const el = document.getElementById(id);
   return el ? el.value.trim() : '';
-}
-
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.innerText = String(text ?? '');
-  return div.innerHTML;
 }
 
 function buildReport() {
@@ -220,10 +260,6 @@ function buildReport() {
 
 function downloadPdf() {
   buildReport();
-  if (!window.jspdf || !window.jspdf.jsPDF) {
-    alert('PDF-bibliotheek kon niet worden geladen.');
-    return;
-  }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   let y = 15;
@@ -397,38 +433,3 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('downloadPdfBtn').onclick = downloadPdf;
   document.getElementById('printBtn').onclick = () => window.print();
 });
-
-
-function bindActionButtons() {
-  const buildBtn = document.getElementById('buildReportBtn');
-  const pdfBtn = document.getElementById('downloadPdfBtn');
-  const printBtn = document.getElementById('printBtn');
-  const calcBtn = document.getElementById('calcBtn');
-
-  if (calcBtn && !calcBtn.dataset.bound) {
-    calcBtn.onclick = calcResult;
-    calcBtn.dataset.bound = '1';
-  }
-  if (buildBtn && !buildBtn.dataset.bound) {
-    buildBtn.onclick = () => {
-      buildReport();
-      const report = document.getElementById('rapportage');
-      if (report) report.scrollIntoView({ behavior: 'smooth' });
-    };
-    buildBtn.dataset.bound = '1';
-  }
-  if (pdfBtn && !pdfBtn.dataset.bound) {
-    pdfBtn.onclick = () => {
-      if (!state.calculated) calcResult();
-      downloadPdf();
-    };
-    pdfBtn.dataset.bound = '1';
-  }
-  if (printBtn && !printBtn.dataset.bound) {
-    printBtn.onclick = () => window.print();
-    printBtn.dataset.bound = '1';
-  }
-}
-
-document.addEventListener('DOMContentLoaded', bindActionButtons);
-window.addEventListener('load', bindActionButtons);
