@@ -332,7 +332,9 @@ function resetCheck() {
 function setupMenu() {
   const btn = document.getElementById('menuBtn');
   const panel = document.getElementById('menuPanel');
-  if (!btn || !panel) return;
+  document.addEventListener('click', e => {
+    if (!panel.contains(e.target) && e.target !== btn) panel.classList.remove('open');
+  });
 }
 
 function setupLogin() {
@@ -389,7 +391,7 @@ function closeMainMenu(){
 }
 function handleResetAndCloseMenu(e){
   if (e) { e.preventDefault(); e.stopPropagation(); }
-  try { resetCheck(); } catch(err) { console.error(err); }
+  resetCheck();
   closeMainMenu();
 }
 function openLoginOverlay(e){
@@ -399,25 +401,15 @@ function openLoginOverlay(e){
 }
 function handleBuildReport(e){
   if (e) { e.preventDefault(); e.stopPropagation(); }
-  try {
-    buildReport();
-    const report = document.getElementById('rapportage');
-    if (report) report.scrollIntoView({behavior:'smooth'});
-  } catch(err) {
-    console.error('Rapportage fout', err);
-    alert('Rapportage kon niet worden opgesteld.');
-  }
+  buildReport();
+  const report = document.getElementById('rapportage');
+  if (report) report.scrollIntoView({behavior:'smooth'});
 }
 function handleDownloadPdf(e){
   if (e) { e.preventDefault(); e.stopPropagation(); }
-  try {
-    if (!state.calculated) calcResult();
-    buildReport();
-    downloadPdf();
-  } catch(err) {
-    console.error('PDF fout', err);
-    alert('PDF kon niet worden gemaakt.');
-  }
+  if (!state.calculated) calcResult();
+  buildReport();
+  downloadPdf();
 }
 function handlePrint(e){
   if (e) { e.preventDefault(); e.stopPropagation(); }
