@@ -295,12 +295,7 @@ function downloadPdf() {
   });
 
   const stamp = new Date().toISOString().slice(0,16).replace(/[:T]/g,'-');
-  try {
-    doc.save(`rapportage_signalencheck_${stamp}.pdf`);
-  } catch (e) {
-    const blobUrl = doc.output('bloburl');
-    window.open(blobUrl, '_blank');
-  }
+  doc.save(`rapportage_signalencheck_${stamp}.pdf`);
 }
 
 function syncKpis() {
@@ -337,27 +332,13 @@ function resetCheck() {
 function setupMenu() {
   const btn = document.getElementById('menuBtn');
   const panel = document.getElementById('menuPanel');
-  if (!btn || !panel) return;
-
-  const closeMenu = () => panel.classList.remove('open');
-
-  btn.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    panel.classList.toggle('open');
+  btn.onclick = () => panel.classList.toggle('open');
+  document.addEventListener('click', e => {
+    if (!panel.contains(e.target) && e.target !== btn) panel.classList.remove('open');
   });
-
-  panel.addEventListener('click', (e) => {
-    e.stopPropagation();
-  });
-
-  document.addEventListener('click', () => {
-    closeMenu();
-  });
-
   document.getElementById('resetBtn').onclick = () => {
     resetCheck();
-    closeMenu();
+    panel.classList.remove('open');
   };
 }
 
@@ -402,18 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupLogin();
 
   document.getElementById('calcBtn').onclick = calcResult;
-  document.getElementById('buildReportBtn').onclick = () => {
-    buildReport();
-    const report = document.getElementById('rapportage');
-    if (report) report.scrollIntoView({behavior:'smooth'});
-  };
-
-  document.getElementById('downloadPdfBtn').onclick = () => {
-    if (!state.calculated) {
-      calcResult();
-    }
-    buildReport();
-    downloadPdf();
-  };
+  document.getElementById('buildReportBtn').onclick = buildReport;
+  document.getElementById('downloadPdfBtn').onclick = downloadPdf;
   document.getElementById('printBtn').onclick = () => window.print();
 });
