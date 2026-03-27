@@ -172,6 +172,12 @@ function getField(id) {
   return el ? el.value.trim() : '';
 }
 
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.innerText = String(text ?? '');
+  return div.innerHTML;
+}
+
 function buildReport() {
   const selected = state.result ? state.result.selected : [];
   const preview = document.getElementById('reportPreview');
@@ -214,6 +220,10 @@ function buildReport() {
 
 function downloadPdf() {
   buildReport();
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert('PDF-bibliotheek kon niet worden geladen.');
+    return;
+  }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   let y = 15;
@@ -332,13 +342,19 @@ function resetCheck() {
 function setupMenu() {
   const btn = document.getElementById('menuBtn');
   const panel = document.getElementById('menuPanel');
+  btn.onclick = () => panel.classList.toggle('open');
   document.addEventListener('click', e => {
     if (!panel.contains(e.target) && e.target !== btn) panel.classList.remove('open');
   });
+  document.getElementById('resetBtn').onclick = () => {
+    resetCheck();
+    panel.classList.remove('open');
+  };
 }
 
 function setupLogin() {
   const overlay = document.getElementById('loginOverlay');
+  document.getElementById('loginBtn').onclick = () => overlay.classList.add('show');
   document.getElementById('closeLoginBtn').onclick = () => overlay.classList.remove('show');
   document.getElementById('submitLoginBtn').onclick = () => {
     const u = document.getElementById('loginUser').value.trim();
@@ -377,48 +393,42 @@ document.addEventListener('DOMContentLoaded', () => {
   setupLogin();
 
   document.getElementById('calcBtn').onclick = calcResult;
+  document.getElementById('buildReportBtn').onclick = buildReport;
+  document.getElementById('downloadPdfBtn').onclick = downloadPdf;
+  document.getElementById('printBtn').onclick = () => window.print();
 });
 
 
-function toggleMainMenu(e){
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  const panel = document.getElementById('menuPanel');
-  if (panel) panel.classList.toggle('open');
+function bindActionButtons() {
+  const buildBtn = document.getElementById('buildReportBtn');
+  const pdfBtn = document.getElementById('downloadPdfBtn');
+  const printBtn = document.getElementById('printBtn');
+  const calcBtn = document.getElementById('calcBtn');
+
+  if (calcBtn && !calcBtn.dataset.bound) {
+    calcBtn.onclick = calcResult;
+    calcBtn.dataset.bound = '1';
+  }
+  if (buildBtn && !buildBtn.dataset.bound) {
+    buildBtn.onclick = () => {
+      buildReport();
+      const report = document.getElementById('rapportage');
+      if (report) report.scrollIntoView({ behavior: 'smooth' });
+    };
+    buildBtn.dataset.bound = '1';
+  }
+  if (pdfBtn && !pdfBtn.dataset.bound) {
+    pdfBtn.onclick = () => {
+      if (!state.calculated) calcResult();
+      downloadPdf();
+    };
+    pdfBtn.dataset.bound = '1';
+  }
+  if (printBtn && !printBtn.dataset.bound) {
+    printBtn.onclick = () => window.print();
+    printBtn.dataset.bound = '1';
+  }
 }
-function closeMainMenu(){
-  const panel = document.getElementById('menuPanel');
-  if (panel) panel.classList.remove('open');
-}
-function handleResetAndCloseMenu(e){
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  resetCheck();
-  closeMainMenu();
-}
-function openLoginOverlay(e){
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  const overlay = document.getElementById('loginOverlay');
-  if (overlay) overlay.classList.add('show');
-}
-function handleBuildReport(e){
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  buildReport();
-  const report = document.getElementById('rapportage');
-  if (report) report.scrollIntoView({behavior:'smooth'});
-}
-function handleDownloadPdf(e){
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  if (!state.calculated) calcResult();
-  buildReport();
-  downloadPdf();
-}
-function handlePrint(e){
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  window.print();
-}
-document.addEventListener('click', function(e){
-  const panel = document.getElementById('menuPanel');
-  const btn = document.getElementById('menuBtn');
-  if (!panel || !btn) return;
-  if (panel.contains(e.target) || btn.contains(e.target)) return;
-  panel.classList.remove('open');
-});
+
+document.addEventListener('DOMContentLoaded', bindActionButtons);
+window.addEventListener('load', bindActionButtons);

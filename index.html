@@ -443,7 +443,6 @@ textarea {
 .menu-panel { z-index:1001; }
 .topbar { overflow:visible !important; }
 .header-actions { position:relative; overflow:visible !important; }
-
 </style>
 </head>
 <body>
@@ -458,15 +457,15 @@ textarea {
     </div>
     <div class="header-actions">
       <div class="menu-wrap">
-        <button class="btn" id="menuBtn" onclick="toggleMainMenu(event)">Menu</button>
+        <button class="btn" id="menuBtn">Menu</button>
         <div class="menu-panel" id="menuPanel">
           <a href="#home">Home</a>
           <a href="#rapportage">Rapportage</a>
           <a href="#sources">Bronnenlijst (APA 7)</a>
-          <button type="button" id="resetBtn" onclick="handleResetAndCloseMenu(event)">Nieuwe check</button>
+          <button type="button" id="resetBtn">Nieuwe check</button>
         </div>
       </div>
-      <button class="btn btn-primary" id="loginBtn" onclick="openLoginOverlay(event)">Log In</button>
+      <button class="btn btn-primary" id="loginBtn">Log In</button>
     </div>
   </div>
 </header>
@@ -556,9 +555,9 @@ textarea {
     <div id="signalsMount"></div>
     <div class="actions">
       <button class="btn btn-primary" id="calcBtn">Bereken uitkomst</button>
-      <button class="btn" id="buildReportBtn" onclick="handleBuildReport(event)">Opstellen rapportage</button>
-      <button class="btn" id="downloadPdfBtn" onclick="handleDownloadPdf(event)">Download PDF rapport</button>
-      <button class="btn" id="printBtn" onclick="handlePrint(event)">Print / PDF</button>
+      <button class="btn" id="buildReportBtn">Opstellen rapportage</button>
+      <button class="btn" id="downloadPdfBtn">Download PDF rapport</button>
+      <button class="btn" id="printBtn">Print / PDF</button>
     </div>
   </section>
 
