@@ -87,22 +87,18 @@ function escapeAttr(text) {
 function signalWeight(text, bucket) {
   const t = String(text || '').toLowerCase();
 
-  // Kritische / acute signalen
   if (/minderjarig|minderjarigheid/.test(t)) return 4;
   if (/geweld|mishandeling|bedreig|gechanteerd|dwang/.test(t)) return 4;
   if (/geen vrijheid|niet vrij|niet zelf kunnen bepalen|onder controle/.test(t)) return 4;
 
-  // Sterke signalen
   if (/paspoort|identiteitsbewijs|documenten/.test(t)) return 3;
-  if (/schuld|afdragen|opbrengst.*afgeven|afhankelijkheid/.test(t)) return 3;
+  if (/schuld|afdragen|opbrengst.*afgeven|afhankelijk/.test(t)) return 3;
   if (/gedwongen|exploitant|prostitutie|strafbare taken|geldezel/.test(t)) return 3;
   if (/koeriersbewegingen|risicolocaties|aangestuurd/.test(t)) return 3;
 
-  // Basisweging per type signaal
   if (bucket === 'specific') return 3;
   if (bucket === 'general') return 2;
   if (bucket === 'environment') return 2;
-
   return 2;
 }
 
@@ -114,7 +110,6 @@ function isCriticalSignal(text) {
 function calcResult() {
   const selected = selectedSignals();
   const all = window.APP_SIGNALS[state.active];
-
   const allSignals = [
     ...all.specific.map(text => ({ text, bucket: 'specific' })),
     ...all.general.map(text => ({ text, bucket: 'general' })),
@@ -126,14 +121,11 @@ function calcResult() {
   let critical = false;
 
   selected.forEach(item => {
-    const w = signalWeight(item.text, item.bucket);
-    S += w;
+    S += signalWeight(item.text, item.bucket);
     if (isCriticalSignal(item.text)) critical = true;
   });
 
-  allSignals.forEach(item => {
-    maxPossible += 4; // maximale theoretische score per indicator
-  });
+  allSignals.forEach(() => { maxPossible += 4; });
 
   const Snorm = maxPossible > 0 ? (S / maxPossible) : 0;
   const K = 0.1 + 9.9 * Math.pow(Snorm, 2);
@@ -147,7 +139,7 @@ function calcResult() {
 
   let G = 1;
   if (critical && selected.length >= 7) G = 40;
-  else if (critical) G = 10; // belangrijke randvoorwaarde: minimaal ernstig bij kritische indicator
+  else if (critical) G = 10;
   else if (selected.length >= 6) G = 10;
   else if (selected.length >= 3) G = 3;
   else G = 1;
@@ -218,6 +210,12 @@ function getField(id) {
   return el ? el.value.trim() : '';
 }
 
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.innerText = String(text ?? '');
+  return div.innerHTML;
+}
+
 function buildReport() {
   const selected = state.result ? state.result.selected : [];
   const preview = document.getElementById('reportPreview');
@@ -260,6 +258,10 @@ function buildReport() {
 
 function downloadPdf() {
   buildReport();
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert('PDF-bibliotheek kon niet worden geladen.');
+    return;
+  }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   let y = 15;
@@ -378,7 +380,15 @@ function resetCheck() {
 function setupMenu() {
   const btn = document.getElementById('menuBtn');
   const panel = document.getElementById('menuPanel');
-  btn.onclick = () => panel.classList.toggle('open');
+  const sourcesBtn = document.getElementById('sourcesBtn');
+  const sourcesOverlay = document.getElementById('sourcesOverlay');
+  const closeSourcesBtn = document.getElementById('closeSourcesBtn');
+
+  btn.onclick = (e) => {
+    e.stopPropagation();
+    panel.classList.toggle('open');
+  };
+  panel.onclick = (e) => e.stopPropagation();
   document.addEventListener('click', e => {
     if (!panel.contains(e.target) && e.target !== btn) panel.classList.remove('open');
   });
@@ -386,12 +396,23 @@ function setupMenu() {
     resetCheck();
     panel.classList.remove('open');
   };
+  if (sourcesBtn && sourcesOverlay) {
+    sourcesBtn.onclick = () => {
+      panel.classList.remove('open');
+      sourcesOverlay.classList.add('show');
+    };
+  }
+  if (closeSourcesBtn && sourcesOverlay) {
+    closeSourcesBtn.onclick = () => sourcesOverlay.classList.remove('show');
+  }
 }
 
 function setupLogin() {
   const overlay = document.getElementById('loginOverlay');
   document.getElementById('loginBtn').onclick = () => overlay.classList.add('show');
   document.getElementById('closeLoginBtn').onclick = () => overlay.classList.remove('show');
+  // eerst login-scherm tonen
+  overlay.classList.add('show');
   document.getElementById('submitLoginBtn').onclick = () => {
     const u = document.getElementById('loginUser').value.trim();
     const p = document.getElementById('loginPass').value.trim();
@@ -429,7 +450,14 @@ document.addEventListener('DOMContentLoaded', () => {
   setupLogin();
 
   document.getElementById('calcBtn').onclick = calcResult;
-  document.getElementById('buildReportBtn').onclick = buildReport;
-  document.getElementById('downloadPdfBtn').onclick = downloadPdf;
+  document.getElementById('buildReportBtn').onclick = () => {
+    buildReport();
+    document.getElementById('rapportage').scrollIntoView({behavior:'smooth'});
+  };
+  document.getElementById('downloadPdfBtn').onclick = () => {
+    if (!state.calculated) calcResult();
+    buildReport();
+    downloadPdf();
+  };
   document.getElementById('printBtn').onclick = () => window.print();
 });
