@@ -2,42 +2,70 @@
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
-<title>Signalencheck Mensenhandel PRO</title>
+<title>Signalencheck Mensenhandel</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-body{font-family:Arial;margin:20px;background:#f4f6f8}
-.container{max-width:1100px;margin:auto;background:white;padding:20px;border-radius:10px}
-h1{color:#c00000}
-.tab button{margin:5px;padding:10px;border:none;background:#ddd;border-radius:6px;cursor:pointer}
-.tab button.active{background:#c00000;color:white}
-.section{margin-top:20px}
-.signal{display:block;margin:5px 0}
-.result{margin-top:20px;font-size:18px;font-weight:bold}
-.card{background:#fafafa;padding:10px;margin:10px 0;border-radius:8px}
+body{font-family:Arial;margin:0;background:#f4f6f8}
+header{background:#c00000;color:white;padding:15px;display:flex;justify-content:space-between}
+.container{max-width:1100px;margin:auto;padding:20px}
+.tiles{display:flex;gap:20px}
+.tile{flex:1;background:white;padding:25px;border-radius:10px;text-align:center;cursor:pointer;font-weight:bold}
+.hidden{display:none}
+.section{background:white;padding:15px;margin-top:15px;border-radius:10px}
+button{padding:10px 15px;background:#c00000;color:white;border:none;border-radius:6px;margin-top:10px}
+.gauge{height:25px;background:#ddd;border-radius:20px;overflow:hidden;margin-top:10px}
+.fill{height:100%;width:0%}
+.card{background:#fafafa;padding:10px;margin-top:10px;border-radius:8px}
 </style>
 </head>
 <body>
-<div class="container">
-<h1>Signalencheck Mensenhandel</h1>
-<p>
-Dit prototype is ontwikkeld door Sanne de Vrieze, student Integrale Veiligheidskunde (3e jaar), in het kader van een stageopdracht binnen het veiligheidsdomein van de Gemeente Emmen. 
-De applicatie ondersteunt operationele professionals bij het uitvoeren van integrale controles door inzicht te bieden in het risico op mensenhandel (laag, middel of hoog). 
-Daarnaast draagt de tool bij aan het herkennen van signalen en het maken van een onderbouwde risicobeoordeling.
-</p>
 
-<div class="tab">
-<button onclick="setTab('arbeid')" id="t1">Arbeidsuitbuiting</button>
-<button onclick="setTab('seksueel')" id="t2">Seksuele uitbuiting</button>
-<button onclick="setTab('crimineel')" id="t3">Criminele uitbuiting</button>
+<header>
+<div>Signalencheck Mensenhandel</div>
+<button onclick="login()">Login</button>
+</header>
+
+<div class="container">
+
+<div id="home">
+<h2>Kies type uitbuiting</h2>
+<div class="tiles">
+<div class="tile" onclick="openTab('arbeid')">Arbeidsuitbuiting</div>
+<div class="tile" onclick="openTab('seksueel')">Seksuele uitbuiting</div>
+<div class="tile" onclick="openTab('crimineel')">Criminele uitbuiting</div>
+</div>
 </div>
 
+<div id="app" class="hidden">
+
+<div class="section">
+<h3>Controle</h3>
+<input id="locatie" placeholder="Locatie">
+<input id="typeLocatie" placeholder="Type locatie">
+<select id="typeControle">
+<option>Integraal</option>
+<option>Bestuurlijk</option>
+<option>Signaalgericht</option>
+</select>
+</div>
+
+<div class="section">
+<h3 id="title"></h3>
 <div id="signals"></div>
+</div>
 
-<button onclick="calculate()">Bereken risico</button>
+<button onclick="calc()">Bereken</button>
 
-<div id="result" class="result"></div>
+<div class="gauge"><div id="fill" class="fill"></div></div>
+<div id="result"></div>
 <div id="advies"></div>
 
+<button onclick="downloadPDF()">Download PDF rapport</button>
+
 </div>
+
+</div>
+
 <script src="script.js"></script>
 </body>
 </html>

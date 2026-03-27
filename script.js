@@ -1,82 +1,72 @@
 
-let tab="arbeid";
+let current="arbeid";
 
 const data={
-arbeid:{
-spec:["Geen betaling","Inname ID","Onveilige arbeid"],
-alg:["Angstig gedrag","Geen documenten"],
-omg:["Meerdere meldingen","Bekende locatie"]
-},
-seksueel:{
-spec:["Controle door derde","Geen vrijheid"],
-alg:["Angstig gedrag","Geen documenten"],
-omg:["Meerdere meldingen","Bekende locatie"]
-},
-crimineel:{
-spec:["Aangestuurd gedrag","Schulden/dwang"],
-alg:["Angstig gedrag","Geen documenten"],
-omg:["Meerdere meldingen","Bekende locatie"]
-}
+arbeid:{spec:["Geen betaling","Inname ID"],alg:["Angstig gedrag"],omg:["Meerdere meldingen"]},
+seksueel:{spec:["Controle derde"],alg:["Angstig gedrag"],omg:["Meerdere meldingen"]},
+crimineel:{spec:["Dwang"],alg:["Angstig gedrag"],omg:["Meerdere meldingen"]}
 };
 
-function setTab(t){
-tab=t;
+function openTab(t){
+current=t;
+document.getElementById("home").classList.add("hidden");
+document.getElementById("app").classList.remove("hidden");
+document.getElementById("title").innerText=t;
 render();
 }
 
 function render(){
 let html="";
 ["spec","alg","omg"].forEach(type=>{
-html+=`<div class='section'><h3>${type}</h3>`;
-data[tab][type].forEach(s=>{
-html+=`<label class='signal'><input type='checkbox' class='chk' data-type='${type}'> ${s}</label>`;
+html+="<h4>"+type+"</h4>";
+data[current][type].forEach(s=>{
+html+=`<label><input type='checkbox' class='chk' value='${s}'> ${s}</label><br>`;
 });
-html+="</div>";
 });
 document.getElementById("signals").innerHTML=html;
 }
 
-function calculate(){
-let checks=document.querySelectorAll(".chk:checked");
-let count=checks.length;
-
-let k=1+(count*0.5);
-let g=count>5?10:count>3?5:1;
-let b=count>4?3:count>2?2:1;
-
-let r=k*g*b;
+function calc(){
+let c=document.querySelectorAll(".chk:checked").length;
+let K=1+(c*0.5);
+let G=c>5?10:c>3?5:1;
+let B=c>4?3:c>2?2:1;
+let R=K*G*B;
 
 let level="LAAG";
-if(r>80) level="HOOG";
-else if(r>30) level="MIDDEL";
+let perc=30;
+
+if(R>60){level="HOOG";perc=100;}
+else if(R>25){level="MIDDEL";perc=65;}
+
+let fill=document.getElementById("fill");
+fill.style.width=perc+"%";
+fill.style.background=level=="HOOG"?"red":level=="MIDDEL"?"orange":"green";
 
 document.getElementById("result").innerText="Risico: "+level;
-
-let adv=document.getElementById("advies");
-
-let contacts={
-laag:[
-{name:"Marieke Sloots",rol:"OOV",advies:"Intern bespreken"},
-{name:"Daan Huizing",rol:"Mensenhandel",advies:"Monitoren"}
-],
-middel:[
-{name:"Laura Meems",rol:"RIEC",advies:"Opschalen overleg"},
-{name:"Niek Kamps",rol:"Zorg",advies:"Zorg inschakelen"}
-],
-hoog:[
-{name:"Iris van Praag",rol:"Politie AVIM",advies:"Direct opschalen"},
-{name:"Samir El Azzouzi",rol:"Arbeidsinspectie",advies:"Onderzoek starten"}
-]
-};
-
-let lijst="";
-let set=level=="LAAG"?contacts.laag:level=="MIDDEL"?contacts.middel:contacts.hoog;
-
-set.forEach(c=>{
-lijst+=`<div class='card'><b>${c.name}</b> (${c.rol})<br>Advies: ${c.advies}</div>`;
-});
-
-adv.innerHTML=lijst;
 }
 
-render();
+function downloadPDF(){
+const { jsPDF } = window.jspdf;
+let doc = new jsPDF();
+
+doc.setFontSize(16);
+doc.text("Signalencheck Rapport - Gemeente Emmen", 10, 10);
+
+doc.setFontSize(10);
+doc.text("Datum: " + new Date(), 10, 20);
+doc.text("Locatie: " + document.getElementById("locatie").value, 10, 30);
+
+let y = 50;
+doc.text("Geselecteerde signalen:", 10, y);
+y += 10;
+
+document.querySelectorAll(".chk:checked").forEach(el=>{
+ doc.text("- " + el.value, 10, y);
+ y+=8;
+});
+
+doc.text("Resultaat: " + document.getElementById("result").innerText, 10, y+10);
+
+doc.save("rapport_mensenhandel.pdf");
+}
