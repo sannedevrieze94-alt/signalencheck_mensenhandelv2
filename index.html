@@ -439,30 +439,32 @@ textarea {
   }
 }
   
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* position-only adjustments */
+.topbar-inner{
+  align-items:flex-start !important;
 }
-.header-actions {
-  display: flex;
-  gap: 10px;
-  margin-left: auto;
+.header-actions{
+  margin-left:auto !important;
+  justify-content:flex-end !important;
+  align-self:flex-start !important;
 }
-.bottom-actions {
-  margin-top: 40px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
+.actions.bottom-actions{
+  margin-top:40px !important;
+  justify-content:center !important;
 }
-.footer {
-  margin-top: 40px;
-  padding: 20px;
-  text-align: center;
-  font-size: 12px;
-  color: #666;
+.footer{
+  margin-top:40px;
+  padding:20px;
+  text-align:center;
+  font-size:12px;
+  color:#666;
 }
+@media (max-width:640px){
+  .header-actions{
+    margin-left:auto !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -540,8 +542,8 @@ textarea {
         <label for="typeControle">Type controle</label>
         <select id="typeControle">
           <option>Integrale controle</option>
-          <option>Prostitutie controle</option>
-          <option>Controle Kassen/Tuinbouw</option>
+          <option>Bestuurlijke controle</option>
+          <option>Signaalgerichte controle</option>
           <option>Woningcontrole</option>
           <option>Bedrijfscontrole</option>
         </select>
@@ -551,8 +553,6 @@ textarea {
         <select id="typeLocatie">
           <option>Woning</option>
           <option>Bedrijfspand</option>
-          <option>Kassen</option>
-          <option>Seksinrichting</option>
           <option>Horeca</option>
           <option>Loods / opslag</option>
           <option>Garage / werkplaats</option>
@@ -575,12 +575,7 @@ textarea {
     <p>Selecteer eerst de relevante hoofdvorm. Binnen iedere hoofdvorm worden specifieke signalen, algemene signalen en omgevingssignalen / dossier getoond.</p>
     <div class="tabs" id="tabs"></div>
     <div id="signalsMount"></div>
-    <div class="actions">
-      <button class="btn btn-primary" id="calcBtn">Bereken uitkomst</button>
-      <button class="btn" id="buildReportBtn">Opstellen rapportage</button>
-      <button class="btn" id="downloadPdfBtn">Download PDF rapport</button>
-      <button class="btn" id="printBtn">Print / PDF</button>
-    </div>
+    
   </section>
 
   <section class="result-grid" id="score">
@@ -634,6 +629,12 @@ textarea {
       <li>Vereniging van Nederlandse Gemeenten. (2021, 12 maart). <i>Kader voor de aanpak van mensenhandel door gemeenten</i>. https://vng.nl/sites/default/files/2021-03/kader-voor-de-aanpak-van-mensenhandel_20210312.pdf</li>
     </ol>
   </section>
+<div class="actions bottom-actions">
+      <button class="btn btn-primary" id="calcBtn">Bereken uitkomst</button>
+      <button class="btn" id="buildReportBtn">Opstellen rapportage</button>
+      <button class="btn" id="downloadPdfBtn">Download PDF rapport</button>
+      <button class="btn" id="printBtn">Print / PDF</button>
+    </div>
 </main>
 
 <div class="login-overlay" id="loginOverlay">
@@ -662,8 +663,6 @@ window.LOGO_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAs0AAAEDCAYAAAD
 </script>
 <script src="script.js"></script>
 
-<footer class="footer">
-  ©️ Sanne de Vrieze 2026
-</footer>
+<footer class="footer">©️ Sanne de Vrieze 2026</footer>
 </body>
 </html>
