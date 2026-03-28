@@ -387,3 +387,17 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('downloadPdfBtn').onclick = downloadPdf;
   document.getElementById('printBtn').onclick = () => window.print();
 });
+
+
+function openSourcesOverlay(e){
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  const ov = document.getElementById('sourcesOverlay');
+  if (ov) ov.classList.add('show');
+  const panel = document.getElementById('menuPanel');
+  if (panel) panel.classList.remove('open');
+}
+function closeSourcesOverlay(e){
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  const ov = document.getElementById('sourcesOverlay');
+  if (ov) ov.classList.remove('show');
+}
