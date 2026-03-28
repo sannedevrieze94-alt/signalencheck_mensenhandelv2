@@ -172,6 +172,12 @@ function getField(id) {
   return el ? el.value.trim() : '';
 }
 
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.innerText = String(text ?? '');
+  return div.innerHTML;
+}
+
 function buildReport() {
   const selected = state.result ? state.result.selected : [];
   const preview = document.getElementById('reportPreview');
@@ -214,6 +220,10 @@ function buildReport() {
 
 function downloadPdf() {
   buildReport();
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert('PDF-bibliotheek kon niet worden geladen.');
+    return;
+  }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   let y = 15;
@@ -332,35 +342,71 @@ function resetCheck() {
 function setupMenu() {
   const btn = document.getElementById('menuBtn');
   const panel = document.getElementById('menuPanel');
-  btn.onclick = () => panel.classList.toggle('open');
-  document.addEventListener('click', e => {
-    if (!panel.contains(e.target) && e.target !== btn) panel.classList.remove('open');
-  });
-  document.getElementById('resetBtn').onclick = () => {
-    resetCheck();
-    panel.classList.remove('open');
-  };
+  const resetBtn = document.getElementById('resetBtn');
+  const sourcesBtn = document.getElementById('sourcesBtn');
+  const closeSourcesBtn = document.getElementById('closeSourcesBtn');
+
+  if (btn && panel) {
+    btn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      panel.classList.toggle('open');
+    };
+    panel.onclick = (e) => e.stopPropagation();
+    document.addEventListener('click', (e) => {
+      if (!panel.contains(e.target) && e.target !== btn) panel.classList.remove('open');
+    });
+  }
+  if (resetBtn) {
+    resetBtn.onclick = () => {
+      resetCheck();
+      if (panel) panel.classList.remove('open');
+    };
+  }
+  if (sourcesBtn) {
+    sourcesBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const overlay = document.getElementById('sourcesOverlay');
+      if (overlay) overlay.classList.add('show');
+      if (panel) panel.classList.remove('open');
+    };
+  }
+  if (closeSourcesBtn) {
+    closeSourcesBtn.onclick = () => {
+      const overlay = document.getElementById('sourcesOverlay');
+      if (overlay) overlay.classList.remove('show');
+    };
+  }
 }
 
 function setupLogin() {
   const overlay = document.getElementById('loginOverlay');
-  document.getElementById('loginBtn').onclick = () => overlay.classList.add('show');
-  document.getElementById('closeLoginBtn').onclick = () => overlay.classList.remove('show');
-  document.getElementById('submitLoginBtn').onclick = () => {
-    const u = document.getElementById('loginUser').value.trim();
-    const p = document.getElementById('loginPass').value.trim();
-    const msg = document.getElementById('loginMsg');
-    if (u === 'SDEV1' && p === '12345') {
-      state.loggedIn = true;
-      msg.textContent = 'Inloggen gelukt. Aanvullende contactgegevens zijn actief.';
-      overlay.classList.remove('show');
-      renderAdvice();
-      buildReport();
-      syncKpis();
-    } else {
-      msg.textContent = 'Onjuiste inloggegevens. Gebruik voor deze demo: SDEV1 / 12345.';
-    }
-  };
+  const loginBtn = document.getElementById('loginBtn');
+  const closeBtn = document.getElementById('closeLoginBtn');
+  const submitBtn = document.getElementById('submitLoginBtn');
+
+  if (loginBtn && overlay) loginBtn.onclick = () => overlay.classList.add('show');
+  if (closeBtn && overlay) closeBtn.onclick = () => overlay.classList.remove('show');
+  if (overlay) overlay.classList.add('show');
+
+  if (submitBtn) {
+    submitBtn.onclick = () => {
+      const u = document.getElementById('loginUser').value.trim();
+      const p = document.getElementById('loginPass').value.trim();
+      const msg = document.getElementById('loginMsg');
+      if (u === 'SDEV1' && p === '12345') {
+        state.loggedIn = true;
+        msg.textContent = 'Inloggen gelukt. Aanvullende contactgegevens zijn actief.';
+        if (overlay) overlay.classList.remove('show');
+        renderAdvice();
+        buildReport();
+        syncKpis();
+      } else {
+        msg.textContent = 'Onjuiste inloggegevens. Gebruik voor deze demo: SDEV1 / 12345.';
+      }
+    };
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -382,22 +428,20 @@ document.addEventListener('DOMContentLoaded', () => {
   setupMenu();
   setupLogin();
 
-  document.getElementById('calcBtn').onclick = calcResult;
-  document.getElementById('buildReportBtn').onclick = buildReport;
-  document.getElementById('downloadPdfBtn').onclick = downloadPdf;
-  document.getElementById('printBtn').onclick = () => window.print();
+  const calcBtn = document.getElementById('calcBtn');
+  const buildBtn = document.getElementById('buildReportBtn');
+  const pdfBtn = document.getElementById('downloadPdfBtn');
+  const printBtn = document.getElementById('printBtn');
+
+  if (calcBtn) calcBtn.onclick = calcResult;
+  if (buildBtn) buildBtn.onclick = () => {
+    buildReport();
+    document.getElementById('rapportage').scrollIntoView({behavior:'smooth'});
+  };
+  if (pdfBtn) pdfBtn.onclick = () => {
+    if (!state.calculated) calcResult();
+    buildReport();
+    downloadPdf();
+  };
+  if (printBtn) printBtn.onclick = () => window.print();
 });
-
-
-function openSourcesOverlay(e){
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  const ov = document.getElementById('sourcesOverlay');
-  if (ov) ov.classList.add('show');
-  const panel = document.getElementById('menuPanel');
-  if (panel) panel.classList.remove('open');
-}
-function closeSourcesOverlay(e){
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  const ov = document.getElementById('sourcesOverlay');
-  if (ov) ov.classList.remove('show');
-}
