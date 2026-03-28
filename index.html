@@ -439,11 +439,30 @@ textarea {
   }
 }
   
-.menu-wrap { position:relative; z-index:1000; }
-.menu-panel { z-index:1001; }
-.topbar { overflow:visible !important; }
-.header-actions { position:relative; overflow:visible !important; }
-
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header-actions {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+.bottom-actions {
+  margin-top: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+.footer {
+  margin-top: 40px;
+  padding: 20px;
+  text-align: center;
+  font-size: 12px;
+  color: #666;
+}
 </style>
 </head>
 <body>
@@ -458,15 +477,15 @@ textarea {
     </div>
     <div class="header-actions">
       <div class="menu-wrap">
-        <button class="btn" id="menuBtn" onclick="toggleMainMenu(event)">Menu</button>
+        <button class="btn" id="menuBtn">Menu</button>
         <div class="menu-panel" id="menuPanel">
           <a href="#home">Home</a>
           <a href="#rapportage">Rapportage</a>
-          <button type="button" id="sourcesBtn" onclick="openSourcesOverlay(event)">Bronnenlijst (APA 7)</button>
-          <button type="button" id="resetBtn" onclick="handleResetAndCloseMenu(event)">Nieuwe check</button>
+          <a href="#sources">Bronnenlijst (APA 7)</a>
+          <button type="button" id="resetBtn">Nieuwe check</button>
         </div>
       </div>
-      <button class="btn btn-primary" id="loginBtn" onclick="openLoginOverlay(event)">Log In</button>
+      <button class="btn btn-primary" id="loginBtn">Log In</button>
     </div>
   </div>
 </header>
@@ -476,7 +495,7 @@ textarea {
     <div class="eyebrow">Prototype • professioneel uitgewerkt</div>
     <div class="hero-grid">
       <div>
-        <h1>Digitale Signalencheck Mensenhandel</h1>
+        <h1>Signalen structureren, risico duiden en direct vertalen naar handelingsperspectief.</h1>
         <p>Dit prototype is ontwikkeld door Sanne de Vrieze, student Integrale Veiligheidskunde (3e jaar), in het kader van een stageopdracht binnen het veiligheidsdomein van de Gemeente Emmen. De applicatie ondersteunt operationele professionals bij integrale controles door snel een onderbouwde risico-inschatting te geven op mensenhandel en op één van de drie vormen van uitbuiting.</p>
         <p>De tool helpt professionals om signalen actief te leren herkennen, observaties te bundelen en te vertalen naar een score, een concreet advies en een rapportage. Daarmee ondersteunt de app zowel de beoordeling ter plaatse als de dossiervorming achteraf.</p>
       </div>
@@ -521,8 +540,8 @@ textarea {
         <label for="typeControle">Type controle</label>
         <select id="typeControle">
           <option>Integrale controle</option>
-          <option>Prostitutie controle</option>
-          <option>Controle kassengebied</option>
+          <option>Bestuurlijke controle</option>
+          <option>Signaalgerichte controle</option>
           <option>Woningcontrole</option>
           <option>Bedrijfscontrole</option>
         </select>
@@ -533,7 +552,6 @@ textarea {
           <option>Woning</option>
           <option>Bedrijfspand</option>
           <option>Horeca</option>
-          <option>Kassen</option>
           <option>Loods / opslag</option>
           <option>Garage / werkplaats</option>
           <option>Overig</option>
@@ -557,9 +575,9 @@ textarea {
     <div id="signalsMount"></div>
     <div class="actions">
       <button class="btn btn-primary" id="calcBtn">Bereken uitkomst</button>
-      <button class="btn" id="buildReportBtn" onclick="handleBuildReport(event)">Opstellen rapportage</button>
-      <button class="btn" id="downloadPdfBtn" onclick="handleDownloadPdf(event)">Download PDF rapport</button>
-      <button class="btn" id="printBtn" onclick="handlePrint(event)">Print / PDF</button>
+      <button class="btn" id="buildReportBtn">Opstellen rapportage</button>
+      <button class="btn" id="downloadPdfBtn">Download PDF rapport</button>
+      <button class="btn" id="printBtn">Print / PDF</button>
     </div>
   </section>
 
@@ -604,7 +622,16 @@ textarea {
     </div>
   </section>
 
-  
+  <section class="card" id="sources">
+    <h2>Bronnenlijst (APA 7)</h2>
+    <ol class="sources">
+      <li>CoMensha. (z.d.). <i>Signalen van mensenhandel</i>. Geraadpleegd op 27 maart 2026, van https://www.comensha.nl/over-mensenhandel/signalen-van-mensenhandel/</li>
+      <li>CoMensha. (z.d.). <i>Mensenhandel in Nederland</i>. Geraadpleegd op 27 maart 2026, van https://www.comensha.nl/over-mensenhandel/mensenhandel-in-nederland/</li>
+      <li>Nationaal Rapporteur Mensenhandel en Seksueel Geweld tegen Kinderen. (2025, 17 oktober). <i>Jaarcijfers mensenhandel 2024</i>. https://www.nationaalrapporteur.nl/actueel/nieuws/2025/10/17/jaarcijfers-mensenhandel-2024-aantal-minderjarige-slachtoffers-van-criminele-uitbuiting-stijgt</li>
+      <li>PGAx. (z.d.). <i>PGAx voor gemeenten</i>. Geraadpleegd op 27 maart 2026, van https://pgax.nl/voor-wie/gemeenten</li>
+      <li>Vereniging van Nederlandse Gemeenten. (2021, 12 maart). <i>Kader voor de aanpak van mensenhandel door gemeenten</i>. https://vng.nl/sites/default/files/2021-03/kader-voor-de-aanpak-van-mensenhandel_20210312.pdf</li>
+    </ol>
+  </section>
 </main>
 
 <div class="login-overlay" id="loginOverlay">
@@ -633,21 +660,8 @@ window.LOGO_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAs0AAAEDCAYAAAD
 </script>
 <script src="script.js"></script>
 
-<div class="login-overlay" id="sourcesOverlay">
-  <div class="login-modal">
-    <h2>Bronnenlijst (APA 7)</h2>
-    <ol class="sources">
-      <li>CoMensha. (z.d.). <i>Signalen van mensenhandel</i>. Geraadpleegd op 27 maart 2026, van https://www.comensha.nl/over-mensenhandel/signalen-van-mensenhandel/</li>
-      <li>CoMensha. (z.d.). <i>Mensenhandel in Nederland</i>. Geraadpleegd op 27 maart 2026, van https://www.comensha.nl/over-mensenhandel/mensenhandel-in-nederland/</li>
-      <li>Nationaal Rapporteur Mensenhandel en Seksueel Geweld tegen Kinderen. (2025, 17 oktober). <i>Jaarcijfers mensenhandel 2024</i>. https://www.nationaalrapporteur.nl/actueel/nieuws/2025/10/17/jaarcijfers-mensenhandel-2024-aantal-minderjarige-slachtoffers-van-criminele-uitbuiting-stijgt</li>
-      <li>PGAx. (z.d.). <i>PGAx voor gemeenten</i>. Geraadpleegd op 27 maart 2026, van https://pgax.nl/voor-wie/gemeenten</li>
-      <li>Vereniging van Nederlandse Gemeenten. (2021, 12 maart). <i>Kader voor de aanpak van mensenhandel door gemeenten</i>. https://vng.nl/sites/default/files/2021-03/kader-voor-de-aanpak-van-mensenhandel_20210312.pdf</li>
-    </ol>
-    <div class="actions">
-      <button class="btn" id="closeSourcesBtn" onclick="closeSourcesOverlay(event)">Sluiten</button>
-    </div>
-  </div>
-</div>
-
+<footer class="footer">
+  ©️ Sanne de Vrieze 2026
+</footer>
 </body>
 </html>

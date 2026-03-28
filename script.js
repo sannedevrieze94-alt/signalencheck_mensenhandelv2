@@ -83,46 +83,17 @@ function escapeAttr(text) {
   return String(text).replace(/"/g, '&quot;');
 }
 
-
-function signalWeight(text, bucket) {
-  const t = String(text || '').toLowerCase();
-  if (/minderjarig|minderjarigheid/.test(t)) return 4;
-  if (/geweld|mishandeling|bedreig|gechanteerd|dwang/.test(t)) return 4;
-  if (/geen vrijheid|niet vrij|niet zelf kunnen bepalen|onder controle/.test(t)) return 4;
-  if (/paspoort|identiteitsbewijs|documenten/.test(t)) return 3;
-  if (/schuld|afdragen|opbrengst.*afgeven|afhankelijk/.test(t)) return 3;
-  if (/gedwongen|exploitant|prostitutie|strafbare taken|geldezel/.test(t)) return 3;
-  if (/koeriersbewegingen|risicolocaties|aangestuurd/.test(t)) return 3;
-  if (bucket === 'specific') return 3;
-  if (bucket === 'general') return 2;
-  if (bucket === 'environment') return 2;
-  return 2;
-}
-
-function isCriticalSignal(text) {
-  const t = String(text || '').toLowerCase();
-  return /minderjarig|minderjarigheid|dwang|geweld|mishandeling|bedreig|gechanteerd|geen vrijheid|niet vrij|onder controle/.test(t);
-}
-
 function calcResult() {
   const selected = selectedSignals();
   const all = window.APP_SIGNALS[state.active];
-  const allSignals = [
-    ...all.specific.map(text => ({ text, bucket: 'specific' })),
-    ...all.general.map(text => ({ text, bucket: 'general' })),
-    ...all.environment.map(text => ({ text, bucket: 'environment' }))
-  ];
+  const maxPossible = (all.specific.length * 4) + (all.general.length * 2) + (all.environment.length * 2);
 
   let S = 0;
-  let maxPossible = 0;
-  let critical = false;
-
   selected.forEach(item => {
-    S += signalWeight(item.text, item.bucket);
-    if (isCriticalSignal(item.text)) critical = true;
+    if (item.bucket === 'specific') S += 4;
+    else if (item.bucket === 'general') S += 2;
+    else if (item.bucket === 'environment') S += 2;
   });
-
-  allSignals.forEach(() => { maxPossible += 4; });
 
   const Snorm = maxPossible > 0 ? (S / maxPossible) : 0;
   const K = 0.1 + 9.9 * Math.pow(Snorm, 2);
@@ -134,6 +105,7 @@ function calcResult() {
   else if (selected.length >= 3) B = 2;
   else if (selected.length >= 1) B = 1;
 
+  const critical = selected.some(s => /minderjarig|dwang|bedreig|geweld|schuld|paspoort|controle|geen vrijheid/i.test(s.text));
   let G = 1;
   if (critical && selected.length >= 7) G = 40;
   else if (critical) G = 10;
@@ -146,25 +118,21 @@ function calcResult() {
   let level = 'low';
   let badge = 'Laag risico';
   let needle = -70;
-  if (R >= 400) { level = 'high'; badge = 'Zeer hoog risico'; needle = 70; }
-  else if (R >= 180) { level = 'high'; badge = 'Hoog risico'; needle = 50; }
+  if (R >= 180) { level = 'high'; badge = 'Hoog risico'; needle = 70; }
   else if (R >= 50) { level = 'mid'; badge = 'Middel risico'; needle = 0; }
-  else if (R >= 10) { level = 'mid'; badge = 'Verhoogd risico'; needle = -20; }
 
   state.calculated = true;
-  state.result = {R, K, G, B, S, Snorm, level, badge, selected, critical};
+  state.result = {R, K, G, B, S, Snorm, level, badge, selected};
 
   document.getElementById('scoreValue').textContent = R.toFixed(1);
   const badgeEl = document.getElementById('scoreBadge');
-  badgeEl.className = 'badge ' + (R >= 180 ? 'badge-high' : R >= 10 ? 'badge-mid' : 'badge-low');
+  badgeEl.className = 'badge ' + (level === 'high' ? 'badge-high' : level === 'mid' ? 'badge-mid' : 'badge-low');
   badgeEl.textContent = badge;
   document.getElementById('gaugeNeedle').style.transform = `translateX(-50%) rotate(${needle}deg)`;
   document.getElementById('scoreList').innerHTML = `
     <li>Hoofdvorm: ${window.APP_SIGNALS[state.active].title}</li>
     <li>Aantal geselecteerde signalen: ${selected.length}</li>
-    <li>Gewogen signaalscore: ${S}</li>
     <li>Risiconiveau: ${badge}</li>
-    ${critical ? '<li>Kritisch signaal aanwezig: directe alertheid en mogelijke opschaling noodzakelijk.</li>' : ''}
   `;
 
   renderAdvice();
@@ -179,9 +147,7 @@ function renderAdvice() {
     return;
   }
   const list = contacts[state.result.level];
-  const intro = state.result.critical
-    ? 'Er is minimaal één kritisch signaal aanwezig. Directe alertheid en afstemming zijn noodzakelijk.'
-    : state.result.level === 'high'
+  const intro = state.result.level === 'high'
     ? 'Opschaling en snelle afstemming liggen voor de hand.'
     : state.result.level === 'mid'
     ? 'Verrijk het beeld en stem af met relevante partners.'
@@ -204,12 +170,6 @@ function renderAdvice() {
 function getField(id) {
   const el = document.getElementById(id);
   return el ? el.value.trim() : '';
-}
-
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.innerText = String(text ?? '');
-  return div.innerHTML;
 }
 
 function buildReport() {
@@ -254,10 +214,6 @@ function buildReport() {
 
 function downloadPdf() {
   buildReport();
-  if (!window.jspdf || !window.jspdf.jsPDF) {
-    alert('PDF-bibliotheek kon niet worden geladen.');
-    return;
-  }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   let y = 15;
@@ -376,16 +332,20 @@ function resetCheck() {
 function setupMenu() {
   const btn = document.getElementById('menuBtn');
   const panel = document.getElementById('menuPanel');
-  if (!btn || !panel) return;
+  btn.onclick = () => panel.classList.toggle('open');
   document.addEventListener('click', e => {
     if (!panel.contains(e.target) && e.target !== btn) panel.classList.remove('open');
   });
+  document.getElementById('resetBtn').onclick = () => {
+    resetCheck();
+    panel.classList.remove('open');
+  };
 }
 
 function setupLogin() {
   const overlay = document.getElementById('loginOverlay');
+  document.getElementById('loginBtn').onclick = () => overlay.classList.add('show');
   document.getElementById('closeLoginBtn').onclick = () => overlay.classList.remove('show');
-  overlay.classList.add('show');
   document.getElementById('submitLoginBtn').onclick = () => {
     const u = document.getElementById('loginUser').value.trim();
     const p = document.getElementById('loginPass').value.trim();
@@ -423,50 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupLogin();
 
   document.getElementById('calcBtn').onclick = calcResult;
+  document.getElementById('buildReportBtn').onclick = buildReport;
+  document.getElementById('downloadPdfBtn').onclick = downloadPdf;
+  document.getElementById('printBtn').onclick = () => window.print();
 });
-
-
-function toggleMainMenu(e){
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  const panel = document.getElementById('menuPanel');
-  if (panel) panel.classList.toggle('open');
-}
-function handleResetAndCloseMenu(e){
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  resetCheck();
-  const panel = document.getElementById('menuPanel');
-  if (panel) panel.classList.remove('open');
-}
-function openLoginOverlay(e){
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  const overlay = document.getElementById('loginOverlay');
-  if (overlay) overlay.classList.add('show');
-}
-function handleBuildReport(e){
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  buildReport();
-  const report = document.getElementById('rapportage');
-  if (report) report.scrollIntoView({behavior:'smooth'});
-}
-function handleDownloadPdf(e){
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  if (!state.calculated) calcResult();
-  buildReport();
-  downloadPdf();
-}
-function handlePrint(e){
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  window.print();
-}
-function openSourcesOverlay(e){
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  const ov = document.getElementById('sourcesOverlay');
-  if (ov) ov.classList.add('show');
-  const panel = document.getElementById('menuPanel');
-  if (panel) panel.classList.remove('open');
-}
-function closeSourcesOverlay(e){
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  const ov = document.getElementById('sourcesOverlay');
-  if (ov) ov.classList.remove('show');
-}
