@@ -86,16 +86,13 @@ function escapeAttr(text) {
 
 function signalWeight(text, bucket) {
   const t = String(text || '').toLowerCase();
-
   if (/minderjarig|minderjarigheid/.test(t)) return 4;
   if (/geweld|mishandeling|bedreig|gechanteerd|dwang/.test(t)) return 4;
   if (/geen vrijheid|niet vrij|niet zelf kunnen bepalen|onder controle/.test(t)) return 4;
-
   if (/paspoort|identiteitsbewijs|documenten/.test(t)) return 3;
   if (/schuld|afdragen|opbrengst.*afgeven|afhankelijk/.test(t)) return 3;
   if (/gedwongen|exploitant|prostitutie|strafbare taken|geldezel/.test(t)) return 3;
   if (/koeriersbewegingen|risicolocaties|aangestuurd/.test(t)) return 3;
-
   if (bucket === 'specific') return 3;
   if (bucket === 'general') return 2;
   if (bucket === 'environment') return 2;
@@ -149,14 +146,13 @@ function calcResult() {
   let level = 'low';
   let badge = 'Laag risico';
   let needle = -70;
-
   if (R >= 400) { level = 'high'; badge = 'Zeer hoog risico'; needle = 70; }
   else if (R >= 180) { level = 'high'; badge = 'Hoog risico'; needle = 50; }
   else if (R >= 50) { level = 'mid'; badge = 'Middel risico'; needle = 0; }
   else if (R >= 10) { level = 'mid'; badge = 'Verhoogd risico'; needle = -20; }
 
   state.calculated = true;
-  state.result = { R, K, G, B, S, Snorm, level, badge, selected, critical };
+  state.result = {R, K, G, B, S, Snorm, level, badge, selected, critical};
 
   document.getElementById('scoreValue').textContent = R.toFixed(1);
   const badgeEl = document.getElementById('scoreBadge');
@@ -380,38 +376,15 @@ function resetCheck() {
 function setupMenu() {
   const btn = document.getElementById('menuBtn');
   const panel = document.getElementById('menuPanel');
-  const sourcesBtn = document.getElementById('sourcesBtn');
-  const sourcesOverlay = document.getElementById('sourcesOverlay');
-  const closeSourcesBtn = document.getElementById('closeSourcesBtn');
-
-  btn.onclick = (e) => {
-    e.stopPropagation();
-    panel.classList.toggle('open');
-  };
-  panel.onclick = (e) => e.stopPropagation();
+  if (!btn || !panel) return;
   document.addEventListener('click', e => {
     if (!panel.contains(e.target) && e.target !== btn) panel.classList.remove('open');
   });
-  document.getElementById('resetBtn').onclick = () => {
-    resetCheck();
-    panel.classList.remove('open');
-  };
-  if (sourcesBtn && sourcesOverlay) {
-    sourcesBtn.onclick = () => {
-      panel.classList.remove('open');
-      sourcesOverlay.classList.add('show');
-    };
-  }
-  if (closeSourcesBtn && sourcesOverlay) {
-    closeSourcesBtn.onclick = () => sourcesOverlay.classList.remove('show');
-  }
 }
 
 function setupLogin() {
   const overlay = document.getElementById('loginOverlay');
-  document.getElementById('loginBtn').onclick = () => overlay.classList.add('show');
   document.getElementById('closeLoginBtn').onclick = () => overlay.classList.remove('show');
-  // eerst login-scherm tonen
   overlay.classList.add('show');
   document.getElementById('submitLoginBtn').onclick = () => {
     const u = document.getElementById('loginUser').value.trim();
@@ -450,14 +423,50 @@ document.addEventListener('DOMContentLoaded', () => {
   setupLogin();
 
   document.getElementById('calcBtn').onclick = calcResult;
-  document.getElementById('buildReportBtn').onclick = () => {
-    buildReport();
-    document.getElementById('rapportage').scrollIntoView({behavior:'smooth'});
-  };
-  document.getElementById('downloadPdfBtn').onclick = () => {
-    if (!state.calculated) calcResult();
-    buildReport();
-    downloadPdf();
-  };
-  document.getElementById('printBtn').onclick = () => window.print();
 });
+
+
+function toggleMainMenu(e){
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  const panel = document.getElementById('menuPanel');
+  if (panel) panel.classList.toggle('open');
+}
+function handleResetAndCloseMenu(e){
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  resetCheck();
+  const panel = document.getElementById('menuPanel');
+  if (panel) panel.classList.remove('open');
+}
+function openLoginOverlay(e){
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  const overlay = document.getElementById('loginOverlay');
+  if (overlay) overlay.classList.add('show');
+}
+function handleBuildReport(e){
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  buildReport();
+  const report = document.getElementById('rapportage');
+  if (report) report.scrollIntoView({behavior:'smooth'});
+}
+function handleDownloadPdf(e){
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  if (!state.calculated) calcResult();
+  buildReport();
+  downloadPdf();
+}
+function handlePrint(e){
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  window.print();
+}
+function openSourcesOverlay(e){
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  const ov = document.getElementById('sourcesOverlay');
+  if (ov) ov.classList.add('show');
+  const panel = document.getElementById('menuPanel');
+  if (panel) panel.classList.remove('open');
+}
+function closeSourcesOverlay(e){
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  const ov = document.getElementById('sourcesOverlay');
+  if (ov) ov.classList.remove('show');
+}

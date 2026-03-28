@@ -458,15 +458,15 @@ textarea {
     </div>
     <div class="header-actions">
       <div class="menu-wrap">
-        <button class="btn" id="menuBtn">Menu</button>
+        <button class="btn" id="menuBtn" onclick="toggleMainMenu(event)">Menu</button>
         <div class="menu-panel" id="menuPanel">
           <a href="#home">Home</a>
           <a href="#rapportage">Rapportage</a>
-          <button type="button" id="sourcesBtn">Bronnenlijst (APA 7)</button>
-          <button type="button" id="resetBtn">Nieuwe check</button>
+          <button type="button" id="sourcesBtn" onclick="openSourcesOverlay(event)">Bronnenlijst (APA 7)</button>
+          <button type="button" id="resetBtn" onclick="handleResetAndCloseMenu(event)">Nieuwe check</button>
         </div>
       </div>
-      <button class="btn btn-primary" id="loginBtn">Log In</button>
+      <button class="btn btn-primary" id="loginBtn" onclick="openLoginOverlay(event)">Log In</button>
     </div>
   </div>
 </header>
@@ -556,9 +556,9 @@ textarea {
     <div id="signalsMount"></div>
     <div class="actions">
       <button class="btn btn-primary" id="calcBtn">Bereken uitkomst</button>
-      <button class="btn" id="buildReportBtn">Opstellen rapportage</button>
-      <button class="btn" id="downloadPdfBtn">Download PDF rapport</button>
-      <button class="btn" id="printBtn">Print / PDF</button>
+      <button class="btn" id="buildReportBtn" onclick="handleBuildReport(event)">Opstellen rapportage</button>
+      <button class="btn" id="downloadPdfBtn" onclick="handleDownloadPdf(event)">Download PDF rapport</button>
+      <button class="btn" id="printBtn" onclick="handlePrint(event)">Print / PDF</button>
     </div>
   </section>
 
@@ -643,7 +643,7 @@ window.LOGO_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAs0AAAEDCAYAAAD
       <li>Vereniging van Nederlandse Gemeenten. (2021, 12 maart). <i>Kader voor de aanpak van mensenhandel door gemeenten</i>. https://vng.nl/sites/default/files/2021-03/kader-voor-de-aanpak-van-mensenhandel_20210312.pdf</li>
     </ol>
     <div class="actions">
-      <button class="btn" id="closeSourcesBtn">Sluiten</button>
+      <button class="btn" id="closeSourcesBtn" onclick="closeSourcesOverlay(event)">Sluiten</button>
     </div>
   </div>
 </div>
