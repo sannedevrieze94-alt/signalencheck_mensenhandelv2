@@ -1,447 +1,218 @@
-
-const state = {
-  active: "arbeid",
-  loggedIn: false,
-  calculated: false,
-  result: null
-};
-
-const contacts = {
-  low: [
-    {name:"Marieke Sloots", role:"OOV-coördinator", email:"m.sloots@emmen-demo.nl", phone:"06-1843 5521", advice:"Leg de bevindingen intern vast en bespreek of aanvullende duiding nodig is."},
-    {name:"Daan Huizing", role:"Aandachtsfunctionaris mensenhandel", email:"d.huizing@emmen-demo.nl", phone:"06-2741 6638", advice:"Laat de casus toetsen op samenhang en monitor of nieuwe signalen ontstaan."}
-  ],
-  mid: [
-    {name:"Marieke Sloots", role:"OOV-coördinator", email:"m.sloots@emmen-demo.nl", phone:"06-1843 5521", advice:"Bespreek de casus in intern overleg en bepaal of partneraanhaak noodzakelijk is."},
-    {name:"Laura Meems", role:"Time2Connect / zorgregie", email:"l.meems@time2connect-demo.nl", phone:"06-5564 2097", advice:"Beoordeel de zorgkant, veiligheid en mogelijke bescherming of opvang."},
-    {name:"Niek Kamps", role:"TMM-regie / casusdoorzetting", email:"n.kamps@tmm-demo.nl", phone:"06-6038 7715", advice:"Verrijk het beeld en bepaal of opschaling naar regionale partners nodig is."}
-  ],
-  high: [
-    {name:"Iris van Praag", role:"TMM / directe doorzetting", email:"i.vanpraag@tmm-demo.nl", phone:"06-3819 4472", advice:"Zet de casus met voorrang door voor snelle multidisciplinaire beoordeling."},
-    {name:"Samir El Azzouzi", role:"Time2Connect / zorg- en veiligheidskant", email:"s.elazzouzi@time2connect-demo.nl", phone:"06-4927 1184", advice:"Beoordeel direct of acute zorg, bescherming of veiligheidsinterventie nodig is."},
-    {name:"Daan Huizing", role:"OOV / mensenhandel", email:"d.huizing@emmen-demo.nl", phone:"06-2741 6638", advice:"Leg regie vast en stem af welke ketenpartners direct moeten aanhaken."}
-  ]
-};
-
-function selectedSignals() {
-  return Array.from(document.querySelectorAll('.signal-check:checked')).map(el => ({
-    text: el.value,
-    bucket: el.dataset.bucket,
-    category: el.dataset.category
-  }));
-}
-
-function renderTabs() {
-  const tabs = document.getElementById('tabs');
-  tabs.innerHTML = '';
-  Object.keys(window.APP_SIGNALS).forEach(key => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'tab-btn' + (state.active === key ? ' active' : '');
-    btn.textContent = window.APP_SIGNALS[key].title;
-    btn.onclick = () => {
-      state.active = key;
-      highlightTile();
-      renderTabs();
-      renderSignals();
-      syncKpis();
-    };
-    tabs.appendChild(btn);
-  });
-}
-
-function renderSignals() {
-  const mount = document.getElementById('signalsMount');
-  const data = window.APP_SIGNALS[state.active];
-  const sections = [
-    ["Specifieke signalen", "specific", data.specific],
-    ["Algemene signalen", "general", data.general],
-    ["Omgevingssignalen / dossier", "environment", data.environment]
-  ];
-
-  mount.innerHTML = sections.map(([title, bucket, items]) => `
-    <div class="signal-section">
-      <div class="signal-title">${title}</div>
-      <div class="signal-list">
-        ${items.map(item => `
-          <label class="signal-item">
-            <input class="signal-check" type="checkbox" value="${escapeAttr(item)}" data-bucket="${bucket}" data-category="${data.title}">
-            <div>
-              <strong>${item}</strong>
-              <div style="color:var(--muted)">${data.title} • ${title}</div>
-            </div>
-          </label>
-        `).join('')}
-      </div>
-    </div>
-  `).join('');
-
-  document.querySelectorAll('.signal-check').forEach(cb => cb.addEventListener('change', syncKpis));
-}
-
-function escapeAttr(text) {
-  return String(text).replace(/"/g, '&quot;');
-}
-
-function calcResult() {
-  const selected = selectedSignals();
-  const all = window.APP_SIGNALS[state.active];
-  const maxPossible = (all.specific.length * 4) + (all.general.length * 2) + (all.environment.length * 2);
-
-  let S = 0;
-  selected.forEach(item => {
-    if (item.bucket === 'specific') S += 4;
-    else if (item.bucket === 'general') S += 2;
-    else if (item.bucket === 'environment') S += 2;
-  });
-
-  const Snorm = maxPossible > 0 ? (S / maxPossible) : 0;
-  const K = 0.1 + 9.9 * Math.pow(Snorm, 2);
-
-  let B = 0.5;
-  if (selected.length >= 9) B = 10;
-  else if (selected.length >= 7) B = 6;
-  else if (selected.length >= 5) B = 3;
-  else if (selected.length >= 3) B = 2;
-  else if (selected.length >= 1) B = 1;
-
-  const critical = selected.some(s => /minderjarig|dwang|bedreig|geweld|schuld|paspoort|controle|geen vrijheid/i.test(s.text));
-  let G = 1;
-  if (critical && selected.length >= 7) G = 40;
-  else if (critical) G = 10;
-  else if (selected.length >= 6) G = 10;
-  else if (selected.length >= 3) G = 3;
-  else G = 1;
-
-  const R = K * G * B;
-
-  let level = 'low';
-  let badge = 'Laag risico';
-  let needle = -70;
-  if (R >= 180) { level = 'high'; badge = 'Hoog risico'; needle = 70; }
-  else if (R >= 50) { level = 'mid'; badge = 'Middel risico'; needle = 0; }
-
-  state.calculated = true;
-  state.result = {R, K, G, B, S, Snorm, level, badge, selected};
-
-  document.getElementById('scoreValue').textContent = R.toFixed(1);
-  const badgeEl = document.getElementById('scoreBadge');
-  badgeEl.className = 'badge ' + (level === 'high' ? 'badge-high' : level === 'mid' ? 'badge-mid' : 'badge-low');
-  badgeEl.textContent = badge;
-  document.getElementById('gaugeNeedle').style.transform = `translateX(-50%) rotate(${needle}deg)`;
-  document.getElementById('scoreList').innerHTML = `
-    <li>Hoofdvorm: ${window.APP_SIGNALS[state.active].title}</li>
-    <li>Aantal geselecteerde signalen: ${selected.length}</li>
-    <li>Risiconiveau: ${badge}</li>
-  `;
-
-  renderAdvice();
-  buildReport();
-  syncKpis();
-}
-
-function renderAdvice() {
-  const wrap = document.getElementById('adviceWrap');
-  if (!state.calculated || !state.result) {
-    wrap.innerHTML = '<ul class="list"><li>Na berekening verschijnt hier het vervolgadvies.</li></ul>';
-    return;
+/* UI: alle uitvoer gebruikt één actuele momentopname uit model.js. */
+(function () {
+  "use strict";
+  const M = window.SignalenModel;
+  const catalog = window.APP_SIGNALS;
+  let state = M.createState(catalog);
+  let installPrompt = null;
+  const $ = id => document.getElementById(id);
+  function element(tag, text, className) {
+    const el = document.createElement(tag);
+    if (text !== undefined) el.textContent = text;
+    if (className) el.className = className;
+    return el;
   }
-  const list = contacts[state.result.level];
-  const intro = state.result.level === 'high'
-    ? 'Opschaling en snelle afstemming liggen voor de hand.'
-    : state.result.level === 'mid'
-    ? 'Verrijk het beeld en stem af met relevante partners.'
-    : 'Intern bespreken, monitoren en zorgvuldig vastleggen.';
-
-  wrap.innerHTML = `
-    <div class="contact-card"><strong>Direct handelingsadvies</strong><div style="margin-top:6px;color:var(--muted)">${intro}</div></div>
-    ${list.map(c => `
-      <div class="contact-card">
-        <div><strong>${c.name}</strong></div>
-        <div><strong>Rol:</strong> ${c.role}</div>
-        <div><strong>E-mail:</strong> ${c.email}</div>
-        <div><strong>Telefoon:</strong> ${state.loggedIn ? c.phone : 'Alleen zichtbaar na login'}</div>
-        <div style="margin-top:8px"><strong>Advies:</strong> ${c.advice}</div>
-      </div>
-    `).join('')}
-  `;
-}
-
-function getField(id) {
-  const el = document.getElementById(id);
-  return el ? el.value.trim() : '';
-}
-
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.innerText = String(text ?? '');
-  return div.innerHTML;
-}
-
-function buildReport() {
-  const selected = state.result ? state.result.selected : [];
-  const preview = document.getElementById('reportPreview');
-  const now = new Date();
-  const date = now.toLocaleDateString('nl-NL');
-  const time = now.toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'});
-  preview.innerHTML = `
-    <div class="report-block">
-      <h4>Samenvatting</h4>
-      <p>${state.calculated ? `Op ${date} om ${time} is voor ${window.APP_SIGNALS[state.active].title.toLowerCase()} een ${state.result.badge.toLowerCase()} vastgesteld.` : 'Nog niet opgesteld.'}</p>
-    </div>
-    <div class="report-block">
-      <h4>Controlegegevens</h4>
-      <p><strong>Locatie:</strong> ${escapeHtml(getField('locatie') || '-')}<br>
-      <strong>Type controle:</strong> ${escapeHtml(getField('typeControle') || '-')}<br>
-      <strong>Type locatie:</strong> ${escapeHtml(getField('typeLocatie') || '-')}</p>
-    </div>
-    <div class="report-block">
-      <h4>Bevindingen</h4>
-      <p>${escapeHtml(getField('bevindingen') || '-').replace(/\n/g,'<br>')}</p>
-    </div>
-    <div class="report-block">
-      <h4>Observaties</h4>
-      <p>${escapeHtml(getField('observaties') || '-').replace(/\n/g,'<br>')}</p>
-    </div>
-    <div class="report-block">
-      <h4>Geselecteerde signalen</h4>
-      ${selected.length ? `<ul class="list">${selected.map(s => `<li><strong>${escapeHtml(s.category)}:</strong> ${escapeHtml(s.text)}</li>`).join('')}</ul>` : '<p>Nog geen signalen geselecteerd.</p>'}
-    </div>
-    <div class="report-block">
-      <h4>Risicoscore</h4>
-      <p>${state.calculated ? `${state.result.R.toFixed(1)} • ${state.result.badge}` : 'Nog niet berekend'}</p>
-    </div>
-    <div class="report-block">
-      <h4>Doorzetadvies</h4>
-      ${document.getElementById('adviceWrap').innerHTML}
-    </div>
-  `;
-}
-
-function downloadPdf() {
-  buildReport();
-  if (!window.jspdf || !window.jspdf.jsPDF) {
-    alert('PDF-bibliotheek kon niet worden geladen.');
-    return;
+  function updateSummary() {
+    const c = M.counts(state);
+    $("kpiSeen").textContent = c.seen;
+    $("kpiNotSeen").textContent = c.notSeen;
+    $("kpiUnknown").textContent = c.unknown;
+    $("kpiStatus").textContent = state.snapshot ? "Rapport actueel" : state.dirty ? "Invoer gewijzigd" : "Nieuw";
+    $("acuteNotice").hidden = state.context.acuteConcern !== "yes";
   }
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  let y = 15;
-
-  if (window.LOGO_URI) {
-    try {
-      doc.addImage(window.LOGO_URI, 'PNG', 10, 8, 45, 14);
-      y = 28;
-    } catch(e) {}
+  function onChange() {
+    $("reportPreview").textContent = "Invoer gewijzigd. Stel het rapport opnieuw op; export gebruikt automatisch de actuele invoer.";
+    $("actionMessage").textContent = "";
+    updateSummary();
   }
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(15);
-  doc.text('Rapportage Signalencheck Mensenhandel', 10, y);
-  y += 8;
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  const lines = [
-    `Datum: ${new Date().toLocaleString('nl-NL')}`,
-    `Hoofdvorm: ${window.APP_SIGNALS[state.active].title}`,
-    `Locatie: ${getField('locatie') || '-'}`,
-    `Type controle: ${getField('typeControle') || '-'}`,
-    `Type locatie: ${getField('typeLocatie') || '-'}`,
-    `Risicoscore: ${state.calculated ? state.result.R.toFixed(1) + ' (' + state.result.badge + ')' : 'Nog niet berekend'}`
-  ];
-  lines.forEach(line => { doc.text(line, 10, y); y += 6; });
-
-  y += 2;
-  doc.setFont('helvetica', 'bold');
-  doc.text('Bevindingen', 10, y); y += 6;
-  doc.setFont('helvetica', 'normal');
-  let split = doc.splitTextToSize(getField('bevindingen') || '-', 180);
-  doc.text(split, 10, y); y += split.length * 5 + 4;
-
-  doc.setFont('helvetica', 'bold');
-  doc.text('Observaties', 10, y); y += 6;
-  doc.setFont('helvetica', 'normal');
-  split = doc.splitTextToSize(getField('observaties') || '-', 180);
-  doc.text(split, 10, y); y += split.length * 5 + 4;
-
-  doc.setFont('helvetica', 'bold');
-  doc.text('Geselecteerde signalen', 10, y); y += 6;
-  doc.setFont('helvetica', 'normal');
-  const selected = state.result ? state.result.selected : [];
-  if (selected.length) {
-    selected.forEach(s => {
-      const t = `- ${s.category}: ${s.text}`;
-      const lines2 = doc.splitTextToSize(t, 180);
-      doc.text(lines2, 10, y);
-      y += lines2.length * 5;
-      if (y > 270) { doc.addPage(); y = 15; }
-    });
-  } else {
-    doc.text('-', 10, y); y += 6;
+  function renderButtons() {
+    const host = $("formButtons");
+    host.replaceChildren();
+    for (const form of catalog) {
+      const btn = element("button", form.title, state.active === form.id ? "active" : "");
+      btn.type = "button";
+      btn.setAttribute("aria-pressed", String(state.active === form.id));
+      btn.addEventListener("click", () => {
+        if (state.active === form.id) return;
+        state.active = form.id;
+        // Alleen de weergave verandert; antwoorden en de rapportmomentopname blijven geldig.
+        for (const b of host.children) {
+          const active = b === btn;
+          b.setAttribute("aria-pressed", String(active));
+          b.classList.toggle("active", active);
+        }
+        renderSignals();
+      });
+      host.appendChild(btn);
+    }
   }
-
-  y += 4;
-  if (y > 260) { doc.addPage(); y = 15; }
-  doc.setFont('helvetica', 'bold');
-  doc.text('Advies en fictieve contactpersonen', 10, y); y += 6;
-  doc.setFont('helvetica', 'normal');
-
-  const advice = state.calculated ? contacts[state.result.level] : [];
-  advice.forEach(c => {
-    const block = [
-      `${c.name} – ${c.role}`,
-      `E-mail: ${c.email}`,
-      `Telefoon: ${state.loggedIn ? c.phone : 'Alleen zichtbaar na login'}`,
-      `Advies: ${c.advice}`
-    ];
-    block.forEach(line => {
-      const l = doc.splitTextToSize(line, 180);
-      doc.text(l, 10, y);
-      y += l.length * 5;
-      if (y > 270) { doc.addPage(); y = 15; }
-    });
-    y += 3;
-  });
-
-  const stamp = new Date().toISOString().slice(0,16).replace(/[:T]/g,'-');
-  doc.save(`rapportage_signalencheck_${stamp}.pdf`);
-}
-
-function syncKpis() {
-  document.getElementById('kpiStatus').textContent = state.calculated ? 'Berekenend' : 'Nieuw';
-  document.getElementById('kpiFocus').textContent = window.APP_SIGNALS[state.active].title;
-  document.getElementById('kpiScore').textContent = state.calculated ? state.result.R.toFixed(1) : '-';
-  document.getElementById('kpiLogin').textContent = state.loggedIn ? 'Ja' : 'Nee';
-}
-
-function highlightTile() {
-  document.querySelectorAll('.tile').forEach(tile => {
-    tile.classList.toggle('active', tile.dataset.tile === state.active);
-  });
-}
-
-function resetCheck() {
-  document.querySelectorAll('.signal-check').forEach(cb => cb.checked = false);
-  ['locatie','bevindingen','observaties'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
-  state.calculated = false;
-  state.result = null;
-  document.getElementById('scoreValue').textContent = 'Nog niet berekend';
-  document.getElementById('scoreBadge').className = 'badge badge-low';
-  document.getElementById('scoreBadge').textContent = 'Nog niet berekend';
-  document.getElementById('scoreList').innerHTML = '<li>Klik op “Bereken uitkomst” om de risico-inschatting te tonen.</li>';
-  document.getElementById('adviceWrap').innerHTML = '<ul class="list"><li>Na berekening verschijnt hier het vervolgadvies.</li></ul>';
-  document.getElementById('reportPreview').innerHTML = '<div class="report-block"><h4>Samenvatting</h4><p>Nog niet opgesteld.</p></div>';
-  document.getElementById('gaugeNeedle').style.transform = 'translateX(-50%) rotate(-90deg)';
-  syncKpis();
-}
-
-function setupMenu() {
-  const btn = document.getElementById('menuBtn');
-  const panel = document.getElementById('menuPanel');
-  const resetBtn = document.getElementById('resetBtn');
-  const sourcesBtn = document.getElementById('sourcesBtn');
-  const closeSourcesBtn = document.getElementById('closeSourcesBtn');
-
-  if (btn && panel) {
-    btn.onclick = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      panel.classList.toggle('open');
-    };
-    panel.onclick = (e) => e.stopPropagation();
-    document.addEventListener('click', (e) => {
-      if (!panel.contains(e.target) && e.target !== btn) panel.classList.remove('open');
-    });
-  }
-  if (resetBtn) {
-    resetBtn.onclick = () => {
-      resetCheck();
-      if (panel) panel.classList.remove('open');
-    };
-  }
-  if (sourcesBtn) {
-    sourcesBtn.onclick = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const overlay = document.getElementById('sourcesOverlay');
-      if (overlay) overlay.classList.add('show');
-      if (panel) panel.classList.remove('open');
-    };
-  }
-  if (closeSourcesBtn) {
-    closeSourcesBtn.onclick = () => {
-      const overlay = document.getElementById('sourcesOverlay');
-      if (overlay) overlay.classList.remove('show');
-    };
-  }
-}
-
-function setupLogin() {
-  const overlay = document.getElementById('loginOverlay');
-  const loginBtn = document.getElementById('loginBtn');
-  const closeBtn = document.getElementById('closeLoginBtn');
-  const submitBtn = document.getElementById('submitLoginBtn');
-
-  if (loginBtn && overlay) loginBtn.onclick = () => overlay.classList.add('show');
-  if (closeBtn && overlay) closeBtn.onclick = () => overlay.classList.remove('show');
-  if (overlay) overlay.classList.add('show');
-
-  if (submitBtn) {
-    submitBtn.onclick = () => {
-      const u = document.getElementById('loginUser').value.trim();
-      const p = document.getElementById('loginPass').value.trim();
-      const msg = document.getElementById('loginMsg');
-      if (u === 'SDEV1' && p === '12345') {
-        state.loggedIn = true;
-        msg.textContent = 'Inloggen gelukt. Aanvullende contactgegevens zijn actief.';
-        if (overlay) overlay.classList.remove('show');
-        renderAdvice();
-        buildReport();
-        syncKpis();
-      } else {
-        msg.textContent = 'Onjuiste inloggegevens. Gebruik voor deze demo: SDEV1 / 12345.';
+  function renderSignals() {
+    const host = $("signalsMount");
+    host.replaceChildren();
+    const form = catalog.find(f => f.id === state.active);
+    host.appendChild(element("h3", form.title));
+    for (const group of form.groups) {
+      const section = element("section");
+      section.appendChild(element("h4", group.title));
+      for (const item of group.items) {
+        const card = element("div", undefined, "signal-item");
+        const label = element("label", item.text);
+        label.htmlFor = item.id;
+        const select = element("select");
+        select.id = item.id;
+        for (const [value, text] of Object.entries(M.STATUSES)) {
+          const option = element("option", text);
+          option.value = value;
+          select.appendChild(option);
+        }
+        select.value = state.answers[item.id].status;
+        const details = element("details");
+        const summary = element("summary", "Bron, waarneming en toelichting");
+        const noteLabel = element("label", "Toelichting bij: " + item.text);
+        noteLabel.htmlFor = item.id + "-note";
+        const note = element("textarea");
+        note.id = item.id + "-note";
+        note.maxLength = 2000;
+        note.rows = 2;
+        note.placeholder = "Alleen fictieve gegevens. Benoem eigen waarneming of informatie uit een andere bron.";
+        note.value = state.answers[item.id].note;
+        details.open = Boolean(note.value);
+        details.append(summary, noteLabel, note);
+        function change() {
+          M.setAnswer(state, item.id, select.value, note.value);
+          onChange();
+        }
+        select.addEventListener("change", change);
+        note.addEventListener("input", change);
+        card.append(label, select, details);
+        section.appendChild(card);
       }
-    };
+      host.appendChild(section);
+    }
   }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('[data-tile]').forEach(tile => {
-    tile.addEventListener('click', () => {
-      state.active = tile.dataset.tile;
-      highlightTile();
-      renderTabs();
-      renderSignals();
-      syncKpis();
-      document.getElementById('check').scrollIntoView({behavior:'smooth'});
+  function collectContext() {
+    document.querySelectorAll("[data-context]").forEach(el => {
+      M.setContext(state, el.dataset.context, el.type === "checkbox" ? el.checked : el.value);
     });
+  }
+  function renderReport() {
+    collectContext();
+    try {
+      const snapshot = M.createSnapshot(state, catalog);
+      $("reportPreview").textContent = M.reportText(snapshot);
+      $("actionMessage").textContent = "Rapport opgebouwd uit de actuele invoer. Controleer het vóór gebruik.";
+      updateSummary();
+      return snapshot;
+    } catch (error) {
+      $("reportPreview").textContent = "Geen rapport opgesteld. Bevestig eerst het gebruik van fictieve oefengegevens.";
+      $("actionMessage").textContent = error.message;
+      $("trainingConfirmed").focus();
+      updateSummary();
+      return null;
+    }
+  }
+  function resetCheck() {
+    if (state.dirty && !window.confirm("Alle invoer van deze check wissen? Eerder gedownloade of gedeelde rapporten blijven op je toestel staan.")) return;
+    state = M.createState(catalog);
+    document.querySelectorAll("[data-context]").forEach(el => {
+      if (el.type === "checkbox") el.checked = state.context[el.dataset.context];
+      else el.value = state.context[el.dataset.context];
+    });
+    renderButtons();
+    renderSignals();
+    $("reportPreview").textContent = "Nog geen rapport opgesteld.";
+    $("actionMessage").textContent = "Nieuwe check gestart. Alle invoer van deze sessie is gewist.";
+    updateSummary();
+    $("caseCode").focus();
+  }
+  function downloadText() {
+    const snapshot = renderReport();
+    if (!snapshot) return;
+    const blob = new Blob(["\uFEFF" + M.reportText(snapshot)], {type: "text/plain;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const link = element("a");
+    link.href = url;
+    link.download = "oefenrapport-signalencheck-" + snapshot.generatedAt.replace(/[:.]/g, "-") + ".txt";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    // Safari kan de download asynchroon openen.
+    window.setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
+  function printReport() {
+    if (renderReport()) window.print();
+  }
+  function networkStatus() {
+    $("appStatus").textContent = navigator.onLine
+      ? "Browser meldt online. Antwoorden worden niet door deze tool verzonden of opgeslagen."
+      : "Browser meldt offline. Bewaar je fictieve oefenrapport voordat je de app sluit.";
+  }
+  async function setupPwa() {
+    window.addEventListener("beforeinstallprompt", event => {
+      event.preventDefault();
+      installPrompt = event;
+      $("installBtn").hidden = false;
+    });
+    $("installBtn").addEventListener("click", async () => {
+      if (!installPrompt) return;
+      const prompt = installPrompt;
+      installPrompt = null;
+      $("installBtn").hidden = true;
+      try { await prompt.prompt(); await prompt.userChoice; }
+      catch (_) { $("updateStatus").textContent = "Installatie niet gestart. Gebruik het browsermenu of de installatie-uitleg."; }
+    });
+    window.addEventListener("appinstalled", () => {
+      installPrompt = null;
+      $("installBtn").hidden = true;
+    });
+    if (!("serviceWorker" in navigator) || !window.isSecureContext) {
+      $("offlineStatus").textContent = "Offlinegebruik niet beschikbaar. Gebruik HTTPS of localhost voor installatie.";
+      return;
+    }
+    try {
+      const registration = await navigator.serviceWorker.register("./sw.js", {scope: "./", updateViaCache: "none"});
+      const ready = await navigator.serviceWorker.ready;
+      if (ready.active) $("offlineStatus").textContent = "Appbestanden zijn voorbereid voor offlinegebruik. De browser kan deze cache later verwijderen. Invoer wordt niet bewaard.";
+      const showUpdate = () => {
+        if (registration.waiting) $("updateStatus").textContent = "Nieuwe appversie beschikbaar. Bewaar eerst je oefenrapport en sluit daarna alle vensters van deze app. De update wordt bij een volgende start actief.";
+      };
+      showUpdate();
+      registration.addEventListener("updatefound", () => {
+        const worker = registration.installing;
+        if (worker) worker.addEventListener("statechange", showUpdate);
+      });
+    } catch (_) {
+      $("offlineStatus").textContent = "Offlinevoorbereiding is niet gelukt. De app blijft bruikbaar zolang de bestanden geladen zijn; sluit niet vóór je het oefenrapport hebt bewaard.";
+    }
+  }
+  document.addEventListener("DOMContentLoaded", () => {
+    // Wis eventuele browser-herstelwaarden: er is bewust geen sessieherstel.
+    document.querySelectorAll("[data-context]").forEach(el => {
+      if (el.type === "checkbox") el.checked = false;
+      else el.value = state.context[el.dataset.context];
+      const handler = () => {
+        M.setContext(state, el.dataset.context, el.type === "checkbox" ? el.checked : el.value);
+        onChange();
+      };
+      el.addEventListener("input", handler);
+      el.addEventListener("change", handler);
+    });
+    renderButtons();
+    renderSignals();
+    updateSummary();
+    $("versionLabel").textContent = M.VERSION;
+    $("resetBtn").addEventListener("click", resetCheck);
+    $("buildReportBtn").addEventListener("click", renderReport);
+    $("downloadTextBtn").addEventListener("click", downloadText);
+    $("printBtn").addEventListener("click", printReport);
+    // Ook de browser-sneltoets/menukeuze voor afdrukken mag geen oude rapportage afdrukken.
+    window.addEventListener("beforeprint", renderReport);
+    window.addEventListener("beforeunload", event => {
+      if (state.dirty) { event.preventDefault(); event.returnValue = ""; }
+    });
+    window.addEventListener("online", networkStatus);
+    window.addEventListener("offline", networkStatus);
+    networkStatus();
+    setupPwa();
   });
-
-  renderTabs();
-  renderSignals();
-  highlightTile();
-  syncKpis();
-  setupMenu();
-  setupLogin();
-
-  const calcBtn = document.getElementById('calcBtn');
-  const buildBtn = document.getElementById('buildReportBtn');
-  const pdfBtn = document.getElementById('downloadPdfBtn');
-  const printBtn = document.getElementById('printBtn');
-
-  if (calcBtn) calcBtn.onclick = calcResult;
-  if (buildBtn) buildBtn.onclick = () => {
-    buildReport();
-    document.getElementById('rapportage').scrollIntoView({behavior:'smooth'});
-  };
-  if (pdfBtn) pdfBtn.onclick = () => {
-    if (!state.calculated) calcResult();
-    buildReport();
-    downloadPdf();
-  };
-  if (printBtn) printBtn.onclick = () => window.print();
-});
+})();
