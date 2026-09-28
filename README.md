@@ -1,8 +1,21 @@
 # Signalencheck Mensenhandel
 
-**Versie 3.0.0-prototype — uitsluitend fictieve oefencasuïstiek.**
+**Versie 3.1.0-prototype — uitsluitend fictieve oefencasuïstiek.**
 
 Onderzoeksprototype van Sanne de Vrieze, voortbouwend op het eerdere derdejaarsproduct. Ondersteunt oefenen met signalenherkenning, het onderscheiden van waarneming en interpretatie en gestructureerde verslaglegging. Geen officieel gemeentelijk registratiesysteem, gevalideerde risicobeoordeling of bewijs van mensenhandel.
+
+## Vervolg naar gebruik tijdens controles
+
+De lokale registratie- en meldroute is nog niet bevestigd. Deze versie ondersteunt het ontwerpen en testen van de werkwijze, maar is niet vrijgegeven voor echte casusgegevens.
+
+Nieuw in 3.1:
+- Snelle navigatie tussen context, signalen, opvolging en rapportage.
+- Eigen feitelijke waarnemingen, verklaringen van anderen en interpretaties apart.
+- Voorgestelde beoordelaarsrol, gewenst terugkoppelmoment en open vragen over registratie/overdracht.
+- Niet-blokkerende aandachtspunten bij ontbrekende waarnemingstijd, bronnotities, duiding of opvolging. Dit is geen risico-inschatting.
+- Een korte samenvatting vooraan in het volledige rapport.
+- De onbevestigde lokale route staat altijd in rapport en scherm; voorstellen creëren geen melding, afspraak of taak.
+- Besluitpunten voor invoering in docs/INVOERING.md.
 
 ## Wat is aangepast?
 

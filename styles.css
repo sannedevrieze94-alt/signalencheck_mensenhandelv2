@@ -56,3 +56,10 @@ pre{font-family:inherit;white-space:pre-wrap;overflow-wrap:anywhere;word-break:n
   #reportPreview{white-space:pre-wrap;overflow:visible;overflow-wrap:anywhere;font-size:10pt;line-height:1.45}
   h2{font-size:14pt}
 }
+
+/* Snelle sectienavigatie; bij zeer smalle/ingezoomde schermen niet vastzetten. */
+.step-nav{position:sticky;top:0;z-index:2;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.3rem;background:#fff;border:1px solid var(--line);border-radius:12px;padding:.4rem;margin-bottom:1rem}
+.step-nav a{text-align:center;padding:.5rem .2rem;overflow-wrap:anywhere}
+#check,#signalen,#opvolging,#rapportage{scroll-margin-top:6rem}
+@media(max-width:360px){.step-nav{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media print{.step-nav{display:none!important}}
