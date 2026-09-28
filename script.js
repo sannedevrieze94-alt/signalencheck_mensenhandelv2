@@ -19,6 +19,9 @@
     $("kpiUnknown").textContent = c.unknown;
     $("kpiStatus").textContent = state.snapshot ? "Rapport actueel" : state.dirty ? "Invoer gewijzigd" : "Nieuw";
     $("acuteNotice").hidden = state.context.acuteConcern !== "yes";
+    const reviewList = $("reviewPoints");
+    reviewList.replaceChildren();
+    for (const point of M.reviewPoints(state)) reviewList.appendChild(element("li", point));
   }
   function onChange() {
     $("reportPreview").textContent = "Invoer gewijzigd. Stel het rapport opnieuw op; export gebruikt automatisch de actuele invoer.";

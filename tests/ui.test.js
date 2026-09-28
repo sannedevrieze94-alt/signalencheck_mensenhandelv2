@@ -87,3 +87,16 @@ assert($("arbeid-specific-5").value === "unknown" && $("arbeid-specific-5-note")
 $("downloadTextBtn").click();
 assert(downloads.length === 1, "Export zonder bevestiging");
 console.log("UI-regressies geslaagd: wisselen, meerdere vormen, actuele export/print, tekstveiligheid, acute waarschuwing, annuleren en volledige reset.");
+
+$("reviewRole").value = "Fictieve beoordelaarsrol"; $("reviewRole").dispatch("input");
+$("followUpBy").value = "2026-10-01T10:00"; $("followUpBy").dispatch("input");
+$("statements").value = "Fictieve verklaring"; $("statements").dispatch("input");
+$("routeQuestions").value = "Registratielocatie afstemmen"; $("routeQuestions").dispatch("input");
+$("trainingConfirmed").checked = true; $("trainingConfirmed").dispatch("change");
+$("downloadTextBtn").click();
+assert(downloads[1].includes("Fictieve verklaring") && downloads[1].includes("Fictieve beoordelaarsrol"), "Nieuwe velden niet geëxporteerd");
+assert(downloads[1].includes("nog niet bevestigd") && downloads[1].includes("geen melding, taaktoewijzing"), "Onterechte bevestiging meldroute");
+assert($("reviewPoints").children.some(el => el.textContent.includes("lokale registratie- en meldroute")), "Route ontbreekt op scherm");
+$("resetBtn").click();
+assert($("reviewRole").value === "" && $("followUpBy").value === "" && $("statements").value === "" && $("routeQuestions").value === "", "Nieuwe velden niet gereset");
+console.log("Vervolgcontroles geslaagd: ontbrekende route, gescheiden verklaring, voorgestelde opvolging, export en reset.");

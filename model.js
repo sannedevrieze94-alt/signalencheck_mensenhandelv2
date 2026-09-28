@@ -1,10 +1,25 @@
 /* Pure gegevenslogica: geen risicoscore, opslag of netwerkverkeer. */
 (function (root) {
   "use strict";
-  const VERSION = "3.0.0-prototype";
+  const VERSION = "3.1.0-prototype";
   const STATUSES = Object.freeze({unknown: "Onbekend / niet onderzocht", seen: "Waargenomen", notSeen: "Niet waargenomen"});
   const WARNING = "Onderzoeksprototype — uitsluitend fictieve oefencasuïstiek. Geen gevalideerde risicobeoordeling, vaststelling van mensenhandel of vervanging van professioneel oordeel. Geen of weinig waargenomen signalen sluit mensenhandel niet uit.";
   const SAFETY = "Bij direct gevaar: volg de lokale noodprocedure en bel zo nodig 112. Wacht niet op dit overzicht of op een minimumaantal signalen. Stem overige zorgen af met de bevoegde professional volgens vastgestelde lokale werkafspraken.";
+  const WORKFLOW_NOTICE = "Lokale registratie- en meldroute zijn nog niet bevestigd. Dit rapport bevat een voorstel voor afstemming; er is geen melding, taaktoewijzing of overdracht uitgevoerd.";
+  function reviewPoints(state) {
+    const points = [];
+    if (!state.context.observedAt.trim()) points.push("Waarnemingstijd ontbreekt.");
+    if (!state.context.findings.trim()) points.push("Feitelijke bevindingen zijn nog niet beschreven.");
+    if (state.context.acuteConcern === "unknown") points.push("Acute veiligheid is nog niet beoordeeld.");
+    const noSource = Object.values(state.answers).filter(a => a.status === "seen" && !a.note.trim()).length;
+    if (noSource) points.push(noSource + " waargenomen signaal/signalen zonder bron of toelichting.");
+    if (!state.context.professionalReview.trim()) points.push("Professionele duiding ontbreekt.");
+    if (!state.context.followUp.trim()) points.push("Voorgestelde vervolgstap ontbreekt.");
+    if (!state.context.reviewRole.trim()) points.push("Een rol voor beoordeling/afstemming is nog niet voorgesteld.");
+    if (!state.context.followUpBy.trim()) points.push("Gewenst terugkoppelmoment is nog niet voorgesteld.");
+    points.push("Bevestig de lokale registratie- en meldroute buiten deze app.");
+    return points;
+  }
   function flatten(catalog) {
     return catalog.flatMap(form => form.groups.flatMap(group => group.items.map(item => ({
       ...item, formId: form.id, form: form.title, group: group.title
@@ -13,7 +28,7 @@
   function createState(catalog) {
     return {
       active: catalog[0].id, revision: 0, snapshot: null, dirty: false,
-      context: {caseCode: "", observedAt: "", observer: "", location: "", controlType: "", locationType: "", findings: "", observations: "", acuteConcern: "unknown", professionalReview: "", followUp: "", trainingConfirmed: false},
+      context: {caseCode: "", observedAt: "", observer: "", location: "", controlType: "", locationType: "", findings: "", statements: "", observations: "", reviewRole: "", followUpBy: "", routeQuestions: "", acuteConcern: "unknown", professionalReview: "", followUp: "", trainingConfirmed: false},
       answers: Object.fromEntries(flatten(catalog).map(item => [item.id, {status: "unknown", note: ""}]))
     };
   }
@@ -45,7 +60,7 @@
     state.snapshot = {
       version: VERSION, revision: state.revision, generatedAt: now,
       context: {...state.context}, entries, counts: counts(state),
-      warning: WARNING, safety: SAFETY
+      warning: WARNING, safety: SAFETY, workflowNotice: WORKFLOW_NOTICE, reviewPoints: reviewPoints(state)
     };
     return state.snapshot;
   }
@@ -53,8 +68,9 @@
     ["caseCode", "Fictieve oefencode"], ["observedAt", "Waarnemingstijd (lokale tijd invuller)"],
     ["observer", "Fictieve beoordelaarscode"], ["location", "Fictieve locatie"],
     ["controlType", "Type controle"], ["locationType", "Type locatie"],
-    ["findings", "Feitelijke bevindingen"], ["observations", "Context en interpretaties"],
-    ["professionalReview", "Professionele duiding (door invuller)"], ["followUp", "Voorgestelde opvolging (door invuller)"]
+    ["findings", "Eigen feitelijke waarnemingen"], ["statements", "Verklaringen van anderen (met fictieve bron)"], ["observations", "Context, interpretaties en alternatieve verklaringen"],
+    ["professionalReview", "Professionele duiding (door invuller)"], ["followUp", "Voorgestelde opvolging (door invuller)"],
+    ["reviewRole", "Voorgestelde rol voor beoordeling (niet toegewezen)"], ["followUpBy", "Gewenst terugkoppelmoment (lokale tijd; niet afgesproken)"], ["routeQuestions", "Nog af te stemmen over registratie en overdracht"]
   ];
   function reportText(snapshot) {
     const c = snapshot.counts;
@@ -63,7 +79,15 @@
       "Signalencheck Mensenhandel — oefenrapport",
       "Versie: " + snapshot.version, "Invoerrevisie: " + snapshot.revision,
       "Rapport opgesteld (UTC): " + snapshot.generatedAt, "", snapshot.warning, "", snapshot.safety, "",
-      "ACUTE VEILIGHEID", acute, "", "CONTROLECONTEXT",
+      "KORTE SAMENVATTING",
+      "Waargenomen: " + c.seen + "; niet waargenomen: " + c.notSeen + "; onbekend / niet onderzocht: " + c.unknown + ".",
+      "Vormen met waargenomen signalen: " + ([...new Set(snapshot.entries.filter(e => e.status === "seen").map(e => e.form))].join(", ") || "Geen; dit sluit mensenhandel niet uit."),
+      "Voorgestelde vervolgstap: " + (snapshot.context.followUp.trim() || "Nog niet beschreven"),
+      "Voorgestelde beoordelaarsrol: " + (snapshot.context.reviewRole.trim() || "Nog niet voorgesteld"),
+      "Gewenst terugkoppelmoment (lokale tijd): " + (snapshot.context.followUpBy || "Nog niet voorgesteld"),
+      "", "REGISTRATIE EN OPVOLGING", snapshot.workflowNotice,
+      "", "NOG TE CONTROLEREN — GEEN RISICOBEOORDELING", ...snapshot.reviewPoints.map(point => "- " + point),
+      "", "ACUTE VEILIGHEID", acute, "", "CONTROLECONTEXT",
       ...FIELDS.map(([key, label]) => label + ": " + (snapshot.context[key].trim() || "Niet ingevuld")),
       "", "SIGNAALOVERZICHT — ALLE DRIE VORMEN",
       "Waargenomen: " + c.seen + "; niet waargenomen: " + c.notSeen + "; onbekend / niet onderzocht: " + c.unknown + ".",
@@ -82,7 +106,7 @@
     lines.push("", "BEPERKINGEN", "Signaalteksten en werkafspraken moeten inhoudelijk worden gevalideerd. Bronverwijzingen bij dit prototype onderbouwen geen score of grenswaarde. De invuller blijft verantwoordelijk voor controle van de verslaglegging.");
     return lines.join("\n");
   }
-  const api = {VERSION, STATUSES, WARNING, SAFETY, FIELDS, flatten, createState, invalidate, setAnswer, setContext, counts, createSnapshot, reportText};
+  const api = {VERSION, STATUSES, WARNING, SAFETY, WORKFLOW_NOTICE, reviewPoints, FIELDS, flatten, createState, invalidate, setAnswer, setContext, counts, createSnapshot, reportText};
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.SignalenModel = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

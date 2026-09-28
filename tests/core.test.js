@@ -99,4 +99,34 @@ test("Lange tekst en bijzondere tekens blijven in tekstrapport intact", () => {
   M.setContext(state, "findings", long);
   assert(M.reportText(M.createSnapshot(state, catalog)).includes(long.trim()), "Tekst afgekapt");
 });
+
+test("Ontbrekende meldroute blijft zichtbaar bij volledig ingevulde context", () => {
+  const s = M.createState(catalog);
+  for (const k of ["observedAt", "findings", "professionalReview", "followUp", "reviewRole", "followUpBy"]) M.setContext(s, k, "Fictief ingevuld");
+  M.setContext(s, "acuteConcern", "no");
+  assert(M.reviewPoints(s).length === 1 && M.reviewPoints(s)[0].includes("lokale registratie- en meldroute"), "Route onterecht bevestigd");
+  M.setContext(s, "trainingConfirmed", true);
+  const report = M.reportText(M.createSnapshot(s, catalog));
+  assert(report.includes("nog niet bevestigd") && report.includes("geen melding, taaktoewijzing of overdracht uitgevoerd"), "Voorstel lijkt uitgevoerd");
+});
+test("Ontbrekende bron bij waargenomen signaal wordt getoond en bijgewerkt", () => {
+  const s = M.createState(catalog);
+  M.setAnswer(s, "arbeid-specific-1", "seen", "");
+  assert(M.reviewPoints(s).some(p => p.includes("zonder bron")), "Bronwaarschuwing ontbreekt");
+  M.setAnswer(s, "arbeid-specific-1", "seen", "Fictieve eigen waarneming");
+  assert(!M.reviewPoints(s).some(p => p.includes("zonder bron")), "Bronwaarschuwing niet bijgewerkt");
+});
+test("Feiten, verklaringen en interpretaties blijven apart; opvolging vernieuwt rapport", () => {
+  const s = M.createState(catalog);
+  M.setContext(s, "trainingConfirmed", true);
+  M.setContext(s, "findings", "FEIT-A"); M.setContext(s, "statements", "VERKLARING-B"); M.setContext(s, "observations", "INTERPRETATIE-C");
+  const first = M.createSnapshot(s, catalog);
+  M.setContext(s, "reviewRole", "Voorgestelde rol"); M.setContext(s, "routeQuestions", "Waar registreren?");
+  assert(s.snapshot === null, "Oude opvolging behouden");
+  const report = M.reportText(M.createSnapshot(s, catalog));
+  assert(report.includes("Eigen feitelijke waarnemingen: FEIT-A") && report.includes("Verklaringen van anderen (met fictieve bron): VERKLARING-B") && report.includes("Context, interpretaties en alternatieve verklaringen: INTERPRETATIE-C"), "Categorieën vermengd");
+  assert(report.includes("Voorgestelde rol") && report.includes("Waar registreren?"), "Opvolging ontbreekt");
+  assert(first.context.reviewRole === "", "Historische momentopname gewijzigd");
+});
+
 console.log(passed + " modelcontroles geslaagd.");
