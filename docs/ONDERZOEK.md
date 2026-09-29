@@ -2,71 +2,106 @@
 
 ## Positie van het prototype
 
-Versie 3.4.0-prototype is een ontwerpinterventie voor fictieve oefencasuïstiek. Beoogde onderzoeksvragen zijn onder meer: helpen de antwoordcategorieën bij het scheiden van onbekend en niet waargenomen; leggen toezichthouders hun bronnen duidelijker vast; vinden zij passende vervolgvragen; begrijpen zij de betekenis en beperking van de indicatieve risicoscore; en ondersteunt de interface een zorgvuldige professionele duiding?
+Versie 3.5.0-prototype is een ontwerpinterventie voor fictieve oefencasuïstiek. De tool ondersteunt het oefenen met signalenherkenning, feitelijke vastlegging, vormspecifieke beoordeling en professionele duiding rondom arbeidsuitbuiting, seksuele uitbuiting en criminele uitbuiting.
 
-Dit zijn te onderzoeken effecten, geen behaalde resultaten. Er is geen bewijs dat de tool mensenhandel voorspelt of dat de oorspronkelijke signaalverzameling volledig is.
+Te onderzoeken effecten zijn onder meer:
+- onderscheiden gebruikers `Onbekend` en `Niet waargenomen` correct;
+- leggen toezichthouders de bron van een waarneming voldoende feitelijk vast;
+- helpt afzonderlijke beoordeling per uitbuitingsvorm om samenhang en verschillen beter te zien;
+- is de progressieve prototype-score begrijpelijk zonder te worden gelezen als kanspercentage;
+- ondersteunt de gegenereerde rapportage een bruikbare en controleerbare verslaglegging;
+- is de losse module Heimelijke waarneming bruikbaar zonder observatie en interpretatie te vermengen.
 
-## Ontwerpbesluiten
+Dit zijn onderzoeksvragen, geen behaalde resultaten. Er is geen bewijs dat de tool mensenhandel voorspelt of dat de oorspronkelijke signaalverzameling volledig is.
 
-De eerdere formule R = K × G × B, gewichten 4/2/2, drempels 50/180 en kritieke trefwoorden zijn verwijderd. In de repository ontbrak een verantwoording en validatie voor hun toepassing op mensenhandel. Kritieke situaties mogen niet worden geblokkeerd door een lage totaalscore.
+## Vormspecifieke rapportage
 
-Vanaf versie 3.4 is opnieuw een **transparante prototype-risicoscore** toegevoegd omdat het onderzoek expliciet wil toetsen of een oplopend totaal van waargenomen signalen gebruikers helpt bij het herkennen van samenhang. De score is bewust eenvoudig: iedere waargenomen signaalregel telt als 1 punt; de schaal loopt van 0 tot 60. Niet waargenomen en onbekende signalen leveren geen punten op.
+Vanaf versie 3.5 worden de drie uitbuitingsvormen afzonderlijk beoordeeld. Een vorm wordt als beoordeeld beschouwd zodra minimaal één signaal binnen die vorm de status `Waargenomen` of `Niet waargenomen` heeft gekregen.
 
-Deze score is **geen gevalideerde kansberekening**. Zij maakt geen onderscheid in betekenis of ernst van afzonderlijke signalen, corrigeert niet voor overlap en kent geen gevalideerde grenswaarden. Een score van 20/60 betekent dus niet 20/60 kans op mensenhandel en mag niet zelfstandig leiden tot een conclusie over slachtofferschap of noodzakelijke interventie. Acute veiligheid en professionele duiding blijven losstaan van de totaalscore.
+De rapportgenerator neemt uitsluitend daadwerkelijk beoordeelde vormen inhoudelijk op. Worden één of twee vormen beoordeeld, dan wordt geen integrale totaalscore weergegeven. Alleen wanneer alle drie de vormen zijn beoordeeld verschijnt naast de drie afzonderlijke vormscores een integrale samenvatting.
 
-Signaalteksten blijven behouden om de inhoudelijke wijziging controleerbaar te houden. Toekomstige tekstwijzigingen moeten per stabiel signaal-ID worden vastgelegd. De 60 regels bevatten overlap; aantallen zijn geen onafhankelijke bewijzen.
+De rapportage is ingericht als toezichthoudersrapportage in lopende tekst. De openingspassage benoemt de hoedanigheid van toezichthouder als bedoeld in artikel 5:11 Awb en verwerkt vervolgens de ingevulde controlecontext. De daadwerkelijke wettelijke of gemeentelijke aanwijzingsgrondslag moet buiten deze prototypecode worden vastgesteld.
 
-Er is geen vastgesteld lokaal opvolgingsprotocol ingevoerd. De tool vraagt de invuller een voorgestelde opvolging te beschrijven en vermeldt dat er geen overdracht plaatsvindt.
+## Progressieve prototype-score
+
+De oude formule `R = K × G × B`, de gewichten 4/2/2, drempels 50/180 en trefwoordregels zijn verwijderd wegens het ontbreken van een onderbouwing in de repository.
+
+Versie 3.5 gebruikt per uitbuitingsvorm een transparante progressieve onderzoeksindex:
+
+`score = 0,5 × n^1,45`
+
+waarbij `n` het aantal als `Waargenomen` geregistreerde signalen binnen die uitbuitingsvorm is. De uitkomst wordt afgerond op 0,25 punt.
+
+Voorbeelden:
+- 1 waargenomen signaal → 0,5;
+- 2 → 1,25;
+- 3 → 2,5;
+- 4 → 3,75;
+- 5 → 5,25;
+- 20 → 38,5.
+
+De formule operationaliseert uitsluitend het ontwerpidee dat cumulatie van meerdere signalen progressief zwaarder zichtbaar mag worden. Zij is **niet empirisch gekalibreerd** voor de kans op mensenhandel, slachtofferschap, ernst of noodzakelijke interventie. De formule corrigeert niet afzonderlijk voor overlap, afhankelijkheid tussen signalen of alternatieve verklaringen. Een afzonderlijk ernstig signaal kan professionele opvolging vereisen ongeacht de score.
+
+Als alle drie de vormen zijn beoordeeld, wordt de integrale prototype-score berekend als de som van de drie afzonderlijke vormscores. Ook deze som is geen kanspercentage of gevalideerde grenswaarde.
+
+## Heimelijke waarneming
+
+Versie 3.5 bevat een afzonderlijke optionele module voor heimelijke waarneming. De module is standaard uitgeschakeld en wordt alleen in de rapportage opgenomen als de gebruiker haar activeert.
+
+De module kan in een fictieve oefencasus vastleggen:
+- observatieperiode;
+- aanloop en bezoekbewegingen;
+- aantal waargenomen vrouwen/personen passend bij de onderzochte context;
+- herleidbaarheid naar een publieke advertentiebron, bijvoorbeeld Kinky.nl;
+- fictieve advertentie-/profielverwijzing;
+- aantal bezoeken;
+- duur van bezoeken en tijdspatroon;
+- terugkerende observatiepatronen;
+- fictieve kentekens;
+- feitelijk waarneembare persoonskenmerken;
+- aanvullende chronologische observatienotities.
+
+Het ontwerp vraagt de gebruiker feitelijke observaties vast te leggen en geen automatische conclusie aan deze gegevens te verbinden. Persoonskenmerken zijn bedoeld als waarneembare beschrijving, bijvoorbeeld geschatte leeftijdscategorie, lengte, kleding, haarkleur en opvallende kenmerken. Aannames over niet-waarneembare of gevoelige persoonskenmerken horen niet als standaardcategorie in het prototype.
+
+Voor echt gebruik kunnen kentekens, persoonskenmerken en advertentiegegevens herleidbare persoonsgegevens zijn. Voordat deze module buiten fictieve oefencasuïstiek wordt gebruikt, moeten doel, grondslag, proportionaliteit, toegang, bewaartermijn, beveiliging, logging en lokale werkafspraken worden vastgesteld.
 
 ## Validatiematrix van de 60 signalen
 
-De werkversie staat in `docs/VALIDATIEMATRIX.md`. Daarin zijn alle 60 signaal-ID's uit `signals.js` uitgesplitst naar arbeidsuitbuiting, seksuele uitbuiting en de cataloguspijler criminele uitbuiting. Omdat de repository niet voor ieder signaal een geverifieerde één-op-één-bronkoppeling bevat, blijft de verificatiestatus van alle regels open totdat een daadwerkelijke inhoudelijke beoordeling heeft plaatsgevonden.
+De werkversie staat in `docs/VALIDATIEMATRIX.md`. Alle 60 stabiele signaal-ID's uit `signals.js` zijn daarin uitgesplitst naar arbeidsuitbuiting, seksuele uitbuiting en criminele uitbuiting.
 
-De matrix bevat per signaal:
-- signaal-ID en onderwerp;
-- vermoedelijke pijler;
-- exacte beschikbare repositoryverwijzing en de status van de primaire bronkoppeling;
-- verificatiestatus;
-- letterlijke betekenis van het signaal en openstaande alternatieve verklaringen;
-- overlaprisico als risico op inhoudelijke dubbeling/dubbel tellen;
-- benodigde deskundige beoordeling;
-- voorgestelde beoordelaarsrol;
-- openstaande informatie.
+De repository bevat nog niet voor ieder signaal een geverifieerde één-op-één-bronkoppeling. Daarom blijft de verificatiestatus open totdat inhoudelijke beoordeling heeft plaatsgevonden. `Overlaprisico` in de matrix betekent risico op inhoudelijke dubbeling/dubbel tellen en niet risico op mensenhandel.
 
-De matrix doet geen uitspraak over voorspellende waarde, slachtofferschap, waarschijnlijkheid of empirisch gevalideerde ernst. Voor criminele uitbuiting is bovendien expliciet vastgelegd dat de repository niet bij alle 20 signalen bevestigt dat het signaal uitsluitend op jongeren ziet. Die jongerenafbakening moet daarom per signaal nog worden beoordeeld.
-
-## Nog vast te leggen bronmatrix
-
-De validatiematrix is de werkversie van deze bronmatrix. Vul alleen gegevens aan die daadwerkelijk zijn beoordeeld; plaats geen goedkeuringsnamen of -data zonder daadwerkelijke beoordeling.
-
-| Signaal-ID | Exacte primaire bron en vindplaats | Letterlijk/bewerkt | Betekenis en alternatieve verklaringen | Overlap | Beoordelaar/rol en datum | Status |
-|---|---|---|---|---|---|---|
-| arbeid-specific-1 (voorbeeld-ID) | Nog te verifiëren | Overgenomen uit eerder prototype | Nog uit te werken | Nog te beoordelen | Niet beoordeeld | Open |
-
-De vijf bronverwijzingen op de pagina zijn overgenomen uit de vorige versie. Controleer beschikbaarheid, exacte titel/datum, inhoudelijke aansluiting en APA 7. Zij onderbouwen geen voorspellende waarde of grenswaarde van de prototype-score.
+Voor criminele uitbuiting geldt bovendien dat de repository niet bij alle 20 signalen bevestigt dat deze uitsluitend op jongeren zien. Die afbakening moet per signaal nog worden beoordeeld.
 
 ## Praktijkafspraken die code niet kan vaststellen
 
-- Wie is inhoudelijk eigenaar, wie beoordeelt signalen en wie besluit over vervolgstappen?
+- Wie is inhoudelijk eigenaar van de signalenset en scoremethodiek?
+- Wie beoordeelt signalen en wie besluit over vervolgstappen?
+- Welke concrete wettelijke of gemeentelijke aanwijzingsgrondslag geldt voor de toezichthouder in de betreffende controlecontext?
 - Wat zijn de bevestigde lokale routes bij acute zorg en overige signalen?
-- Hoe worden meerdere vormen gezamenlijk geduid, zonder dubbel tellen?
-- Hoe wordt het slachtofferperspectief betrokken zonder in het onderzoek echte casusgegevens onnodig vast te leggen?
+- Hoe worden meerdere vormen gezamenlijk geduid zonder dubbel tellen?
+- Onder welke voorwaarden mag een heimelijke waarneming worden uitgevoerd en vastgelegd?
+- Welke persoonsgegevens mogen daarbij worden verwerkt, met welke grondslag en bewaartermijn?
 - Hoe sluit vastlegging aan op een eventueel gemeentelijk systeem, waaronder PGAx? Er is nu geen koppeling.
-- Welke verwerking, toegang, bewaartermijnen, hosting en beveiliging zijn voor een eventuele productieversie beoordeeld?
-- Welke betekenis mag de prototype-risicoscore in een toekomstige werkwijze krijgen, en welke betekenis nadrukkelijk niet?
+- Welke hosting, toegang, beveiliging en logging zijn vereist voor een productievariant?
 
-Totdat deze afspraken en inhoudelijke beoordeling gereed zijn, blijft gebruik beperkt tot fictieve oefencasuïstiek.
+Totdat deze afspraken en beoordelingen zijn afgerond, blijft gebruik beperkt tot fictieve oefencasuïstiek.
 
 ## Evaluatievoorstel
 
-Gebruik vooraf beschreven fictieve scenario's, waaronder een enkel ernstig signaal, meerdere lichte of overlappende signalen, ontbrekende informatie en meerdere uitbuitingsvormen. Laat inhoudsdeskundigen vooraf de gewenste herkenning en vervolgvragen bepalen. Beschrijf hoe scenario's en beoordelingscriteria tot stand kwamen.
+Gebruik vooraf beschreven fictieve scenario's met onder meer:
+- één afzonderlijk ernstig signaal;
+- meerdere lichte of overlappende signalen;
+- ontbrekende informatie;
+- één, twee en drie beoordeelde uitbuitingsvormen;
+- een heimelijke waarneming met aanloop, websitekoppeling, kenteken, persoonskenmerken en verschillende bezoekduren.
 
-Observeer taakvoltooiing, gemiste signalen, verwarring tussen onbekend/niet waargenomen, kwaliteit van bronvermelding, passende opvolging en fouten in rapportage. Toets expliciet of gebruikers de prototype-risicoscore begrijpen als optelsom van waargenomen regels en niet als kanspercentage of automatisch handelingsadvies. Verzamel feedback zonder echte casusgegevens.
+Observeer taakvoltooiing, gemiste signalen, verwarring tussen onbekend en niet-waargenomen, kwaliteit van bronvermelding, interpretatie van de score, volledigheid van de rapportage en de scheiding tussen feitelijke waarneming en professionele duiding.
 
-Een voor-/nameting kan leren over herkenning en bruikbaarheid, maar toont op zichzelf geen voorspellende validiteit aan. Als later een inhoudelijk gewogen of gekalibreerde score wordt gewenst, is daarvoor een afzonderlijk validatietraject nodig met deskundige onderbouwing, representatieve casuïstiek en vooraf vastgelegde uitkomstmaten.
+Toets expliciet of gebruikers begrijpen dat 0,5 / 1,25 / 2,5 enzovoort een ontwerpindex is en geen empirische waarschijnlijkheid. Laat inhoudsdeskundigen beoordelen of de progressieve vorm logisch en bruikbaar is en of signalen inhoudelijk verschillend zouden moeten wegen.
 
-Leg de geteste commit, deelnemersrollen, testomgeving, methode, resultaten, beperkingen en daaropvolgende wijzigingen vast. Rapporteer feitelijk wat daadwerkelijk is getest of vastgesteld.
+Een voor-/nameting kan iets zeggen over herkenning en bruikbaarheid, maar toont op zichzelf geen voorspellende validiteit aan. Een toekomstige inhoudelijk gewogen of gekalibreerde score vereist een afzonderlijk validatietraject met deskundige onderbouwing, geschikte casuïstiek en vooraf vastgelegde uitkomstmaten.
 
 ## Beheer en vrijgave
 
-Wijs een inhoudelijk en technisch beheerder aan. Leg per release wijzigingen, bronactualisering, testresultaten en besluit over toegestaan gebruik vast. Verhoog de app- en cacheversie bij wijzigingen. Gebruik geen labels als ‘goedgekeurd’, ‘veilig’ of ‘AVG-proof’ zonder aantoonbare beoordeling van de toepasselijke context.
+Leg per release wijzigingen, geteste commit, testresultaten, inhoudelijke bronactualisering en besluit over toegestaan gebruik vast. Wijs een inhoudelijk en technisch beheerder aan. Gebruik geen labels als `goedgekeurd`, `veilig` of `AVG-proof` zonder aantoonbare beoordeling van de daadwerkelijke context.
