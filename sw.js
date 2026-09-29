@@ -3,7 +3,7 @@
  * Geen skipWaiting: een actieve oefensessie wordt niet automatisch vervangen.
  */
 "use strict";
-const VERSION = "3.3.0-prototype";
+const VERSION = "3.4.0-prototype";
 const PREFIX = "signalencheck:" + self.registration.scope + ":";
 const CACHE = PREFIX + VERSION;
 const FILES = ["./", "./index.html", "./styles.css", "./effects.css", "./signals.js", "./model.js", "./script.js", "./manifest.webmanifest", "./icons/icon.svg", "./icons/gemeente-emmen.svg", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png"];
