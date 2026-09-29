@@ -1,0 +1,357 @@
+/* Visuele uitbreidingslaag 3.3 — geen risicokleuren of beslislogica. */
+:root{
+  --emmen-red:#cf0a5a;
+  --emmen-red-dark:#9f0846;
+  --signal-seen:#10a37f;
+  --signal-notseen:#6b7a90;
+  --signal-unknown:#d6a342;
+  --glass:rgba(255,255,255,.74);
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-1;
+  background:
+    radial-gradient(circle at 12% 18%,rgba(207,10,90,.07),transparent 25rem),
+    radial-gradient(circle at 88% 15%,rgba(11,114,133,.08),transparent 30rem);
+}
+
+.topbar{
+  border-top:4px solid var(--emmen-red);
+}
+.brand{
+  gap:1rem;
+}
+.brand .municipality-logo{
+  width:142px;
+  height:auto;
+  max-height:46px;
+  object-fit:contain;
+  border-radius:0;
+  box-shadow:none;
+  padding-right:1rem;
+  border-right:1px solid var(--line);
+}
+.brand .tool-mark{
+  width:42px;
+  height:42px;
+  border-radius:12px;
+}
+.brand-copy strong{
+  font-size:.98rem;
+}
+.prototype-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:.4rem;
+  margin-top:.15rem;
+  color:var(--muted);
+  font-size:.74rem;
+  font-weight:800;
+  letter-spacing:.035em;
+  text-transform:uppercase;
+}
+.prototype-chip::before{
+  content:"";
+  width:.48rem;
+  height:.48rem;
+  border-radius:50%;
+  background:var(--emmen-red);
+  box-shadow:0 0 0 4px rgba(207,10,90,.10);
+}
+
+.hero-app{
+  display:grid;
+  grid-template-columns:minmax(0,1.55fr) minmax(285px,.75fr);
+  gap:1.35rem;
+  align-items:stretch;
+}
+.hero-main{min-width:0;}
+.hero-visual{
+  align-self:stretch;
+  padding:1.05rem;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:20px;
+  background:linear-gradient(160deg,rgba(255,255,255,.13),rgba(255,255,255,.055));
+  backdrop-filter:blur(12px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
+}
+.hero-visual h2{
+  margin:0;
+  font-size:1rem;
+}
+.hero-visual .visual-sub{
+  margin:.35rem 0 1rem;
+  color:rgba(255,255,255,.72)!important;
+  font-size:.82rem;
+}
+
+.signal-ring{
+  --seen-pct:0%;
+  --answered-pct:0%;
+  width:164px;
+  aspect-ratio:1;
+  display:grid;
+  place-items:center;
+  margin:.35rem auto 1.15rem;
+  border-radius:50%;
+  background:conic-gradient(
+    var(--signal-seen) 0 var(--seen-pct),
+    #a7b2c2 var(--seen-pct) var(--answered-pct),
+    rgba(255,255,255,.16) var(--answered-pct) 100%
+  );
+  box-shadow:0 12px 30px rgba(7,17,38,.25),inset 0 0 0 1px rgba(255,255,255,.08);
+  transition:background .28s ease,transform .28s ease;
+}
+.signal-ring:hover{transform:scale(1.018);}
+.signal-ring::before{
+  content:"";
+  grid-area:1/1;
+  width:122px;
+  aspect-ratio:1;
+  border-radius:50%;
+  background:linear-gradient(145deg,#1b2a50,#22365f);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10);
+}
+.signal-ring-center{
+  position:relative;
+  z-index:1;
+  grid-area:1/1;
+  text-align:center;
+}
+.signal-ring-center strong{
+  display:block;
+  color:#fff;
+  font-size:2.05rem;
+  line-height:1;
+}
+.signal-ring-center span{
+  display:block;
+  margin-top:.28rem;
+  color:rgba(255,255,255,.7);
+  font-size:.7rem;
+  font-weight:800;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+
+.ring-legend{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:.45rem;
+}
+.ring-legend div{
+  min-width:0;
+  padding:.5rem .45rem;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:11px;
+  background:rgba(0,0,0,.08);
+  text-align:center;
+}
+.ring-legend span{
+  display:block;
+  color:rgba(255,255,255,.65);
+  font-size:.66rem;
+  font-weight:800;
+  text-transform:uppercase;
+}
+.ring-legend strong{
+  display:block;
+  margin-top:.08rem;
+  color:#fff;
+  font-size:1.05rem;
+}
+
+.pillar-mini-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:.45rem;
+  margin-top:.65rem;
+}
+.pillar-mini{
+  padding:.6rem .45rem;
+  border-radius:11px;
+  background:rgba(255,255,255,.08);
+  text-align:center;
+}
+.pillar-mini span{
+  display:block;
+  color:rgba(255,255,255,.62);
+  font-size:.64rem;
+  font-weight:800;
+}
+.pillar-mini strong{
+  display:block;
+  color:#fff;
+  font-size:1.05rem;
+}
+
+.kpis>div{
+  position:relative;
+  overflow:hidden;
+  transition:transform .2s ease,background .2s ease,border-color .2s ease;
+}
+.kpis>div:hover{
+  transform:translateY(-2px);
+  background:rgba(255,255,255,.13);
+  border-color:rgba(255,255,255,.28);
+}
+.kpis>div::after{
+  content:"";
+  position:absolute;
+  inset:auto -25% -55% 35%;
+  height:70px;
+  border-radius:50%;
+  background:rgba(255,255,255,.05);
+}
+
+#signalen.card{
+  overflow:hidden;
+}
+.tabs button{
+  position:relative;
+  overflow:hidden;
+}
+.tabs button.active::after{
+  content:"";
+  position:absolute;
+  left:18%;
+  right:18%;
+  bottom:0;
+  height:3px;
+  border-radius:999px 999px 0 0;
+  background:var(--emmen-red);
+}
+.signal-item{
+  border-left:4px solid transparent;
+  transform:translateZ(0);
+}
+.signal-item[data-status="seen"]{
+  border-left-color:var(--signal-seen);
+  background:linear-gradient(90deg,rgba(16,163,127,.055),#fff 22%);
+}
+.signal-item[data-status="notSeen"]{
+  border-left-color:#9aa7b8;
+  background:linear-gradient(90deg,rgba(107,122,144,.05),#fff 22%);
+}
+.signal-item[data-status="unknown"]{
+  border-left-color:#d8b76b;
+}
+.signal-item:hover{
+  transform:translateY(-1px);
+}
+.signal-item select{
+  font-weight:700;
+}
+.signal-item[data-status="seen"] select{
+  border-color:rgba(16,163,127,.45);
+  box-shadow:0 0 0 3px rgba(16,163,127,.06);
+}
+
+.card{
+  transition:box-shadow .22s ease,border-color .22s ease,transform .22s ease;
+}
+.page>section.card:not(:first-of-type):hover{
+  border-color:#c7d1de;
+  box-shadow:0 15px 34px rgba(23,35,60,.085);
+}
+
+.actions button.primary{
+  background:linear-gradient(135deg,var(--emmen-red),var(--emmen-red-dark));
+  border-color:var(--emmen-red-dark);
+  box-shadow:0 8px 18px rgba(207,10,90,.20);
+}
+.actions button.primary:hover{
+  box-shadow:0 12px 24px rgba(207,10,90,.27);
+}
+
+.prototype-banner{
+  display:flex;
+  align-items:flex-start;
+  gap:.7rem;
+  margin:.8rem 0 0;
+  padding:.72rem .8rem;
+  border-radius:12px;
+  background:rgba(207,10,90,.08);
+  border:1px solid rgba(207,10,90,.16);
+  color:#7d173f;
+  font-size:.83rem;
+  font-weight:650;
+}
+.prototype-banner::before{
+  content:"i";
+  display:grid;
+  place-items:center;
+  flex:0 0 1.35rem;
+  width:1.35rem;
+  height:1.35rem;
+  border-radius:50%;
+  background:var(--emmen-red);
+  color:#fff;
+  font-weight:900;
+}
+
+footer.page{
+  border-top:1px solid var(--line);
+  margin-top:.8rem;
+  padding-top:1rem;
+}
+.logo-credit{
+  display:block;
+  margin-top:.3rem;
+  font-size:.76rem;
+}
+
+@keyframes riseIn{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.hero-visual,.kpis>div,.signal-item{
+  animation:riseIn .35s ease both;
+}
+.signal-item:nth-child(2){animation-delay:.02s}
+.signal-item:nth-child(3){animation-delay:.04s}
+.signal-item:nth-child(4){animation-delay:.06s}
+
+@media(max-width:900px){
+  .hero-app{grid-template-columns:1fr;}
+  .hero-visual{display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:center;}
+  .hero-visual h2,.hero-visual .visual-sub{grid-column:1/-1;}
+  .signal-ring{margin:.2rem auto;}
+  .ring-legend{align-self:center;}
+  .pillar-mini-grid{grid-column:1/-1;}
+}
+
+@media(max-width:760px){
+  .topbar{position:sticky;align-items:stretch;}
+  .brand{width:100%;display:grid;grid-template-columns:auto 42px 1fr;}
+  .brand .municipality-logo{width:122px;padding-right:.7rem;}
+  .brand-copy strong{font-size:.92rem;}
+  .topbar nav{width:100%;justify-content:space-between;}
+  .topbar nav a{display:none;}
+  .topbar nav button{margin-left:auto;}
+  .hero-visual{grid-template-columns:1fr;}
+  .ring-legend,.pillar-mini-grid{grid-template-columns:repeat(3,1fr);}
+}
+
+@media(max-width:430px){
+  .brand{grid-template-columns:110px 1fr;}
+  .brand .municipality-logo{width:110px;}
+  .brand .tool-mark{display:none;}
+  .signal-ring{width:148px;}
+  .signal-ring::before{width:110px;}
+  .ring-legend span{font-size:.58rem;}
+  .pillar-mini span{font-size:.58rem;}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .hero-visual,.kpis>div,.signal-item{animation:none!important;}
+  .signal-ring,.signal-item,.card{transition:none!important;}
+}
+
+@media print{
+  .hero-visual,.prototype-banner,.municipality-logo,.tool-mark{display:none!important;}
+}
