@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 140" role="img" aria-labelledby="title desc">
+  <title id="title">Gemeente Emmen</title>
+  <desc id="desc">Rood geometrisch beeldmerk met het woord Gemeente Emmen voor gebruik in het onderzoeksprototype.</desc>
+  <!-- Prototype-reproductie op basis van publiek zichtbaar Gemeente Emmen-beeldmerk. Controleer de officiële huisstijl vóór formele publicatie. -->
+  <g fill="#cf0a5a">
+    <path d="M18 20h36l22 22-18 18-16-16v58H18z"/>
+    <path d="M84 20h36v82H84V44L68 60 50 42 72 20z" opacity=".92"/>
+    <path d="M46 58l18 18-18 18-18-18z" opacity=".72"/>
+  </g>
+  <g fill="#cf0a5a" font-family="Arial, Helvetica, sans-serif">
+    <text x="145" y="58" font-size="34" font-weight="700" letter-spacing=".2">Gemeente</text>
+    <text x="145" y="103" font-size="52" font-weight="700" letter-spacing="-.8">Emmen</text>
+  </g>
+</svg>
