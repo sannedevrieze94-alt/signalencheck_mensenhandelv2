@@ -18,7 +18,7 @@ async function run() {
   new Function("self", "caches", "URL", "Request", "fetch", source)(selfDouble, cachesDouble, URL, RequestDouble, async () => ({network: true}));
   let waiting;
   events.install({waitUntil(promise) { waiting = promise; }}); await waiting;
-  assert(stored.length === 11 && stored.every(url => url.startsWith(scope)), "Cache bevat vreemde bronnen");
+  assert(stored.length === 13 && stored.every(url => url.startsWith(scope)), "Cache bevat vreemde bronnen");
   assert(opened.includes(scope), "Cache niet geïsoleerd per app");
   events.activate({waitUntil(promise) { waiting = promise; }}); await waiting;
   assert(removed.length === 1 && removed[0] === "signalencheck:" + scope + ":old", "Caches andere app gewist");

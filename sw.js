@@ -3,10 +3,10 @@
  * Geen skipWaiting: een actieve oefensessie wordt niet automatisch vervangen.
  */
 "use strict";
-const VERSION = "3.2.0-prototype";
+const VERSION = "3.3.0-prototype";
 const PREFIX = "signalencheck:" + self.registration.scope + ":";
 const CACHE = PREFIX + VERSION;
-const FILES = ["./", "./index.html", "./styles.css", "./signals.js", "./model.js", "./script.js", "./manifest.webmanifest", "./icons/icon.svg", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png"];
+const FILES = ["./", "./index.html", "./styles.css", "./effects.css", "./signals.js", "./model.js", "./script.js", "./manifest.webmanifest", "./icons/icon.svg", "./icons/gemeente-emmen.svg", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png"];
 const URLS = FILES.map(path => new URL(path, self.registration.scope).href);
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(URLS.map(url => new Request(url, {cache: "reload"})))));

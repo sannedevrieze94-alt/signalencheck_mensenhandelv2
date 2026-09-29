@@ -1,7 +1,7 @@
 /* Pure gegevenslogica: geen risicoscore, opslag of netwerkverkeer. */
 (function (root) {
   "use strict";
-  const VERSION = "3.2.0-prototype";
+  const VERSION = "3.3.0-prototype";
   const STATUSES = Object.freeze({unknown: "Onbekend / niet onderzocht", seen: "Waargenomen", notSeen: "Niet waargenomen"});
   const WARNING = "Onderzoeksprototype — uitsluitend fictieve oefencasuïstiek. Geen gevalideerde risicobeoordeling, vaststelling van mensenhandel of vervanging van professioneel oordeel. Geen of weinig waargenomen signalen sluit mensenhandel niet uit.";
   const SAFETY = "Bij direct gevaar: volg de lokale noodprocedure en bel zo nodig 112. Wacht niet op dit overzicht of op een minimumaantal signalen. Stem overige zorgen af met de bevoegde professional volgens vastgestelde lokale werkafspraken.";

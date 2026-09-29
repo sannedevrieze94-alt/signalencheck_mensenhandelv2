@@ -10,6 +10,7 @@
   <meta name="apple-mobile-web-app-title" content="Signalencheck">
   <title>Signalencheck Mensenhandel — onderzoeksprototype</title>
   <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./effects.css">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
@@ -21,8 +22,12 @@
 <a class="skip-link" href="#main">Ga naar inhoud</a>
 <header class="topbar">
   <div class="brand">
-    <img src="./icons/icon.svg" width="44" height="44" alt="">
-    <div><strong>Signalencheck Mensenhandel</strong><div class="muted">Onderzoeksprototype · Sanne de Vrieze · IVK</div></div>
+    <img class="municipality-logo" src="./icons/gemeente-emmen.svg" width="142" height="38" alt="Gemeente Emmen">
+    <img class="tool-mark" src="./icons/icon.svg" width="42" height="42" alt="">
+    <div class="brand-copy">
+      <strong>Signalencheck Mensenhandel</strong>
+      <span class="prototype-chip">Onderzoeksprototype · IVK</span>
+    </div>
   </div>
   <nav aria-label="Hoofdnavigatie">
     <a href="#check">Check</a><a href="#rapportage">Rapportage</a><a href="#help">Uitleg</a>
@@ -32,18 +37,39 @@
 <main id="main" class="page">
   <noscript><p class="notice">JavaScript is nodig voor deze oefentool. Er is geen check uitgevoerd.</p></noscript>
   <section class="card">
-    <span class="eyebrow">Uitsluitend fictieve oefencasuïstiek</span>
-    <h1>Signalen herkennen en zorgvuldig vastleggen</h1>
-    <p>Dit prototype bouwt voort op een derdejaarsproduct van Sanne de Vrieze. Het helpt bij het oefenen met signalenherkenning en verslaglegging binnen het afstudeeronderzoek naar mensenhandel.</p>
-    <p><strong>Geen gevalideerde risicobeoordeling en geen officieel gemeentelijk registratiesysteem.</strong> Een signaal is geen bewijs. Geen of weinig waargenomen signalen sluit mensenhandel niet uit.</p>
-    <p>Gebruik geen echte namen, adressen of andere herleidbare casusgegevens. Invoer blijft alleen in het geheugen van deze pagina. Sluiten, verversen of beëindiging door het toestel kan alle invoer wissen. Er is geen automatische melding of koppeling met PGAx.</p>
-    <div class="kpis" aria-label="Voortgang over alle uitbuitingsvormen">
-      <div><span>Status</span><strong id="kpiStatus">Nieuw</strong></div>
-      <div><span>Waargenomen</span><strong id="kpiSeen">0</strong></div>
-      <div><span>Niet waargenomen</span><strong id="kpiNotSeen">0</strong></div>
-      <div><span>Onbekend</span><strong id="kpiUnknown">60</strong></div>
+    <div class="hero-app">
+      <div class="hero-main">
+        <span class="eyebrow">Uitsluitend fictieve oefencasuïstiek</span>
+        <h1>Signalen herkennen en zorgvuldig vastleggen</h1>
+        <p>Dit prototype bouwt voort op een derdejaarsproduct van Sanne de Vrieze. Het helpt bij het oefenen met signalenherkenning en verslaglegging binnen het afstudeeronderzoek naar mensenhandel.</p>
+        <p><strong>Geen gevalideerde risicobeoordeling en geen officieel gemeentelijk registratiesysteem.</strong> Een signaal is geen bewijs. Geen of weinig waargenomen signalen sluit mensenhandel niet uit.</p>
+        <p>Gebruik geen echte namen, adressen of andere herleidbare casusgegevens. Invoer blijft alleen in het geheugen van deze pagina. Sluiten, verversen of beëindiging door het toestel kan alle invoer wissen. Er is geen automatische melding of koppeling met PGAx.</p>
+        <div class="kpis" aria-label="Voortgang over alle uitbuitingsvormen">
+          <div><span>Status</span><strong id="kpiStatus">Nieuw</strong></div>
+          <div><span>Waargenomen</span><strong id="kpiSeen">0</strong></div>
+          <div><span>Niet waargenomen</span><strong id="kpiNotSeen">0</strong></div>
+          <div><span>Onbekend</span><strong id="kpiUnknown">60</strong></div>
+        </div>
+        <p id="appStatus" class="muted" role="status"></p>
+      </div>
+      <aside class="hero-visual" aria-labelledby="signalbeeldTitle">
+        <h2 id="signalbeeldTitle">Signaalbeeld</h2>
+        <p class="visual-sub">Visueel overzicht van invoer — geen risicoscore of kansinschatting.</p>
+        <div id="signalRing" class="signal-ring" aria-label="Overzicht onderzochte signalen">
+          <div class="signal-ring-center"><strong id="ringAnswered">0</strong><span>van 60 onderzocht</span></div>
+        </div>
+        <div class="ring-legend" aria-label="Statusverdeling">
+          <div><span>Waargenomen</span><strong id="ringSeen">0</strong></div>
+          <div><span>Niet gezien</span><strong id="ringNotSeen">0</strong></div>
+          <div><span>Onbekend</span><strong id="ringUnknown">60</strong></div>
+        </div>
+        <div class="pillar-mini-grid" aria-label="Waargenomen signalen per vorm">
+          <div class="pillar-mini"><span>Arbeid</span><strong id="pillarArbeid">0</strong></div>
+          <div class="pillar-mini"><span>Seksueel</span><strong id="pillarSeksueel">0</strong></div>
+          <div class="pillar-mini"><span>Crimineel</span><strong id="pillarCrimineel">0</strong></div>
+        </div>
+      </aside>
     </div>
-    <p id="appStatus" class="muted" role="status"></p>
   </section>
   <aside class="notice" aria-label="Acute veiligheid">
     <h2>Veiligheid gaat voor</h2>
@@ -79,6 +105,7 @@
     <h2 id="signalsTitle">2. Signalen per uitbuitingsvorm</h2>
     <p>Beoordeel de relevante vormen. Antwoorden blijven behouden bij wisselen. Kies ‘Niet waargenomen’ alleen als het signaal is onderzocht maar niet is waargenomen. Laat het anders op ‘Onbekend / niet onderzocht’ staan.</p>
     <p>De signaalteksten zijn overgenomen uit het eerdere prototype en moeten nog inhoudelijk worden gevalideerd. Er worden geen gewichten, risicoklassen of trefwoordregels toegepast.</p>
+    <div class="prototype-banner">Het signaalbeeld hierboven visualiseert alleen de ingevoerde statussen. Meer waargenomen signalen betekent niet automatisch een hoger risico.</div>
     <div id="formButtons" class="tabs" role="group" aria-label="Kies uitbuitingsvorm"></div>
     <div id="signalsMount"></div>
   </section>
@@ -123,7 +150,7 @@
       <p id="updateStatus" role="status"></p>
     </details>
     <details><summary>Beperkingen en gegevensgebruik</summary>
-      <p>Dit is een onderzoeksprototype zonder authenticatie, dossieropslag of koppelingen. De schijnbeveiliging met een demo-login en fictieve contactpersonen is verwijderd. De tool verstuurt de ingevoerde antwoorden niet. De hostingprovider ontvangt wel gewone aanvragen voor de appbestanden; ook browser, toestel en downloads vragen eigen beheer.</p>
+      <p>Dit is een onderzoeksprototype zonder authenticatie, dossieropslag of koppelingen. Het Gemeente Emmen-beeldmerk is uitsluitend gebruikt om de onderzoekscontext herkenbaar vorm te geven en maakt deze prototypeversie niet tot een officieel gemeentelijk registratiesysteem.</p>
       <p>Signalen kunnen elkaar overlappen. Er is geen automatische beoordeling van verklaringen, strafbaarheid of slachtofferschap. De bronnenlijst is nog geen verantwoording per signaal. Voor praktijkgebruik zijn inhoudelijke toetsing, vastgestelde werkafspraken en privacy- en beveiligingsbeoordeling nodig.</p>
       <p>‘Nieuwe check’ wist alle invoer van deze sessie, maar niet eerder opgeslagen of gedeelde exports. Verwijder exports afzonderlijk op je toestel.</p>
     </details>
@@ -139,6 +166,6 @@
     </details>
   </section>
 </main>
-<footer class="page muted">© Sanne de Vrieze 2026 · <span id="versionLabel"></span></footer>
+<footer class="page muted">© Sanne de Vrieze 2026 · <span id="versionLabel"></span><span class="logo-credit">Gemeente Emmen-beeldmerk gebruikt als prototypecontext; controleer officiële huisstijl en toestemming vóór formele publicatie.</span></footer>
 </body>
 </html>
