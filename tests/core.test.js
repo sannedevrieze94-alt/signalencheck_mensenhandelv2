@@ -4,27 +4,45 @@ const catalog = require("../signals.js");
 let passed = 0;
 function assert(value, message) { if (!value) throw new Error(message); }
 function test(name, fn) { fn(); passed++; console.log("OK " + name); }
-test("Alle 60 signalen beginnen onbekend; geen risico-uitkomst", () => {
+
+test("Alle 60 signalen beginnen onbekend; prototypescore start op 0/60", () => {
   const state = M.createState(catalog);
   const counts = M.counts(state);
+  const score = M.prototypeRiskScore(state, catalog);
   assert(counts.unknown === 60 && counts.seen === 0 && counts.notSeen === 0, "Onjuiste beginstatus");
   assert(M.flatten(catalog).length === new Set(M.flatten(catalog).map(e => e.id)).size, "Dubbele IDs");
-  assert(!("score" in state) && !("risk" in state), "Onbedoelde risicoscore");
+  assert(score.score === 0 && score.max === 60 && score.assessed === 0 && score.validated === false, "Onjuiste prototype-score");
 });
+
+test("Prototype-risicoscore telt alleen waargenomen signaalregels en loopt monotone op", () => {
+  const state = M.createState(catalog);
+  M.setAnswer(state, "arbeid-specific-1", "seen", "A");
+  assert(M.prototypeRiskScore(state, catalog).score === 1, "Eerste waarneming niet geteld");
+  M.setAnswer(state, "seksueel-specific-4", "seen", "B");
+  assert(M.prototypeRiskScore(state, catalog).score === 2, "Tweede waarneming niet geteld");
+  M.setAnswer(state, "crimineel-general-1", "notSeen", "Onderzocht");
+  const score = M.prototypeRiskScore(state, catalog);
+  assert(score.score === 2 && score.assessed === 3, "Niet-waargenomen signaal verhoogt score");
+});
+
 test("Rapport vereist bevestiging van fictieve gegevens", () => {
   let thrown = false;
   try { M.createSnapshot(M.createState(catalog), catalog); } catch (_) { thrown = true; }
   assert(thrown, "Rapport zonder bevestiging toegestaan");
 });
-test("Ernstig signaal wordt letterlijk vastgelegd zonder laag-risicolabel", () => {
+
+test("Ernstig signaal wordt letterlijk vastgelegd zonder laag/middel/hoog-risicolabel", () => {
   const state = M.createState(catalog);
   M.setContext(state, "trainingConfirmed", true);
   M.setAnswer(state, "seksueel-specific-4", "seen", "Fictieve verklaring");
   const report = M.reportText(M.createSnapshot(state, catalog, "2026-09-27T12:00:00.000Z"));
   assert(report.includes("Gedwongen lijken tot seksuele handelingen"), "Signaal verloren");
-  assert(!/laag risico|middel risico|hoog risico/i.test(report), "Risicolabel aanwezig");
+  assert(report.includes("Indicatieve risicoscore: 1/60"), "Prototype-score ontbreekt");
+  assert(!/laag risico|middel risico|hoog risico/i.test(report), "Niet-gevalideerde risicoklasse aanwezig");
+  assert(report.includes("geen kanspercentage"), "Beperking score ontbreekt");
   assert(report.includes("Wacht niet"), "Onafhankelijke veiligheidsinstructie ontbreekt");
 });
+
 test("Wisselen tussen vormen behoudt beide antwoorden en bronnotities", () => {
   const state = M.createState(catalog);
   M.setContext(state, "trainingConfirmed", true);
@@ -33,9 +51,10 @@ test("Wisselen tussen vormen behoudt beide antwoorden en bronnotities", () => {
   M.setAnswer(state, "seksueel-specific-4", "seen", "Bron B");
   state.active = "arbeid";
   const snapshot = M.createSnapshot(state, catalog);
-  assert(snapshot.counts.seen === 2, "Antwoord verloren");
+  assert(snapshot.counts.seen === 2 && snapshot.prototypeRisk.score === 2, "Antwoord of score verloren");
   assert(snapshot.entries.find(e => e.id === "arbeid-specific-5").note === "Bron A", "Bron verloren");
 });
+
 test("Wijzigen na rapportage verwijdert oude momentopname en exporteert nieuwe antwoorden", () => {
   const state = M.createState(catalog);
   M.setContext(state, "trainingConfirmed", true);
@@ -45,33 +64,37 @@ test("Wijzigen na rapportage verwijdert oude momentopname en exporteert nieuwe a
   assert(state.snapshot === null, "Verouderde momentopname behouden");
   M.setContext(state, "location", "Oefenlocatie B");
   const next = M.createSnapshot(state, catalog, "2026-09-27T12:01:00.000Z");
-  assert(next.counts.seen === 0 && next.counts.notSeen === 1, "Oude antwoorden geëxporteerd");
+  assert(next.counts.seen === 0 && next.counts.notSeen === 1 && next.prototypeRisk.score === 0, "Oude antwoorden of score geëxporteerd");
   assert(next.context.location === "Oefenlocatie B", "Oude locatie");
   assert(first.entries.find(e => e.id === "arbeid-specific-1").note === "Eerste observatie", "Eerdere momentopname gemuteerd");
   assert(first.context.location === "", "Eerdere context gemuteerd");
   assert(next.revision > first.revision, "Revisie niet gewijzigd");
 });
+
 test("Herhaalde export houdt rapporttijd gelijk zolang invoer gelijk blijft", () => {
   const state = M.createState(catalog);
   M.setContext(state, "trainingConfirmed", true);
   const first = M.createSnapshot(state, catalog, "2026-09-27T12:00:00.000Z");
   assert(first === M.createSnapshot(state, catalog, "2026-09-27T13:00:00.000Z"), "Rapporttijd versprongen");
 });
-test("Acute zorg onafhankelijk van het aantal waargenomen signalen", () => {
+
+test("Acute zorg onafhankelijk van de prototype-risicoscore", () => {
   const state = M.createState(catalog);
   M.setContext(state, "trainingConfirmed", true);
   M.setContext(state, "acuteConcern", "yes");
   const report = M.reportText(M.createSnapshot(state, catalog));
-  assert(report.includes("Acute zorg aangegeven") && report.includes("Waargenomen: 0"), "Veiligheidsinstructie hangt af van aantal");
+  assert(report.includes("Acute zorg aangegeven") && report.includes("Indicatieve risicoscore: 0/60"), "Veiligheidsinstructie hangt af van score");
 });
+
 test("Niet waargenomen en onbekend blijven onderscheiden in het rapport", () => {
   const state = M.createState(catalog);
   M.setContext(state, "trainingConfirmed", true);
   M.setAnswer(state, "crimineel-general-1", "notSeen", "Onderzocht");
   const s = M.createSnapshot(state, catalog);
-  assert(s.counts.notSeen === 1 && s.counts.unknown === 59, "Categorieën samengevoegd");
+  assert(s.counts.notSeen === 1 && s.counts.unknown === 59 && s.prototypeRisk.score === 0, "Categorieën samengevoegd");
 });
-test("Nieuwe state wist typen, hoofdvorm, notities, bevestiging en momentopname", () => {
+
+test("Nieuwe state wist typen, hoofdvorm, notities, bevestiging, score en momentopname", () => {
   let state = M.createState(catalog);
   M.setContext(state, "controlType", "Bedrijfscontrole");
   M.setContext(state, "locationType", "Horeca");
@@ -82,8 +105,9 @@ test("Nieuwe state wist typen, hoofdvorm, notities, bevestiging en momentopname"
   state = M.createState(catalog);
   assert(state.context.controlType === "" && state.context.locationType === "", "Typen niet gewist");
   assert(!state.context.trainingConfirmed && state.snapshot === null && state.active === "arbeid", "Reset onvolledig");
-  assert(M.counts(state).unknown === 60 && !state.answers["arbeid-specific-1"].note, "Antwoorden niet gewist");
+  assert(M.counts(state).unknown === 60 && !state.answers["arbeid-specific-1"].note && M.prototypeRiskScore(state, catalog).score === 0, "Antwoorden of score niet gewist");
 });
+
 test("Ongeldige IDs/statussen worden geweigerd", () => {
   const state = M.createState(catalog);
   let errors = 0;
@@ -92,6 +116,7 @@ test("Ongeldige IDs/statussen worden geweigerd", () => {
   }
   assert(errors === 2, "Onbekende waarde geaccepteerd");
 });
+
 test("Lange tekst en bijzondere tekens blijven in tekstrapport intact", () => {
   const state = M.createState(catalog);
   M.setContext(state, "trainingConfirmed", true);
@@ -109,6 +134,7 @@ test("Ontbrekende meldroute blijft zichtbaar bij volledig ingevulde context", ()
   const report = M.reportText(M.createSnapshot(s, catalog));
   assert(report.includes("nog niet bevestigd") && report.includes("geen melding, taaktoewijzing of overdracht uitgevoerd"), "Voorstel lijkt uitgevoerd");
 });
+
 test("Ontbrekende bron bij waargenomen signaal wordt getoond en bijgewerkt", () => {
   const s = M.createState(catalog);
   M.setAnswer(s, "arbeid-specific-1", "seen", "");
@@ -116,6 +142,7 @@ test("Ontbrekende bron bij waargenomen signaal wordt getoond en bijgewerkt", () 
   M.setAnswer(s, "arbeid-specific-1", "seen", "Fictieve eigen waarneming");
   assert(!M.reviewPoints(s).some(p => p.includes("zonder bron")), "Bronwaarschuwing niet bijgewerkt");
 });
+
 test("Feiten, verklaringen en interpretaties blijven apart; opvolging vernieuwt rapport", () => {
   const s = M.createState(catalog);
   M.setContext(s, "trainingConfirmed", true);

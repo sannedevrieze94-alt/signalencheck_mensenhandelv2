@@ -11,6 +11,7 @@ class Element {
     this.tagName = tag; this.children = []; this.events = {}; this.dataset = {};
     this.value = ""; this.checked = false; this.type = ""; this.textContent = ""; this.hidden = false;
     this.classList = {toggle() {}};
+    this.style = {width: "", setProperty(name, value) { this[name] = value; }};
   }
   set id(value) { this._id = value; nodes.set(value, this); }
   get id() { return this._id; }
@@ -18,6 +19,7 @@ class Element {
   append(...els) { this.children.push(...els); }
   replaceChildren(...els) { this.children = els; }
   setAttribute(name, value) { this[name] = value; }
+  getAttribute(name) { return this[name]; }
   addEventListener(name, fn) { (this.events[name] ||= []).push(fn); }
   dispatch(name) { for (const fn of this.events[name] || []) fn({preventDefault() {}}); }
   focus() { this.focused = true; }
@@ -32,10 +34,7 @@ const context = Object.keys(M.createState(catalog).context).map(key => {
 const listeners = {};
 const document = {
   body: new Element("body"),
-  getElementById(id) {
-    if (!nodes.has(id)) { const el = new Element(); el.id = id; }
-    return nodes.get(id);
-  },
+  getElementById(id) { if (!nodes.has(id)) { const el = new Element(); el.id = id; } return nodes.get(id); },
   createElement(tag) { return new Element(tag); },
   querySelectorAll(selector) { return selector === "[data-context]" ? context : []; },
   addEventListener(name, fn) { listeners[name] = fn; }
@@ -56,18 +55,22 @@ new Function("window", "document", "navigator", "Blob", "URL", code)(window, doc
 listeners.DOMContentLoaded();
 const $ = id => document.getElementById(id);
 function answer(id, value) { $(id).value = value; $(id).dispatch("change"); }
+
 $("trainingConfirmed").checked = true; $("trainingConfirmed").dispatch("change");
 answer("arbeid-specific-5", "seen");
+assert($("riskScore").textContent === "1/60" && $("riskFill").style.width !== "0%", "Live prototype-risicoscore niet bijgewerkt");
 $("arbeid-specific-5-note").value = "Fictieve bron A"; $("arbeid-specific-5-note").dispatch("input");
 $("formButtons").children[1].click();
 answer("seksueel-specific-4", "seen");
+assert($("riskScore").textContent === "2/60", "Tweede waarneming niet in score");
 $("formButtons").children[0].click();
 assert($("arbeid-specific-5").value === "seen" && $("arbeid-specific-5-note").value === "Fictieve bron A", "Wisselen verliest invoer");
 $("formButtons").children[0].click();
 assert($("arbeid-specific-5").value === "seen", "Actieve vorm opnieuw kiezen wist invoer");
 $("buildReportBtn").click();
-assert($("reportPreview").textContent.includes("Waargenomen: 2"), "Vormen niet samengevoegd");
+assert($("reportPreview").textContent.includes("Waargenomen: 2") && $("reportPreview").textContent.includes("Indicatieve risicoscore: 2/60"), "Vormen of score niet samengevoegd");
 answer("arbeid-specific-5", "notSeen");
+assert($("riskScore").textContent === "1/60", "Score niet verlaagd na statuswijziging");
 assert($("reportPreview").textContent.includes("Invoer gewijzigd"), "Oud rapport blijft zichtbaar");
 $("downloadTextBtn").click();
 assert(downloads.length === 1 && downloads[0].includes("Waargenomen: 1; niet waargenomen: 1"), "Export gebruikt oud resultaat");
@@ -83,10 +86,10 @@ window.confirm = () => false; $("resetBtn").click();
 assert($("controlType").value === "Bedrijfscontrole", "Annuleren reset werkt niet");
 window.confirm = () => true; $("resetBtn").click();
 assert($("controlType").value === "" && $("locationType").value === "" && !$("trainingConfirmed").checked, "Reset onvolledig");
-assert($("arbeid-specific-5").value === "unknown" && $("arbeid-specific-5-note").value === "", "Reset laat signaalgegevens staan");
+assert($("arbeid-specific-5").value === "unknown" && $("arbeid-specific-5-note").value === "" && $("riskScore").textContent === "0/60", "Reset laat signaalgegevens of score staan");
 $("downloadTextBtn").click();
 assert(downloads.length === 1, "Export zonder bevestiging");
-console.log("UI-regressies geslaagd: wisselen, meerdere vormen, actuele export/print, tekstveiligheid, acute waarschuwing, annuleren en volledige reset.");
+console.log("UI-regressies geslaagd: wisselen, live score, meerdere vormen, actuele export/print, tekstveiligheid, acute waarschuwing, annuleren en reset.");
 
 $("reviewRole").value = "Fictieve beoordelaarsrol"; $("reviewRole").dispatch("input");
 $("followUpBy").value = "2026-10-01T10:00"; $("followUpBy").dispatch("input");
