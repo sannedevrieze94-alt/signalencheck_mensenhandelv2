@@ -1,6 +1,6 @@
 # Signalencheck Mensenhandel
 
-**Versie 3.2.0-prototype — uitsluitend fictieve oefencasuïstiek.**
+**Versie 3.3.0-prototype — uitsluitend fictieve oefencasuïstiek.**
 
 Onderzoeksprototype van Sanne de Vrieze, voortbouwend op het eerdere derdejaarsproduct. Ondersteunt oefenen met signalenherkenning, het onderscheiden van waarneming en interpretatie en gestructureerde verslaglegging. Geen officieel gemeentelijk registratiesysteem, gevalideerde risicobeoordeling of bewijs van mensenhandel.
 
@@ -8,7 +8,14 @@ Onderzoeksprototype van Sanne de Vrieze, voortbouwend op het eerdere derdejaarsp
 
 De lokale registratie- en meldroute is nog niet bevestigd. Deze versie ondersteunt het ontwerpen en testen van de werkwijze, maar is niet vrijgegeven voor echte casusgegevens.
 
-Nieuw in 3.2:
+Nieuw in 3.3:
+- Gemeente Emmen-beeldmerk in de prototypeheader, gecombineerd met een blijvend zichtbare aanduiding dat dit een onderzoeksprototype is en geen officieel registratiesysteem.
+- Een grafisch **Signaalbeeld** met een ring voor onderzocht, waargenomen, niet waargenomen en onbekend, plus tellingen per uitbuitingsvorm.
+- Het Signaalbeeld is uitsluitend een visualisatie van ingevoerde statussen. Het is geen risicoscore, kansinschatting, ernstclassificatie of besluitregel.
+- Extra visuele laag in `effects.css`: subtiele animaties, sterkere hiërarchie, statusaccenten op signaalkaarten en verbeterde mobiele weergave.
+- Nieuwe visuele assets zijn opgenomen in de PWA-cache.
+
+Reeds aanwezig sinds 3.2:
 - Professionelere, rustigere appvormgeving met duidelijkere hiërarchie, signaalkaarten, navigatie en mobiele weergave.
 - De bestaande veiligheidslogica blijft ongewijzigd: geen risicometers, risicoklassen of automatische conclusies.
 - `docs/VALIDATIEMATRIX.md` bevat een werkmatrix voor alle 60 stabiele signaal-ID's.
@@ -26,14 +33,14 @@ Reeds aanwezig sinds 3.1:
 
 ## Wat is aangepast?
 
-- De niet-gevalideerde gewichten, kansformule, trefwoorddetectie, risicoklassen en risicometers zijn verwijderd. Er worden aantallen invoerregels getoond; die zijn geen risicoscore.
+- De niet-gevalideerde gewichten, kansformule, trefwoorddetectie, risicoklassen en risicometers blijven verwijderd. Er worden aantallen invoerregels en statusverdelingen getoond; die zijn geen risicoscore.
 - Elk signaal heeft drie antwoordmogelijkheden: waargenomen, niet waargenomen en onbekend/niet onderzocht. Standaard is onbekend.
 - Antwoorden en bronnotities blijven behouden bij wisselen van vorm. Rapportage bevat alle drie vormen samen en vermeldt overlap als beperking.
 - Elke wijziging maakt de rapportmomentopname ongeldig. Opstellen, downloaden en afdrukken gebruiken actuele invoer; de generatietijd blijft gelijk zolang de invoer niet wijzigt.
 - Acute veiligheid staat los van het aantal signalen. Een lege check geeft geen laag-risico-oordeel.
-- De demo-login, fictieve contactpersonen en het gemeentelogo zijn verwijderd om schijnbeveiliging en onbedoelde officiële status te voorkomen.
+- Het Gemeente Emmen-beeldmerk is teruggebracht voor herkenbare prototypecontext. In de interface en documentatie staat expliciet dat dit geen officiële gemeentelijke status, goedkeuring of ingebruikname betekent. Controleer vóór formele publicatie de officiële huisstijl en toestemming.
 - Nieuwe check wist alle sessiegegevens na bevestiging. Eerdere exports worden niet verwijderd.
-- Alle actieve opmaak staat in het gekoppelde `styles.css`.
+- Basisopmaak staat in `styles.css`; aanvullende visuele effecten staan in `effects.css`.
 - De externe jsPDF-afhankelijkheid is verwijderd. Afdrukken/PDF gebruikt browserpaginering; een volledig UTF-8-tekstrapport is apart downloadbaar.
 - De app is voorbereid als PWA met manifest, iconen en een service worker voor uitsluitend vaste appbestanden.
 
@@ -55,10 +62,11 @@ Publiceer pas een beoordeelde versie. Deze wijziging configureert of publiceert 
 2. Beoordeel relevante signalen. Niet onderzocht blijft onbekend; niet waargenomen betekent dat het signaal wel is onderzocht.
 3. Leg per signaal vast waarop het antwoord is gebaseerd. Noteer geen echte namen of andere herleidbare gegevens.
 4. Bekijk zo nodig meerdere vormen; de invoer blijft behouden. Overlappende signalen zijn geen onafhankelijke bewijzen.
-5. Beschrijf professionele duiding en voorgestelde opvolging. De app voert deze opvolging niet uit.
-6. Bevestig fictieve invoer en stel het rapport op. Controleer alle inhoud.
-7. Download een tekstrapport of druk af/bewaar als PDF via de browser. Mobiele afdrukmogelijkheden verschillen.
-8. Start een nieuwe check om sessiegegevens te wissen.
+5. Gebruik het Signaalbeeld alleen om te zien wat is ingevuld; interpreteer de aantallen niet als risico, waarschijnlijkheid of ernst.
+6. Beschrijf professionele duiding en voorgestelde opvolging. De app voert deze opvolging niet uit.
+7. Bevestig fictieve invoer en stel het rapport op. Controleer alle inhoud.
+8. Download een tekstrapport of druk af/bewaar als PDF via de browser. Mobiele afdrukmogelijkheden verschillen.
+9. Start een nieuwe check om sessiegegevens te wissen.
 
 Bij direct gevaar geldt de lokale noodprocedure, zo nodig 112. Wacht nooit op een minimumaantal signalen of een rapport. In deze oefentool zijn geen geverifieerde lokale contactroutes opgenomen.
 
@@ -113,12 +121,13 @@ Voor echte casussen zijn eerst gemeentelijke werkafspraken, inhoudelijke validat
 
 | Bestand | Functie |
 |---|---|
-| `index.html` | Semantische invoer, uitleg, bronnen en rapportage |
-| `styles.css` | Responsieve appopmaak en afdrukregels |
+| `index.html` | Semantische invoer, uitleg, bronnen, signaalbeeld en rapportage |
+| `styles.css` | Responsieve basisopmaak en afdrukregels |
+| `effects.css` | Aanvullende appvormgeving, animaties, branding en statusaccenten |
 | `signals.js` | Bestaande signaalteksten met stabiele IDs; nog te valideren |
 | `model.js` | Antwoorden, revisies en consistente rapportmomentopnamen |
-| `script.js` | Browserbediening, veilige tekstweergave, export en PWA-registratie |
-| `manifest.webmanifest`, `sw.js`, `icons/` | Installatiemetadata en offline appbestanden |
+| `script.js` | Browserbediening, signaalbeeld, veilige tekstweergave, export en PWA-registratie |
+| `manifest.webmanifest`, `sw.js`, `icons/` | Installatiemetadata, branding en offline appbestanden |
 | `docs/VALIDATIEMATRIX.md` | Werkmatrix voor inhoudelijke bron- en signaalvalidatie |
 | `tests/` | Regressiecontroles zonder aanvullende npm-pakketten |
 | `docs/` | Onderzoeksverantwoording en handmatige acceptatiecriteria |
