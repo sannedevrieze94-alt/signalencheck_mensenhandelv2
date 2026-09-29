@@ -2,7 +2,7 @@
 
 ## Positie van het prototype
 
-Versie 3.0.0-prototype is een ontwerpinterventie voor fictieve oefencasuïstiek. Beoogde onderzoeksvragen: helpen de antwoordcategorieën bij het scheiden van onbekend en niet waargenomen; leggen toezichthouders hun bronnen duidelijker vast; vinden zij passende vervolgvragen en begrijpen zij dat de tool geen risico of slachtofferschap vaststelt?
+Versie 3.2.0-prototype is een ontwerpinterventie voor fictieve oefencasuïstiek. Beoogde onderzoeksvragen: helpen de antwoordcategorieën bij het scheiden van onbekend en niet waargenomen; leggen toezichthouders hun bronnen duidelijker vast; vinden zij passende vervolgvragen en begrijpen zij dat de tool geen risico of slachtofferschap vaststelt?
 
 Dit zijn te onderzoeken effecten, geen behaalde resultaten. Er is geen bewijs dat de tool mensenhandel voorspelt of dat de oorspronkelijke signaalverzameling volledig is.
 
@@ -14,9 +14,26 @@ Signaalteksten blijven behouden om de inhoudelijke wijziging controleerbaar te h
 
 Er is geen vastgesteld lokaal opvolgingsprotocol ingevoerd. De tool vraagt de invuller een voorgestelde opvolging te beschrijven en vermeldt dat er geen overdracht plaatsvindt.
 
+## Validatiematrix van de 60 signalen
+
+De werkversie staat in `docs/VALIDATIEMATRIX.md`. Daarin zijn alle 60 signaal-ID's uit `signals.js` uitgesplitst naar arbeidsuitbuiting, seksuele uitbuiting en de cataloguspijler criminele uitbuiting. Omdat de repository niet voor ieder signaal een geverifieerde één-op-één-bronkoppeling bevat, blijft de verificatiestatus van alle regels open totdat een daadwerkelijke inhoudelijke beoordeling heeft plaatsgevonden.
+
+De matrix bevat per signaal:
+- signaal-ID en onderwerp;
+- vermoedelijke pijler;
+- exacte beschikbare repositoryverwijzing en de status van de primaire bronkoppeling;
+- verificatiestatus;
+- letterlijke betekenis van het signaal en openstaande alternatieve verklaringen;
+- overlaprisico als risico op inhoudelijke dubbeling/dubbel tellen, niet als risicoscore;
+- benodigde deskundige beoordeling;
+- voorgestelde beoordelaarsrol;
+- openstaande informatie.
+
+De matrix doet geen uitspraak over voorspellende waarde, slachtofferschap, waarschijnlijkheid, ernstscore of risicoscore. Voor criminele uitbuiting is bovendien expliciet vastgelegd dat de repository niet bij alle 20 signalen bevestigt dat het signaal uitsluitend op jongeren ziet. Die jongerenafbakening moet daarom per signaal nog worden beoordeeld.
+
 ## Nog vast te leggen bronmatrix
 
-Vul één regel per signaal-ID uit signals.js in; plaats geen goedkeuringsnamen of -data zonder daadwerkelijke beoordeling.
+De validatiematrix is de werkversie van deze bronmatrix. Vul alleen gegevens aan die daadwerkelijk zijn beoordeeld; plaats geen goedkeuringsnamen of -data zonder daadwerkelijke beoordeling.
 
 | Signaal-ID | Exacte primaire bron en vindplaats | Letterlijk/bewerkt | Betekenis en alternatieve verklaringen | Overlap | Beoordelaar/rol en datum | Status |
 |---|---|---|---|---|---|---|
