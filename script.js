@@ -12,6 +12,32 @@
     if (className) el.className = className;
     return el;
   }
+  function seenForForm(formId) {
+    const form = catalog.find(item => item.id === formId);
+    if (!form) return 0;
+    return form.groups
+      .flatMap(group => group.items)
+      .filter(item => state.answers[item.id].status === "seen").length;
+  }
+  function updateSignalVisual(c) {
+    const total = c.seen + c.notSeen + c.unknown || 60;
+    const answered = c.seen + c.notSeen;
+    $("ringAnswered").textContent = answered;
+    $("ringSeen").textContent = c.seen;
+    $("ringNotSeen").textContent = c.notSeen;
+    $("ringUnknown").textContent = c.unknown;
+    $("pillarArbeid").textContent = seenForForm("arbeid");
+    $("pillarSeksueel").textContent = seenForForm("seksueel");
+    $("pillarCrimineel").textContent = seenForForm("crimineel");
+    const ring = $("signalRing");
+    if (ring && ring.style && typeof ring.style.setProperty === "function") {
+      ring.style.setProperty("--seen-pct", ((c.seen / total) * 100).toFixed(2) + "%");
+      ring.style.setProperty("--answered-pct", ((answered / total) * 100).toFixed(2) + "%");
+    }
+    if (ring && typeof ring.setAttribute === "function") {
+      ring.setAttribute("aria-label", answered + " van " + total + " signalen onderzocht; " + c.seen + " waargenomen, " + c.notSeen + " niet waargenomen en " + c.unknown + " onbekend. Dit is geen risicoscore.");
+    }
+  }
   function updateSummary() {
     const c = M.counts(state);
     $("kpiSeen").textContent = c.seen;
@@ -19,6 +45,7 @@
     $("kpiUnknown").textContent = c.unknown;
     $("kpiStatus").textContent = state.snapshot ? "Rapport actueel" : state.dirty ? "Invoer gewijzigd" : "Nieuw";
     $("acuteNotice").hidden = state.context.acuteConcern !== "yes";
+    updateSignalVisual(c);
     const reviewList = $("reviewPoints");
     reviewList.replaceChildren();
     for (const point of M.reviewPoints(state)) reviewList.appendChild(element("li", point));
@@ -69,6 +96,7 @@
           select.appendChild(option);
         }
         select.value = state.answers[item.id].status;
+        card.dataset.status = select.value;
         const details = element("details");
         const summary = element("summary", "Bron, waarneming en toelichting");
         const noteLabel = element("label", "Toelichting bij: " + item.text);
@@ -82,6 +110,7 @@
         details.open = Boolean(note.value);
         details.append(summary, noteLabel, note);
         function change() {
+          card.dataset.status = select.value;
           M.setAnswer(state, item.id, select.value, note.value);
           onChange();
         }
