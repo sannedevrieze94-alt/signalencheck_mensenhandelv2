@@ -1,149 +1,104 @@
 # Signalencheck Mensenhandel
 
-**Versie 3.3.0-prototype — uitsluitend fictieve oefencasuïstiek.**
+**Versie 3.4.0-prototype — uitsluitend fictieve oefencasuïstiek.**
 
-Onderzoeksprototype van Sanne de Vrieze, voortbouwend op het eerdere derdejaarsproduct. Ondersteunt oefenen met signalenherkenning, het onderscheiden van waarneming en interpretatie en gestructureerde verslaglegging. Geen officieel gemeentelijk registratiesysteem, gevalideerde risicobeoordeling of bewijs van mensenhandel.
+Onderzoeksprototype van Sanne de Vrieze, voortbouwend op het eerdere derdejaarsproduct. De app ondersteunt oefenen met signalenherkenning, het onderscheiden van waarneming en interpretatie en gestructureerde verslaglegging. Dit is geen officieel gemeentelijk registratiesysteem en de score is niet gevalideerd als kansberekening of bewijs van mensenhandel.
+
+## Nieuw in 3.4
+
+- Correcter herkenbaar Gemeente Emmen-beeldmerk in de header, gebaseerd op het publiek gebruikte rode pijlenbeeld en woordmerk.
+- Een verder uitgewerkte app-shell met compacter dashboard, sterkere hiërarchie, mobiele bottom-navigation, appknoppen en verfijnde responsive weergave.
+- Een **indicatieve risicoscore van 0–60**: iedere waargenomen signaalregel telt als 1 punt.
+- De risicoscore loopt live mee met de invoer en wordt opgenomen in het oefenrapport.
+- De score toont ook hoeveel van de 60 signalen daadwerkelijk zijn onderzocht, zodat een onvolledig beeld zichtbaar blijft.
+- Geen laag/middel/hoog-labels en geen kanspercentage: daarvoor ontbreken gevalideerde gewichten en grenswaarden.
+- Acute veiligheid blijft volledig losstaan van de totaalscore.
+- Versie en PWA-cache zijn bijgewerkt naar `3.4.0-prototype`.
+
+## Betekenis van de indicatieve risicoscore
+
+De score is een transparante onderzoeksprototype-index:
+
+`score = aantal waargenomen signaalregels`
+
+De maximale score is 60. Niet waargenomen en onbekend/niet onderzocht leveren geen punten op.
+
+Een hogere score betekent dus alleen dat **meer signaalregels zijn waargenomen**. De score is nog niet gevalideerd als maat voor de kans op uitbuiting. Signalen kunnen overlappen, verschillen in betekenis en ernst en alternatieve verklaringen hebben. Een score van bijvoorbeeld 20/60 betekent nadrukkelijk niet “33% kans op mensenhandel”.
+
+De score is bedoeld om in het afstudeeronderzoek te kunnen toetsen of een eenvoudige oplopende totaalindicator gebruikers helpt samenhang te herkennen zonder professioneel oordeel te vervangen.
 
 ## Vervolg naar gebruik tijdens controles
 
 De lokale registratie- en meldroute is nog niet bevestigd. Deze versie ondersteunt het ontwerpen en testen van de werkwijze, maar is niet vrijgegeven voor echte casusgegevens.
 
-Nieuw in 3.3:
-- Gemeente Emmen-beeldmerk in de prototypeheader, gecombineerd met een blijvend zichtbare aanduiding dat dit een onderzoeksprototype is en geen officieel registratiesysteem.
-- Een grafisch **Signaalbeeld** met een ring voor onderzocht, waargenomen, niet waargenomen en onbekend, plus tellingen per uitbuitingsvorm.
-- Het Signaalbeeld is uitsluitend een visualisatie van ingevoerde statussen. Het is geen risicoscore, kansinschatting, ernstclassificatie of besluitregel.
-- Extra visuele laag in `effects.css`: subtiele animaties, sterkere hiërarchie, statusaccenten op signaalkaarten en verbeterde mobiele weergave.
-- Nieuwe visuele assets zijn opgenomen in de PWA-cache.
+Voor praktijkgebruik zijn minimaal nodig:
+- inhoudelijke validatie van de 60 signalen en hun bronnen;
+- beoordeling van overlap en de betekenis van de prototype-score;
+- vastgestelde gemeentelijke werkafspraken voor duiding, registratie en opvolging;
+- privacy- en beveiligingsbeoordeling;
+- browser-, toestel- en toegankelijkheidstesten;
+- besluit over beheer en formele vrijgave.
 
-Reeds aanwezig sinds 3.2:
-- Professionelere, rustigere appvormgeving met duidelijkere hiërarchie, signaalkaarten, navigatie en mobiele weergave.
-- De bestaande veiligheidslogica blijft ongewijzigd: geen risicometers, risicoklassen of automatische conclusies.
-- `docs/VALIDATIEMATRIX.md` bevat een werkmatrix voor alle 60 stabiele signaal-ID's.
-- De matrix gebruikt uitsluitend repository-inhoud en markeert ontbrekende bronkoppelingen, alternatieve verklaringen en deskundige beoordeling expliciet als openstaand.
-- De derde cataloguspijler blijft in de code `Criminele uitbuiting`; de jongerenafbakening wordt in de validatiematrix per signaal als te bevestigen behandeld waar de repository dit niet expliciet maakt.
+## Gebruik
 
-Reeds aanwezig sinds 3.1:
-- Snelle navigatie tussen context, signalen, opvolging en rapportage.
-- Eigen feitelijke waarnemingen, verklaringen van anderen en interpretaties apart.
-- Voorgestelde beoordelaarsrol, gewenst terugkoppelmoment en open vragen over registratie/overdracht.
-- Niet-blokkerende aandachtspunten bij ontbrekende waarnemingstijd, bronnotities, duiding of opvolging. Dit is geen risico-inschatting.
-- Een korte samenvatting vooraan in het volledige rapport.
-- De onbevestigde lokale route staat altijd in rapport en scherm; voorstellen creëren geen melding, afspraak of taak.
-- Besluitpunten voor invoering in `docs/INVOERING.md`.
+1. Gebruik uitsluitend een fictieve oefencasus en vul de controlecontext in.
+2. Beoordeel relevante signalen. Niet onderzocht blijft `Onbekend`; `Niet waargenomen` betekent dat het signaal wel is onderzocht.
+3. Leg per waargenomen signaal de bron of feitelijke waarneming vast.
+4. Bekijk de indicatieve risicoscore en het signaalbeeld als samenvatting van de invoer, niet als automatisch oordeel.
+5. Beschrijf professionele duiding, alternatieve verklaringen en voorgestelde opvolging.
+6. Bevestig dat uitsluitend fictieve gegevens zijn gebruikt en stel het rapport op.
+7. Controleer het rapport vóór downloaden of afdrukken.
+8. Start een nieuwe check om sessiegegevens te wissen.
 
-## Wat is aangepast?
-
-- De niet-gevalideerde gewichten, kansformule, trefwoorddetectie, risicoklassen en risicometers blijven verwijderd. Er worden aantallen invoerregels en statusverdelingen getoond; die zijn geen risicoscore.
-- Elk signaal heeft drie antwoordmogelijkheden: waargenomen, niet waargenomen en onbekend/niet onderzocht. Standaard is onbekend.
-- Antwoorden en bronnotities blijven behouden bij wisselen van vorm. Rapportage bevat alle drie vormen samen en vermeldt overlap als beperking.
-- Elke wijziging maakt de rapportmomentopname ongeldig. Opstellen, downloaden en afdrukken gebruiken actuele invoer; de generatietijd blijft gelijk zolang de invoer niet wijzigt.
-- Acute veiligheid staat los van het aantal signalen. Een lege check geeft geen laag-risico-oordeel.
-- Het Gemeente Emmen-beeldmerk is teruggebracht voor herkenbare prototypecontext. In de interface en documentatie staat expliciet dat dit geen officiële gemeentelijke status, goedkeuring of ingebruikname betekent. Controleer vóór formele publicatie de officiële huisstijl en toestemming.
-- Nieuwe check wist alle sessiegegevens na bevestiging. Eerdere exports worden niet verwijderd.
-- Basisopmaak staat in `styles.css`; aanvullende visuele effecten staan in `effects.css`.
-- De externe jsPDF-afhankelijkheid is verwijderd. Afdrukken/PDF gebruikt browserpaginering; een volledig UTF-8-tekstrapport is apart downloadbaar.
-- De app is voorbereid als PWA met manifest, iconen en een service worker voor uitsluitend vaste appbestanden.
-
-## Starten
-
-Geen buildstap of externe JavaScript-pakketten nodig. Serveer de repository als statische website. Voor lokale ontwikkeling bijvoorbeeld:
-
-~~~sh
-python3 -m http.server 8000
-~~~
-
-Open `http://localhost:8000`. Voor installatie op een telefoon is een HTTPS-adres nodig; een lokaal IP-adres via gewoon HTTP biedt niet dezelfde PWA-mogelijkheden. Direct openen via `file://` is geen ondersteunde installatie-/offlinewerkwijze.
-
-Publiceer pas een beoordeelde versie. Deze wijziging configureert of publiceert zelf geen hosting. Bij bestaande GitHub Pages kan na beoordeling de gewenste branch worden gepubliceerd via de repository-instellingen; controleer eerst de bestaande publicatieroute.
-
-## Gebruikersstappen
-
-1. Gebruik uitsluitend een fictieve oefencasus; vul context en waarnemingstijd in. Er zijn geen echte casusgegevens nodig.
-2. Beoordeel relevante signalen. Niet onderzocht blijft onbekend; niet waargenomen betekent dat het signaal wel is onderzocht.
-3. Leg per signaal vast waarop het antwoord is gebaseerd. Noteer geen echte namen of andere herleidbare gegevens.
-4. Bekijk zo nodig meerdere vormen; de invoer blijft behouden. Overlappende signalen zijn geen onafhankelijke bewijzen.
-5. Gebruik het Signaalbeeld alleen om te zien wat is ingevuld; interpreteer de aantallen niet als risico, waarschijnlijkheid of ernst.
-6. Beschrijf professionele duiding en voorgestelde opvolging. De app voert deze opvolging niet uit.
-7. Bevestig fictieve invoer en stel het rapport op. Controleer alle inhoud.
-8. Download een tekstrapport of druk af/bewaar als PDF via de browser. Mobiele afdrukmogelijkheden verschillen.
-9. Start een nieuwe check om sessiegegevens te wissen.
-
-Bij direct gevaar geldt de lokale noodprocedure, zo nodig 112. Wacht nooit op een minimumaantal signalen of een rapport. In deze oefentool zijn geen geverifieerde lokale contactroutes opgenomen.
+Bij direct gevaar geldt de lokale noodprocedure, zo nodig 112. Wacht nooit op een score, minimumaantal signalen of rapport.
 
 ## Validatiematrix 60 signalen
 
-De volledige werkmatrix staat in `docs/VALIDATIEMATRIX.md`. Zij is opgebouwd uit `signals.js`, deze README, `docs/ONDERZOEK.md` en de generieke bronnenlijst in `index.html`.
+De werkmatrix staat in `docs/VALIDATIEMATRIX.md`. De repository bevat nog geen geverifieerde één-op-één-koppeling tussen ieder signaal en een primaire bron. Daarom staan de 60 regels inhoudelijk op **OPEN — niet geverifieerd** totdat daadwerkelijke inhoudelijke beoordeling heeft plaatsgevonden.
 
-Per signaal of signaalgroep bevat de matrix:
-- signaal-ID;
-- onderwerp;
-- vermoedelijke pijler;
-- exacte beschikbare bronverwijzing;
-- verificatiestatus;
-- betekenis en openstaande alternatieve verklaringen;
-- overlaprisico als risico op inhoudelijke dubbeling/dubbel tellen;
-- benodigde deskundige beoordeling;
-- beoordelaarsrol;
-- openstaande informatie.
+`Overlaprisico` in deze matrix betekent risico op inhoudelijke dubbeling/dubbel tellen. Het is geen risico op mensenhandel.
 
-De repository bevat op dit moment geen geverifieerde één-op-één-koppeling tussen ieder signaal en een primaire bron. Daarom staan de 60 regels inhoudelijk op **OPEN — niet geverifieerd** totdat een daadwerkelijke beoordeling is uitgevoerd. De matrix doet geen uitspraak over voorspellende waarde, slachtofferschap, waarschijnlijkheid, ernstscore of risicoscore.
+Voor criminele uitbuiting geldt bovendien dat de repository nog niet voor alle 20 regels bevestigt dat het signaal uitsluitend op jongeren ziet. Dat moet per signaal nog worden beoordeeld.
 
 ## Android en iOS
 
-Deze versie bevat de technische basis voor een **installeerbare webapp (PWA)**. Dat is nog geen gepubliceerde of op fysieke toestellen geteste app.
+De repository bevat de technische basis voor een installeerbare **Progressive Web App (PWA)**.
 
-- Android: open de HTTPS-versie in Chrome en kies App installeren/Toevoegen aan startscherm. Waar ondersteund verschijnt een installatieknop in de uitleg.
-- iPhone: open in Safari, kies Delen en Zet op beginscherm. Zet Open als webapp aan wanneer beschikbaar.
-- Controleer na eerste online gebruik de melding over offlinevoorbereiding en test daarna een nieuwe start in vliegtuigstand.
-- Geen achtergrondmeldingen, camera, accountbeheer of native koppelingen geïmplementeerd.
-- Een PWA-installatie bewaart **geen** antwoorden. Een mobiel besturingssysteem kan een achtergrondvenster beëindigen zonder waarschuwing.
-- Een nieuwe service-worker-versie wordt niet geforceerd in een actieve sessie. Bewaar het oefenrapport en sluit alle appvensters voordat een update actief wordt.
-- Verhoog `VERSION` in `model.js` en `sw.js` bij elke release die appbestanden wijzigt.
-- De browser kan offlinebestanden verwijderen. Offlinegebruik is dus geen gegarandeerde archivering.
-
-Een latere App Store/Google Play-versie kan bijvoorbeeld met Capacitor worden verpakt. Daarvoor zijn aparte native projecten, bouwomgevingen, ondertekening, distributieaccounts, fysieke toesteltests en winkelbeoordeling nodig. Die zijn hier niet aangemaakt.
-
-Technische documentatie:
-- https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable
-- https://support.apple.com/en-lamr/guide/iphone/iphea86e5236/ios
-- https://capacitorjs.com/docs/ios
-- https://capacitorjs.com/docs/android
+- Android: open de HTTPS-versie in Chrome en kies `App installeren` of `Toevoegen aan startscherm`.
+- iPhone: open in Safari, kies `Delen` en `Zet op beginscherm`.
+- Antwoorden worden niet lokaal opgeslagen; een toestel kan een achtergrondvenster beëindigen.
+- De service worker cachet uitsluitend vaste appbestanden, geen invoer of rapporten.
+- Een latere App Store/Google Play-versie kan bijvoorbeeld via Capacitor worden verpakt, maar daarvoor zijn aparte native bouw-, ondertekenings- en distributiestappen nodig.
 
 ## Gegevens en beveiliging
 
-Antwoorden staan uitsluitend in JavaScript-geheugen van de actieve pagina. Geen `localStorage`, IndexedDB, cookies voor antwoorden, analytics, invoer-API, serverdatabase of automatische overdracht. De service worker cachet alleen een vaste lijst appbestanden, geen gegenereerde rapporten of ingevoerde gegevens. Er worden geen externe JavaScript-bibliotheken geladen.
+Antwoorden staan uitsluitend in het JavaScript-geheugen van de actieve pagina. Er is geen `localStorage`, IndexedDB, antwoordcookie, analytics, invoer-API, serverdatabase of automatische overdracht. Exports staan daarna buiten de app en moeten afzonderlijk worden beheerd.
 
-Dit is geen verklaring dat het gehele toestel of de hostingomgeving niets verwerkt: hosting ontvangt bestandsverzoeken; browsers, downloads, printerwachtrijen en cloudback-ups vallen buiten deze code. Er is geen toegangsbeveiliging. Een bevestigingsvakje maakt echte gegevens niet anoniem en vervangt geen beveiliging.
+Het Gemeente Emmen-beeldmerk wordt gebruikt als herkenbare prototypecontext. Dat maakt deze versie niet automatisch tot een formeel gemeentelijk product of goedgekeurd registratiesysteem. Controleer interne huisstijl- en publicatieafspraken vóór formele ingebruikname.
 
-Voor echte casussen zijn eerst gemeentelijke werkafspraken, inhoudelijke validatie en een privacy- en beveiligingsbeoordeling nodig. Het onderzoek moet doel, verantwoordelijken, toegang, bewaartermijnen en overdracht vastleggen. Zie `docs/ONDERZOEK.md`.
-
-## Bestanden
+## Belangrijkste bestanden
 
 | Bestand | Functie |
 |---|---|
-| `index.html` | Semantische invoer, uitleg, bronnen, signaalbeeld en rapportage |
-| `styles.css` | Responsieve basisopmaak en afdrukregels |
-| `effects.css` | Aanvullende appvormgeving, animaties, branding en statusaccenten |
-| `signals.js` | Bestaande signaalteksten met stabiele IDs; nog te valideren |
-| `model.js` | Antwoorden, revisies en consistente rapportmomentopnamen |
-| `script.js` | Browserbediening, signaalbeeld, veilige tekstweergave, export en PWA-registratie |
+| `index.html` | App-shell, invoer, dashboard, score, uitleg en rapportage |
+| `styles.css` | Basisopmaak en afdrukregels |
+| `effects.css` | Appvormgeving, mobiele navigatie, branding, dashboard en animaties |
+| `signals.js` | 60 stabiele signaal-ID's; inhoud nog te valideren |
+| `model.js` | Statussen, prototype-risicoscore, snapshots en rapporttekst |
+| `script.js` | UI-logica, live score, tabs, export en PWA-registratie |
 | `manifest.webmanifest`, `sw.js`, `icons/` | Installatiemetadata, branding en offline appbestanden |
-| `docs/VALIDATIEMATRIX.md` | Werkmatrix voor inhoudelijke bron- en signaalvalidatie |
-| `tests/` | Regressiecontroles zonder aanvullende npm-pakketten |
-| `docs/` | Onderzoeksverantwoording en handmatige acceptatiecriteria |
+| `docs/VALIDATIEMATRIX.md` | Werkmatrix voor bron- en signaalvalidatie |
+| `docs/ONDERZOEK.md` | Onderzoeksverantwoording, beperkingen en evaluatievoorstel |
+| `tests/` | Regressiecontroles |
 
 ## Controleren
 
-Met Node.js 18 of nieuwer, vanuit de repository:
+Met Node.js 18 of nieuwer:
 
-~~~sh
+```sh
 node tests/core.test.js
 node tests/ui.test.js
 node tests/pwa.test.js
-~~~
+```
 
-De UI-test gebruikt een minimale DOM-double en de PWA-test een gesimuleerde cache. Zij bewijzen geen browsercompatibiliteit, toegankelijkheid, correct afdrukgedrag of fysieke installatie. Voer de openstaande controles in `docs/TESTPLAN.md` uit vóór publicatie.
-
-## Status inhoudelijke onderbouwing
-
-De 60 signaalregels zijn overgenomen uit de eerdere versie. De oorspronkelijke bronnenlijst blijft zichtbaar, met expliciete vermelding dat de inhoud en koppeling per signaal niet zijn geverifieerd. Geen nieuwe criminologische, juridische of empirische geldigheid wordt geclaimd. De bronnenlijst verwijst naar PGAx; er is geen koppeling met PGAx.
+De tests bewijzen geen fysieke toestelcompatibiliteit, toegankelijkheid, formele inhoudelijke validatie of correct praktijkgebruik. Voer daarnaast de controles uit `docs/TESTPLAN.md` uit.
