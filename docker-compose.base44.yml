@@ -1,0 +1,19 @@
+# Base44 development environment for Signalencheck Mensenhandel (static PWA).
+# The app is pure HTML/CSS/JS with no build step and no backend, so nginx serves
+# the bind-mounted source directly — edits to files are reflected on refresh.
+services:
+  web:
+    image: nginx:alpine
+    restart: on-failure
+    ports:
+      - "3000:80"
+    volumes:
+      - ./:/usr/share/nginx/html:ro
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
+    command: ["nginx", "-g", "daemon off;"]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:80/ | grep -q 'Signalencheck' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
