@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#17233f">
-  <meta name="description" content="Onderzoeksprototype voor het oefenen met signalenherkenning en verslaglegging rond mensenhandel.">
+  <meta name="description" content="Onderzoeksprototype voor signalenherkenning en verslaglegging rond mensenhandel.">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Signalencheck">
@@ -30,10 +30,14 @@
     </div>
   </div>
   <nav aria-label="Hoofdnavigatie">
-    <a href="#check">Context</a><a href="#signalen">Signalen</a><a href="#rapportage">Rapport</a><a href="#help">Uitleg</a>
+    <a href="#check">Context</a>
+    <a href="#covert-observation">Heimelijk</a>
+    <a href="#signalen">Signalen</a>
+    <a href="#rapportage">Rapport</a>
     <button type="button" id="resetBtn">Nieuwe check</button>
   </nav>
 </header>
+
 <main id="main" class="page app-shell">
   <noscript><p class="notice">JavaScript is nodig voor deze oefentool. Er is geen check uitgevoerd.</p></noscript>
 
@@ -41,8 +45,8 @@
     <div class="hero-app">
       <div class="hero-main">
         <span class="eyebrow">Uitsluitend fictieve oefencasuïstiek</span>
-        <h1>Signalen herkennen. Samenhang zien. Zorgvuldig vastleggen.</h1>
-        <p>Dit prototype bouwt voort op een derdejaarsproduct van Sanne de Vrieze en ondersteunt het oefenen met signalenherkenning en verslaglegging binnen het afstudeeronderzoek naar mensenhandel.</p>
+        <h1>Signalen herkennen. Samenhang zien. Zorgvuldig rapporteren.</h1>
+        <p>Deze app ondersteunt het oefenen met signalenherkenning en verslaglegging binnen het afstudeeronderzoek naar mensenhandel. Arbeidsuitbuiting, seksuele uitbuiting en criminele uitbuiting worden afzonderlijk beoordeeld.</p>
         <p><strong>Geen gevalideerde kansberekening en geen officieel gemeentelijk registratiesysteem.</strong> Een signaal is geen bewijs. Geen of weinig waargenomen signalen sluit mensenhandel niet uit.</p>
         <div class="hero-actions no-print">
           <a class="app-button app-button-primary" href="#check">Start nieuwe check</a>
@@ -57,22 +61,21 @@
         <p id="appStatus" class="muted" role="status"></p>
       </div>
 
-      <aside class="hero-dashboard" aria-label="Dashboard signaalbeeld en indicatieve risicoscore">
+      <aside class="hero-dashboard" aria-label="Dashboard signaalbeeld en indicatieve score">
         <div class="dashboard-topline">
           <div><span class="dashboard-kicker">Live overzicht</span><h2>Signaalbeeld</h2></div>
           <span class="live-dot">actueel</span>
         </div>
-
         <div class="dashboard-grid">
           <div class="risk-card" aria-labelledby="riskTitle">
             <div class="risk-heading">
-              <span id="riskTitle">Indicatieve risicoscore</span>
-              <strong id="riskScore">0/60</strong>
+              <span id="riskTitle">Score Arbeidsuitbuiting</span>
+              <strong id="riskScore">0/38,5</strong>
             </div>
             <div class="risk-track" aria-hidden="true"><span id="riskFill"></span></div>
-            <p id="riskText">0 waargenomen signaalregels.</p>
-            <p class="risk-caption">Prototype-index: 1 punt per waargenomen signaalregel. Een hogere score betekent alleen dat meer signaalregels zijn waargenomen; dit is geen kanspercentage en geen gevalideerde beslisregel.</p>
-            <span id="riskCompleteness" class="score-chip">Beeld onvolledig · 0/60 onderzocht</span>
+            <p id="riskText">0/20 signalen binnen deze vorm beoordeeld.</p>
+            <p class="risk-caption">Prototype-index per uitbuitingsvorm: 0,5 × n<sup>1,45</sup>, afgerond op 0,25 punt. De score loopt progressief op met het aantal waargenomen signalen en is geen kanspercentage.</p>
+            <span id="riskCompleteness" class="score-chip">Vormspecifieke score · geen totaalscore</span>
           </div>
 
           <div class="signal-panel">
@@ -86,7 +89,6 @@
             </div>
           </div>
         </div>
-
         <div class="pillar-mini-grid" aria-label="Waargenomen signalen per vorm">
           <div class="pillar-mini"><span>Arbeidsuitbuiting</span><strong id="pillarArbeid">0</strong></div>
           <div class="pillar-mini"><span>Seksuele uitbuiting</span><strong id="pillarSeksueel">0</strong></div>
@@ -102,7 +104,10 @@
   </aside>
 
   <nav class="step-nav" aria-label="Stappen van de check">
-    <a href="#check"><span>1</span>Context</a><a href="#signalen"><span>2</span>Signalen</a><a href="#opvolging"><span>3</span>Opvolging</a><a href="#rapportage"><span>4</span>Rapport</a>
+    <a href="#check"><span>1</span>Context</a>
+    <a href="#signalen"><span>2</span>Signalen</a>
+    <a href="#opvolging"><span>3</span>Opvolging</a>
+    <a href="#rapportage"><span>4</span>Rapport</a>
   </nav>
 
   <section id="check" class="card app-section" aria-labelledby="contextTitle">
@@ -115,20 +120,20 @@
       <label>Type controle<select id="controlType" data-context="controlType"><option value="">Kies een type</option><option>Integrale controle</option><option>Controle seksinrichting</option><option>Controle kassen/tuinbouw</option><option>Woningcontrole</option><option>Bedrijfscontrole</option><option>Overig</option></select></label>
       <label>Type locatie<select id="locationType" data-context="locationType"><option value="">Kies een type</option><option>Woning</option><option>Bedrijfspand</option><option>Seksinrichting</option><option>Kassen</option><option>Horeca</option><option>Loods / opslag</option><option>Garage / werkplaats</option><option>Overig</option></select></label>
     </div>
-    <p id="timeHelp" class="muted">Waarnemingstijd is de lokale tijd van de invuller; het rapport vermeldt afzonderlijk het moment van opstellen in UTC.</p>
+    <p id="timeHelp" class="muted">Waarnemingstijd is de lokale tijd van de invuller.</p>
     <div class="text-grid">
-      <label>Eigen feitelijke waarnemingen<textarea id="findings" data-context="findings" maxlength="20000" placeholder="Wat is in de fictieve casus waargenomen? Vermeld ook de bron."></textarea></label>
-      <label>Verklaringen van anderen<textarea id="statements" data-context="statements" maxlength="20000" placeholder="Wie verklaarde wat? Maak duidelijk dat dit een verklaring is en geen eigen waarneming."></textarea></label>
+      <label>Eigen feitelijke waarnemingen<textarea id="findings" data-context="findings" maxlength="20000" placeholder="Wat is in de fictieve casus feitelijk waargenomen?"></textarea></label>
+      <label>Verklaringen van anderen<textarea id="statements" data-context="statements" maxlength="20000" placeholder="Wie verklaarde wat? Houd verklaringen gescheiden van eigen waarnemingen."></textarea></label>
     </div>
-    <label>Context, interpretaties en alternatieve verklaringen<textarea id="observations" data-context="observations" maxlength="20000" placeholder="Scheid aannames en verklaringen van feitelijke waarnemingen."></textarea></label>
+    <label>Context, interpretaties en alternatieve verklaringen<textarea id="observations" data-context="observations" maxlength="20000" placeholder="Benoem context en mogelijke alternatieve verklaringen; scheid interpretatie van feit."></textarea></label>
     <label>Zijn er zorgen over acute veiligheid in de oefencasus?<select id="acuteConcern" data-context="acuteConcern"><option value="unknown">Onbekend / niet beoordeeld</option><option value="yes">Ja</option><option value="no">Geen acute zorg aangegeven</option></select></label>
     <p id="acuteNotice" class="notice" role="status" hidden>Acute zorg aangegeven. Volg direct de lokale noodprocedure; wacht niet op een score of rapport. Bel bij direct gevaar zo nodig 112.</p>
   </section>
 
   <section id="signalen" class="card app-section" aria-labelledby="signalsTitle">
     <div class="section-heading"><span class="section-number">02</span><div><p class="section-kicker">Signalering</p><h2 id="signalsTitle">Signalen per uitbuitingsvorm</h2></div></div>
-    <p>Beoordeel de relevante vormen. Kies ‘Niet waargenomen’ alleen als het signaal is onderzocht maar niet is gezien. Laat het anders op ‘Onbekend / niet onderzocht’ staan.</p>
-    <div class="score-explainer"><strong>Indicatieve score:</strong> iedere waargenomen signaalregel telt als 1 punt. De score is bewust eenvoudig en transparant. Overlap tussen signalen, alternatieve verklaringen en verschil in betekenis worden niet automatisch gewogen; daarom is de score nog geen gevalideerde inschatting van uitbuiting.</div>
+    <p>Beoordeel alleen de vorm of vormen die voor de oefencasus relevant zijn. Een niet-beoordeelde vorm wordt niet inhoudelijk in de rapportage opgenomen.</p>
+    <div class="score-explainer"><strong>Indicatieve vormscore:</strong> de score wordt per uitbuitingsvorm berekend met <strong>0,5 × n<sup>1,45</sup></strong>, afgerond op 0,25 punt. Voorbeeld: 1 waargenomen signaal = 0,5; 2 = 1,25; 3 = 2,5. Alleen als alle drie de vormen zijn beoordeeld verschijnt daarnaast een integrale somscore.</div>
     <div id="formButtons" class="tabs" role="group" aria-label="Kies uitbuitingsvorm"></div>
     <div id="signalsMount"></div>
   </section>
@@ -136,9 +141,9 @@
   <section id="opvolging" class="card app-section" aria-labelledby="followTitle">
     <div class="section-heading"><span class="section-number">03</span><div><p class="section-kicker">Professionele duiding</p><h2 id="followTitle">Duiding en voorgestelde opvolging</h2></div></div>
     <aside class="notice"><strong>Lokale registratie- en meldroute nog niet bevestigd</strong><p>De velden hieronder vormen een voorstel voor afstemming. Er wordt niemand geïnformeerd, geen taak toegewezen en geen dossier aangemaakt.</p></aside>
-    <p>Bespreek samenhang, onzekerheden en alternatieve verklaringen. De indicatieve risicoscore vervangt deze professionele duiding niet.</p>
-    <label>Professionele duiding<textarea id="professionalReview" data-context="professionalReview" maxlength="20000" placeholder="Welke duiding is in de oefensituatie nodig, door wie en waarom?"></textarea></label>
-    <label>Voorgestelde opvolging<textarea id="followUp" data-context="followUp" maxlength="20000" placeholder="Beschrijf de voorgestelde stap, verantwoordelijke rol en het gewenste moment van terugkoppeling."></textarea></label>
+    <p>Bespreek samenhang, onzekerheden en alternatieve verklaringen. De indicatieve score vervangt professionele duiding niet.</p>
+    <label>Professionele duiding<textarea id="professionalReview" data-context="professionalReview" maxlength="20000" placeholder="Beschrijf de professionele duiding van de waarnemingen en signalen."></textarea></label>
+    <label>Voorgestelde opvolging<textarea id="followUp" data-context="followUp" maxlength="20000" placeholder="Beschrijf de voorgestelde vervolgstap en waarom die passend is."></textarea></label>
     <div class="field-grid">
       <label>Voorgestelde rol voor beoordeling<input id="reviewRole" data-context="reviewRole" maxlength="250" autocomplete="off" placeholder="Rol ter afstemming; geen naam of toewijzing"></label>
       <label>Gewenst terugkoppelmoment<input id="followUpBy" data-context="followUpBy" type="datetime-local" aria-describedby="followUpHelp"></label>
@@ -149,21 +154,22 @@
   </section>
 
   <section id="rapportage" class="card app-section" aria-labelledby="reportTitle">
-    <div class="section-heading"><span class="section-number">04</span><div><p class="section-kicker">Verslaglegging</p><h2 id="reportTitle">Oefenrapport</h2></div></div>
-    <p class="no-print">Rapporteren en exporteren gebruiken alle actuele invoer, over de drie vormen samen. Lees het rapport na. Een download of afdruk voert geen overdracht uit.</p>
-    <details class="no-print" open><summary>Nog te controleren in deze vastlegging</summary><p>Deze aandachtspunten gaan over de volledigheid van de invoer en mogen acute opvolging niet vertragen.</p><ul id="reviewPoints"></ul></details>
-    <div class="actions no-print"><button type="button" class="primary" id="buildReportBtn">Rapport opstellen</button><button type="button" id="downloadTextBtn">Download tekstrapport</button><button type="button" id="printBtn">Afdrukken / PDF bewaren</button></div>
+    <div class="section-heading"><span class="section-number">04</span><div><p class="section-kicker">Verslaglegging</p><h2 id="reportTitle">Toezichthoudersrapportage</h2></div></div>
+    <p class="no-print">De rapportgenerator verwerkt alleen de daadwerkelijk beoordeelde uitbuitingsvorm(en). Worden alle drie de vormen beoordeeld, dan volgt aanvullend een integrale samenvatting. De losse module Heimelijke waarneming wordt alleen opgenomen wanneer deze is geactiveerd.</p>
+    <details class="no-print" open><summary>Nog te controleren in deze vastlegging</summary><p>Deze aandachtspunten gaan over volledigheid en mogen acute opvolging niet vertragen.</p><ul id="reviewPoints"></ul></details>
+    <div class="actions no-print"><button type="button" class="primary" id="buildReportBtn">Rapportage opstellen</button><button type="button" id="downloadTextBtn">Download rapportage</button><button type="button" id="printBtn">Afdrukken / PDF bewaren</button></div>
     <p id="actionMessage" role="status" class="no-print"></p>
-    <p class="muted no-print">PDF bewaren gebruikt de afdrukfunctie van je browser. Exports staan buiten deze app en worden niet gewist door ‘Nieuwe check’.</p>
-    <pre id="reportPreview" aria-label="Inhoud oefenrapport">Nog geen rapport opgesteld.</pre>
+    <p class="muted no-print">Controleer de gegenereerde tekst altijd op feitelijke juistheid voordat deze wordt gebruikt of gedeeld.</p>
+    <pre id="reportPreview" aria-label="Inhoud toezichthoudersrapportage">Nog geen rapportage opgesteld.</pre>
   </section>
 
   <section id="help" class="card app-section">
-    <div class="section-heading"><span class="section-number">i</span><div><p class="section-kicker">Over deze versie</p><h2>Gebruik, installatie en bronnen</h2></div></div>
+    <div class="section-heading"><span class="section-number">i</span><div><p class="section-kicker">Over deze versie</p><h2>Gebruik, installatie en beperkingen</h2></div></div>
     <details><summary>Installeren op Android of iPhone</summary><p>Na publicatie via HTTPS: open de app op Android in Chrome en kies ‘App installeren’ of ‘Toevoegen aan startscherm’. Op iPhone: open in Safari, kies Delen en ‘Zet op beginscherm’.</p><button type="button" id="installBtn" hidden>App installeren</button><p id="offlineStatus" role="status">Offlinebeschikbaarheid nog niet bevestigd.</p><p id="updateStatus" role="status"></p></details>
-    <details><summary>Beperkingen van de indicatieve risicoscore</summary><p>De score telt uitsluitend het aantal waargenomen signaalregels: één punt per regel, maximaal 60. Zij is niet empirisch gekalibreerd, corrigeert niet voor overlap en geeft geen kanspercentage op mensenhandel. Een ernstige afzonderlijke waarneming kan bovendien directe opvolging vragen ongeacht de totaalscore.</p></details>
-    <details><summary>Beperkingen en gegevensgebruik</summary><p>Dit is een onderzoeksprototype zonder authenticatie, dossieropslag of koppelingen. Het Gemeente Emmen-beeldmerk maakt deze versie niet tot een officieel gemeentelijk registratiesysteem.</p><p>Signalen kunnen elkaar overlappen. Er is geen automatische beoordeling van verklaringen, strafbaarheid of slachtofferschap. Voor praktijkgebruik zijn inhoudelijke toetsing, vastgestelde werkafspraken en privacy- en beveiligingsbeoordeling nodig.</p></details>
-    <details><summary>Bronverwijzingen uit het eerdere prototype</summary><p>Onderstaande verwijzingen zijn overgenomen uit de vorige versie. De inhoud en koppeling aan afzonderlijke signalen zijn in deze codewijziging niet geverifieerd.</p><ol><li>CoMensha. (z.d.). <a href="https://www.comensha.nl/over-mensenhandel/signalen-van-mensenhandel/" rel="noreferrer">Signalen van mensenhandel</a>. Oorspronkelijke raadpleegdatum: 27 maart 2026.</li><li>CoMensha. (z.d.). <a href="https://www.comensha.nl/over-mensenhandel/mensenhandel-in-nederland/" rel="noreferrer">Mensenhandel in Nederland</a>. Oorspronkelijke raadpleegdatum: 27 maart 2026.</li><li>Nationaal Rapporteur Mensenhandel en Seksueel Geweld tegen Kinderen. (2025, 17 oktober). <a href="https://www.nationaalrapporteur.nl/actueel/nieuws/2025/10/17/jaarcijfers-mensenhandel-2024-aantal-minderjarige-slachtoffers-van-criminele-uitbuiting-stijgt" rel="noreferrer">Jaarcijfers mensenhandel 2024</a>.</li><li>PGAx. (z.d.). <a href="https://pgax.nl/voor-wie/gemeenten" rel="noreferrer">PGAx voor gemeenten</a>. Geen integratie aanwezig.</li><li>Vereniging van Nederlandse Gemeenten. (2021, 12 maart). <a href="https://vng.nl/sites/default/files/2021-03/kader-voor-de-aanpak-van-mensenhandel_20210312.pdf" rel="noreferrer">Kader voor de aanpak van mensenhandel door gemeenten</a>.</li></ol></details>
+    <details><summary>Hoe wordt de indicatieve score berekend?</summary><p>Per uitbuitingsvorm: <strong>0,5 × n<sup>1,45</sup></strong>, afgerond op 0,25 punt. `n` is het aantal waargenomen signalen binnen die vorm. De formule is een onderzoeksindex en geen gevalideerd kanspercentage.</p></details>
+    <details><summary>Heimelijke waarneming en persoonsgegevens</summary><p>De losse observatiemodule kan fictieve kentekens, advertentieverwijzingen en feitelijk waarneembare persoonskenmerken bevatten. Voor echt gebruik moeten doel, grondslag, proportionaliteit, toegang, bewaartermijn, beveiliging en lokale werkafspraken vooraf zijn vastgesteld.</p></details>
+    <details><summary>Beperkingen en gegevensgebruik</summary><p>Dit is een onderzoeksprototype zonder authenticatie, dossieropslag of koppelingen. Signalen kunnen overlappen. Er is geen automatische vaststelling van slachtofferschap, strafbaarheid of noodzakelijke interventie.</p><p>Antwoorden staan alleen in het geheugen van de actieve pagina. Een export valt daarna buiten de app.</p></details>
+    <details><summary>Bronverwijzingen uit het eerdere prototype</summary><p>De bronverwijzingen en koppeling aan afzonderlijke signalen worden verder gevalideerd in `docs/VALIDATIEMATRIX.md`.</p><ol><li>CoMensha. Signalen van mensenhandel.</li><li>CoMensha. Mensenhandel in Nederland.</li><li>Nationaal Rapporteur Mensenhandel en Seksueel Geweld tegen Kinderen. Jaarcijfers mensenhandel 2024.</li><li>PGAx voor gemeenten. Geen integratie aanwezig.</li><li>VNG. Kader voor de aanpak van mensenhandel door gemeenten.</li></ol></details>
   </section>
 </main>
 

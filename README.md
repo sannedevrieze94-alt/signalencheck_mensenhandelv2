@@ -1,94 +1,126 @@
 # Signalencheck Mensenhandel
 
-**Versie 3.4.0-prototype — uitsluitend fictieve oefencasuïstiek.**
+**Versie 3.5.0-prototype — uitsluitend fictieve oefencasuïstiek.**
 
-Onderzoeksprototype van Sanne de Vrieze, voortbouwend op het eerdere derdejaarsproduct. De app ondersteunt oefenen met signalenherkenning, het onderscheiden van waarneming en interpretatie en gestructureerde verslaglegging. Dit is geen officieel gemeentelijk registratiesysteem en de score is niet gevalideerd als kansberekening of bewijs van mensenhandel.
+Onderzoeksprototype van Sanne de Vrieze voor het afstudeeronderzoek Integrale Veiligheidskunde. De app ondersteunt het oefenen met signalenherkenning, feitelijke verslaglegging en professionele duiding rond arbeidsuitbuiting, seksuele uitbuiting en criminele uitbuiting.
 
-## Nieuw in 3.4
+Dit is geen officieel gemeentelijk registratiesysteem. De inhoud, scoremethodiek en lokale werkafspraken moeten vóór praktijkgebruik inhoudelijk, juridisch, privacy-technisch en organisatorisch worden vastgesteld.
 
-- Correcter herkenbaar Gemeente Emmen-beeldmerk in de header, gebaseerd op het publiek gebruikte rode pijlenbeeld en woordmerk.
-- Een verder uitgewerkte app-shell met compacter dashboard, sterkere hiërarchie, mobiele bottom-navigation, appknoppen en verfijnde responsive weergave.
-- Een **indicatieve risicoscore van 0–60**: iedere waargenomen signaalregel telt als 1 punt.
-- De risicoscore loopt live mee met de invoer en wordt opgenomen in het oefenrapport.
-- De score toont ook hoeveel van de 60 signalen daadwerkelijk zijn onderzocht, zodat een onvolledig beeld zichtbaar blijft.
-- Geen laag/middel/hoog-labels en geen kanspercentage: daarvoor ontbreken gevalideerde gewichten en grenswaarden.
-- Acute veiligheid blijft volledig losstaan van de totaalscore.
-- Versie en PWA-cache zijn bijgewerkt naar `3.4.0-prototype`.
+## Nieuw in 3.5
 
-## Betekenis van de indicatieve risicoscore
+- De drie uitbuitingsvormen worden **los van elkaar beoordeeld en gerapporteerd**.
+- Alleen de vorm(en) waarin daadwerkelijk signalen zijn beoordeeld komen inhoudelijk in het rapport terug.
+- Pas wanneer alle drie de vormen zijn beoordeeld verschijnt daarnaast een integrale samenvatting.
+- De rapportage is omgebouwd van een technisch overzicht naar een **toezichthoudersrapportage in lopende tekst**.
+- De rapportage opent met de hoedanigheid van toezichthouder als bedoeld in artikel 5:11 Awb en beschrijft vervolgens tijdstip, locatie, type controle, waarnemingen, verklaringen, context, signalen, score, duiding en opvolging.
+- De indicatieve score is progressief in plaats van lineair.
+- Losse module **Heimelijke waarneming** toegevoegd.
+- Heimelijke waarneming kan onder meer vastleggen: observatieperiode, aanloop/bezoekbewegingen, aantal waargenomen personen, koppeling met een publieke advertentiebron zoals Kinky.nl, aantal en duur van bezoeken, patronen, kentekens, feitelijk waarneembare persoonskenmerken en aanvullende observatienotities.
+- De heimelijke module wordt alleen in de rapportage opgenomen wanneer deze daadwerkelijk is geactiveerd.
+- PWA-cache en appversie zijn bijgewerkt naar `3.5.0-prototype`.
 
-De score is een transparante onderzoeksprototype-index:
+## Indicatieve score
 
-`score = aantal waargenomen signaalregels`
+De score wordt **per uitbuitingsvorm** berekend met:
 
-De maximale score is 60. Niet waargenomen en onbekend/niet onderzocht leveren geen punten op.
+`score = 0,5 × n^1,45`
 
-Een hogere score betekent dus alleen dat **meer signaalregels zijn waargenomen**. De score is nog niet gevalideerd als maat voor de kans op uitbuiting. Signalen kunnen overlappen, verschillen in betekenis en ernst en alternatieve verklaringen hebben. Een score van bijvoorbeeld 20/60 betekent nadrukkelijk niet “33% kans op mensenhandel”.
+waarbij `n` het aantal waargenomen signalen binnen die uitbuitingsvorm is. De uitkomst wordt afgerond op 0,25 punt.
 
-De score is bedoeld om in het afstudeeronderzoek te kunnen toetsen of een eenvoudige oplopende totaalindicator gebruikers helpt samenhang te herkennen zonder professioneel oordeel te vervangen.
+Voorbeelden:
 
-## Vervolg naar gebruik tijdens controles
+| Waargenomen signalen | Score |
+|---:|---:|
+| 0 | 0 |
+| 1 | 0,5 |
+| 2 | 1,25 |
+| 3 | 2,5 |
+| 4 | 3,75 |
+| 5 | 5,25 |
+| 10 | 14 |
+| 20 | 38,5 |
 
-De lokale registratie- en meldroute is nog niet bevestigd. Deze versie ondersteunt het ontwerpen en testen van de werkwijze, maar is niet vrijgegeven voor echte casusgegevens.
+Iedere uitbuitingsvorm bevat 20 signaalregels en heeft daarmee in deze prototypeformule een theoretisch maximum van 38,5. Alleen wanneer alle drie de vormen zijn beoordeeld wordt daarnaast een integrale somscore weergegeven.
 
-Voor praktijkgebruik zijn minimaal nodig:
-- inhoudelijke validatie van de 60 signalen en hun bronnen;
-- beoordeling van overlap en de betekenis van de prototype-score;
-- vastgestelde gemeentelijke werkafspraken voor duiding, registratie en opvolging;
-- privacy- en beveiligingsbeoordeling;
-- browser-, toestel- en toegankelijkheidstesten;
-- besluit over beheer en formele vrijgave.
+De formule is een **onderzoeksindex**, geen gevalideerd kanspercentage op mensenhandel. De formule weegt nog niet afzonderlijk voor overlap, ernst, afhankelijkheid tussen signalen of alternatieve verklaringen. Een afzonderlijk ernstig signaal kan dus professionele opvolging vereisen ongeacht de totaalscore.
+
+## Rapportagelogica
+
+- Alleen arbeidsuitbuiting beoordeeld → alleen arbeidsuitbuiting inhoudelijk in rapport.
+- Alleen seksuele uitbuiting beoordeeld → alleen seksuele uitbuiting inhoudelijk in rapport.
+- Twee vormen beoordeeld → beide vormen afzonderlijk in rapport, zonder integrale totaalscore.
+- Alle drie beoordeeld → drie afzonderlijke vormparagrafen plus integrale samenvatting.
+
+De rapportage bevat per beoordeelde vorm:
+
+- aantal beoordeelde signalen;
+- aantal waargenomen, niet-waargenomen en onbekende signalen;
+- vormspecifieke indicatieve score;
+- lijst van waargenomen signalen met bron/toelichting;
+- professionele duiding en voorgestelde opvolging.
+
+## Heimelijke waarneming
+
+De module is een losse optie en staat standaard uit. Wanneer geactiveerd kunnen in de oefencasus worden vastgelegd:
+
+- start en einde observatie;
+- aanloop/bezoekbewegingen;
+- aantal waargenomen vrouwen/personen passend bij de onderzochte context;
+- herleidbaarheid naar een publieke advertentiebron;
+- naam van de publieke bron, bijvoorbeeld Kinky.nl;
+- fictieve advertentie-/profielverwijzing;
+- aantal geregistreerde bezoeken;
+- duur van bezoeken en tijdspatroon;
+- terugkerende patronen;
+- fictieve kentekens;
+- feitelijk waarneembare persoonskenmerken, bijvoorbeeld geschatte leeftijdscategorie, lengte, kleding, haarkleur en opvallende kenmerken;
+- aanvullende feitelijke observatienotities.
+
+Voor echte casussen kunnen kentekens, persoonskenmerken en advertentiegegevens herleidbare persoonsgegevens zijn. De productievariant mag deze daarom pas verwerken nadat doel, grondslag, toegang, bewaartermijnen, beveiliging en lokale werkafspraken zijn vastgesteld.
 
 ## Gebruik
 
-1. Gebruik uitsluitend een fictieve oefencasus en vul de controlecontext in.
-2. Beoordeel relevante signalen. Niet onderzocht blijft `Onbekend`; `Niet waargenomen` betekent dat het signaal wel is onderzocht.
-3. Leg per waargenomen signaal de bron of feitelijke waarneming vast.
-4. Bekijk de indicatieve risicoscore en het signaalbeeld als samenvatting van de invoer, niet als automatisch oordeel.
-5. Beschrijf professionele duiding, alternatieve verklaringen en voorgestelde opvolging.
-6. Bevestig dat uitsluitend fictieve gegevens zijn gebruikt en stel het rapport op.
-7. Controleer het rapport vóór downloaden of afdrukken.
-8. Start een nieuwe check om sessiegegevens te wissen.
+1. Vul de fictieve controlecontext in.
+2. Activeer zo nodig de losse module Heimelijke waarneming en leg feitelijke observaties vast.
+3. Beoordeel één of meer uitbuitingsvormen.
+4. Leg bij waargenomen signalen de feitelijke bron of waarneming vast.
+5. Beschrijf professionele duiding en voorgestelde opvolging.
+6. Bevestig dat uitsluitend fictieve oefengegevens zijn gebruikt.
+7. Stel de rapportage op en controleer de tekst vóór export of afdruk.
 
 Bij direct gevaar geldt de lokale noodprocedure, zo nodig 112. Wacht nooit op een score, minimumaantal signalen of rapport.
 
-## Validatiematrix 60 signalen
+## Validatie
 
-De werkmatrix staat in `docs/VALIDATIEMATRIX.md`. De repository bevat nog geen geverifieerde één-op-één-koppeling tussen ieder signaal en een primaire bron. Daarom staan de 60 regels inhoudelijk op **OPEN — niet geverifieerd** totdat daadwerkelijke inhoudelijke beoordeling heeft plaatsgevonden.
+De 60 signaalregels staan in `signals.js`. De werkmatrix voor bron- en inhoudsvalidatie staat in `docs/VALIDATIEMATRIX.md`. De primaire bronkoppeling per afzonderlijk signaal is nog niet volledig vastgesteld. De validatiematrix doet daarom geen uitspraak over voorspellende waarde of slachtofferschap.
 
-`Overlaprisico` in deze matrix betekent risico op inhoudelijke dubbeling/dubbel tellen. Het is geen risico op mensenhandel.
-
-Voor criminele uitbuiting geldt bovendien dat de repository nog niet voor alle 20 regels bevestigt dat het signaal uitsluitend op jongeren ziet. Dat moet per signaal nog worden beoordeeld.
-
-## Android en iOS
-
-De repository bevat de technische basis voor een installeerbare **Progressive Web App (PWA)**.
-
-- Android: open de HTTPS-versie in Chrome en kies `App installeren` of `Toevoegen aan startscherm`.
-- iPhone: open in Safari, kies `Delen` en `Zet op beginscherm`.
-- Antwoorden worden niet lokaal opgeslagen; een toestel kan een achtergrondvenster beëindigen.
-- De service worker cachet uitsluitend vaste appbestanden, geen invoer of rapporten.
-- Een latere App Store/Google Play-versie kan bijvoorbeeld via Capacitor worden verpakt, maar daarvoor zijn aparte native bouw-, ondertekenings- en distributiestappen nodig.
+De scoreformule is bewust transparant maar nog niet empirisch gevalideerd. In het afstudeeronderzoek kan worden onderzocht of de score bruikbaar en begrijpelijk is, welke signalen overlappen en of verschillende signalen inhoudelijk verschillend zouden moeten wegen.
 
 ## Gegevens en beveiliging
 
-Antwoorden staan uitsluitend in het JavaScript-geheugen van de actieve pagina. Er is geen `localStorage`, IndexedDB, antwoordcookie, analytics, invoer-API, serverdatabase of automatische overdracht. Exports staan daarna buiten de app en moeten afzonderlijk worden beheerd.
+Antwoorden staan uitsluitend in het JavaScript-geheugen van de actieve pagina. Er is geen `localStorage`, IndexedDB, invoer-API, serverdatabase of automatische overdracht. De service worker cachet alleen vaste appbestanden. Exports vallen daarna buiten de app en moeten afzonderlijk worden beheerd.
 
-Het Gemeente Emmen-beeldmerk wordt gebruikt als herkenbare prototypecontext. Dat maakt deze versie niet automatisch tot een formeel gemeentelijk product of goedgekeurd registratiesysteem. Controleer interne huisstijl- en publicatieafspraken vóór formele ingebruikname.
+## Android en iOS
+
+De app is technisch opgezet als Progressive Web App (PWA).
+
+- Android: open de HTTPS-versie in Chrome en kies `App installeren` of `Toevoegen aan startscherm`.
+- iPhone: open in Safari, kies `Delen` en `Zet op beginscherm`.
+
+Een latere App Store- of Google Play-versie kan bijvoorbeeld via Capacitor worden verpakt, maar daarvoor zijn aanvullende native bouw-, ondertekenings-, test- en distributiestappen nodig.
 
 ## Belangrijkste bestanden
 
 | Bestand | Functie |
 |---|---|
-| `index.html` | App-shell, invoer, dashboard, score, uitleg en rapportage |
+| `index.html` | App-shell en vaste scherminhoud |
 | `styles.css` | Basisopmaak en afdrukregels |
-| `effects.css` | Appvormgeving, mobiele navigatie, branding, dashboard en animaties |
-| `signals.js` | 60 stabiele signaal-ID's; inhoud nog te valideren |
-| `model.js` | Statussen, prototype-risicoscore, snapshots en rapporttekst |
-| `script.js` | UI-logica, live score, tabs, export en PWA-registratie |
-| `manifest.webmanifest`, `sw.js`, `icons/` | Installatiemetadata, branding en offline appbestanden |
+| `effects.css` | Appvormgeving, dashboard, branding en mobiele navigatie |
+| `signals.js` | 60 signaalregels met stabiele ID's |
+| `model.js` | Statussen, vormscores, snapshots en rapportagetekst |
+| `script.js` | UI-logica, vormspecifiek dashboard, heimelijke module, export en PWA |
 | `docs/VALIDATIEMATRIX.md` | Werkmatrix voor bron- en signaalvalidatie |
-| `docs/ONDERZOEK.md` | Onderzoeksverantwoording, beperkingen en evaluatievoorstel |
+| `docs/ONDERZOEK.md` | Onderzoeksverantwoording en voorwaarden voor vervolg |
 | `tests/` | Regressiecontroles |
 
 ## Controleren
@@ -101,4 +133,4 @@ node tests/ui.test.js
 node tests/pwa.test.js
 ```
 
-De tests bewijzen geen fysieke toestelcompatibiliteit, toegankelijkheid, formele inhoudelijke validatie of correct praktijkgebruik. Voer daarnaast de controles uit `docs/TESTPLAN.md` uit.
+Deze tests vervangen geen inhoudelijke validatie, juridische/privacybeoordeling, browser- en toesteltest of formele gemeentelijke vrijgave.
