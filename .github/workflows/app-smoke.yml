@@ -1,0 +1,28 @@
+name: App smoke tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [hotfix-v3-6-functional]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install jsdom for browser smoke test
+        run: npm install --no-save jsdom@25
+      - name: Core model tests
+        run: node tests/core.test.js
+      - name: UI structure tests
+        run: node tests/ui.test.js
+      - name: Browser smoke test
+        run: node tests/browser-smoke.test.js
+      - name: PWA tests
+        run: node -e "require('./tests/pwa.test.js')()"
