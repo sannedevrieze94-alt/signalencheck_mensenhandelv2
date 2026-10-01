@@ -6,6 +6,8 @@ const assert = (value, message) => { if (!value) throw new Error(message); };
 const html = fs.readFileSync(path.join(__dirname, "../index.html"), "utf8");
 const script = fs.readFileSync(path.join(__dirname, "../script.js"), "utf8");
 const css = fs.readFileSync(path.join(__dirname, "../app-shell-v36.css"), "utf8");
+const theme = fs.readFileSync(path.join(__dirname, "../emmen-theme-v37.css"), "utf8");
+const manifest = fs.readFileSync(path.join(__dirname, "../manifest.webmanifest"), "utf8");
 
 assert(html.includes('id="homeView"'), "Homepage ontbreekt");
 assert(html.includes('id="openIntegralBtn"') && html.includes('id="openCovertBtn"') && html.includes('id="openReportBtn"'), "Homepage-tegels ontbreken");
@@ -19,5 +21,9 @@ assert(script.includes('showView("homeView"') && script.includes('showView("work
 assert(script.includes("Alleen ‘Waargenomen’ komt later in de rapportage"), "UI maakt rapportagefilter niet duidelijk");
 assert(css.includes(".home-tiles") && css.includes(".home-tile") && css.includes(".app-mobile-nav"), "Appvormgeving voor homepage ontbreekt");
 assert(css.includes(".report-paper"), "Rapportage-styling ontbreekt");
+assert(html.includes("Emmen-gemeente-logo.png"), "Huidig Gemeente Emmen-logo ontbreekt");
+assert(html.includes("emmen-theme-v37.css"), "Emmen-thema is niet gekoppeld");
+assert(theme.includes("--emmen-red:#e30613") && theme.includes(".app-mobile-nav button.active"), "Kleurthema is onvolledig");
+assert(manifest.includes('"theme_color": "#e30613"'), "PWA-themakleur wijkt af");
 
-console.log("UI-regressies geslaagd: homepage, tegels, moduleselectie, heimelijke waarneming, rapportageview en app-shell aanwezig.");
+console.log("UI-regressies geslaagd: homepage, flows, rapportage, Gemeente Emmen-logo en app-thema aanwezig.");
