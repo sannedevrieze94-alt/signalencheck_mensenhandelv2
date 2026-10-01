@@ -84,19 +84,23 @@
     return header;
   }
 
+  function directChildren(parent, className) {
+    return [...parent.children].filter(child => child.classList && child.classList.contains(className));
+  }
+
   function groupObservationCards() {
     if (grouping) return;
     const host = document.getElementById("observationsMount");
     if (!host || !host.children.length) return;
 
-    const mainSection = [...host.querySelectorAll(":scope > .observation-section")]
+    const mainSection = directChildren(host, "observation-section")
       .find(section => section.querySelector("#card-obs-control-third-party"));
     if (!mainSection || mainSection.dataset.categorized === "true") return;
 
     grouping = true;
-    const mainHead = mainSection.querySelector(":scope > .observation-section-head");
+    const mainHead = directChildren(mainSection, "observation-section-head")[0] || null;
     const cards = new Map(
-      [...mainSection.querySelectorAll(":scope > .observation-card")].map(card => [card.dataset.itemId, card])
+      directChildren(mainSection, "observation-card").map(card => [card.dataset.itemId, card])
     );
 
     if (mainHead) {
@@ -134,9 +138,10 @@
 
   function moveLikelihoodToBottom() {
     const checkView = document.getElementById("checkView");
-    const observationPanel = document.querySelector("#observationsMount")?.closest(".app-section");
+    const observationsMount = document.getElementById("observationsMount");
+    const observationPanel = observationsMount ? observationsMount.closest(".app-section") : null;
     const likelihoodPanel = document.querySelector(".likelihood-panel");
-    const actions = checkView?.querySelector(".sticky-workflow-actions");
+    const actions = checkView ? checkView.querySelector(".sticky-workflow-actions") : null;
     if (!checkView || !observationPanel || !likelihoodPanel || !actions) return;
 
     const observationNumber = observationPanel.querySelector(".section-number");
