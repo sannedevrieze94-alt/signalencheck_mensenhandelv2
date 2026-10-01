@@ -1,71 +1,68 @@
 (function () {
   "use strict";
 
+  function prepareDomCompatibility() {
+    const reportOutput = document.getElementById("reportOutput");
+    if (reportOutput && !document.getElementById("reportPreview")) reportOutput.id = "reportPreview";
+    const download = document.getElementById("downloadReportBtn");
+    if (download && !document.getElementById("downloadTextBtn")) download.id = "downloadTextBtn";
+    const print = document.getElementById("printReportBtn");
+    if (print && !document.getElementById("printBtn")) print.id = "printBtn";
+
+    for (const id of ["checkHomeBtn","buildFromCheckBtn","clearHistoryBtn","buildReportBtn"]) {
+      if (document.getElementById(id)) continue;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.id = id;
+      button.hidden = true;
+      document.body.appendChild(button);
+    }
+    for (const id of ["reportState","actionMessage","versionLabel"]) {
+      if (document.getElementById(id)) continue;
+      const span = document.createElement("span");
+      span.id = id;
+      span.hidden = true;
+      document.body.appendChild(span);
+    }
+  }
+
+  prepareDomCompatibility();
+
   const CATEGORY_CONFIG = [
     {
       id: "control-dependency",
       tab: "Controle",
       title: "Controle & afhankelijkheid",
       description: "Waarnemingen over zeggenschap, bewegingsvrijheid, persoonlijke middelen en afhankelijkheid van derden.",
-      items: [
-        "obs-control-third-party",
-        "obs-no-access-resources",
-        "obs-dependent-basic-needs",
-        "obs-restricted-transport-stay",
-        "obs-cannot-speak-alone",
-        "obs-cannot-stop-leave"
-      ]
+      items: ["obs-control-third-party","obs-no-access-resources","obs-dependent-basic-needs","obs-restricted-transport-stay","obs-cannot-speak-alone","obs-cannot-stop-leave"]
     },
     {
       id: "coercion-vulnerability",
       tab: "Dwang",
       title: "Dwang, kwetsbaarheid & misleiding",
       description: "Waarnemingen over druk, geweld, dreiging, schuld, misleiding en het benutten van een kwetsbare positie.",
-      items: [
-        "obs-false-promises",
-        "obs-threat-violence",
-        "obs-debt-position",
-        "obs-minor-vulnerable",
-        "obs-fear-exploiter"
-      ]
+      items: ["obs-false-promises","obs-threat-violence","obs-debt-position","obs-minor-vulnerable","obs-fear-exploiter"]
     },
     {
       id: "labour",
       tab: "Arbeid",
       title: "Arbeid & arbeidsvoorwaarden",
       description: "Waarnemingen over werktijden, arbeidsomstandigheden, beloning en zeggenschap over het werk.",
-      items: [
-        "obs-no-work-autonomy",
-        "obs-dangerous-work",
-        "obs-extreme-hours",
-        "obs-underpaid",
-        "obs-delayed-pay"
-      ]
+      items: ["obs-no-work-autonomy","obs-dangerous-work","obs-extreme-hours","obs-underpaid","obs-delayed-pay"]
     },
     {
       id: "sexual-exploitation",
       tab: "Sekswerk",
       title: "Sekswerk, inkomsten & seksuele uitbuiting",
       description: "Waarnemingen over seksuele dienstverlening, aansturing van sekswerk en het afstaan van opbrengsten.",
-      items: [
-        "obs-coerced-sex",
-        "obs-surrender-money-goods",
-        "obs-sex-work-managed"
-      ]
+      items: ["obs-coerced-sex","obs-surrender-money-goods","obs-sex-work-managed"]
     },
     {
       id: "criminal-exploitation",
       tab: "Criminele inzet",
       title: "Criminele inzet & jonge aanwas",
       description: "Waarnemingen over strafbare opdrachten, ronseling, koeriersbewegingen en inzet van jongeren of kwetsbare personen.",
-      items: [
-        "obs-criminal-tasks",
-        "obs-young-directed-older",
-        "obs-risk-location",
-        "obs-multiple-phones-hidden-tasks",
-        "obs-unclear-role",
-        "obs-drugs-theft-mule"
-      ]
+      items: ["obs-criminal-tasks","obs-young-directed-older","obs-risk-location","obs-multiple-phones-hidden-tasks","obs-unclear-role","obs-drugs-theft-mule"]
     }
   ];
 
@@ -101,7 +98,6 @@
     const target = available.includes(categoryId) ? categoryId : available[0];
     if (!target) return;
     activeCategory = target;
-
     for (const tab of tabs) {
       const selected = tab.dataset.category === target;
       tab.setAttribute("aria-selected", String(selected));
@@ -117,7 +113,6 @@
     tabList.className = "observation-tabs";
     tabList.setAttribute("role", "tablist");
     tabList.setAttribute("aria-label", "Categorieën waarnemingen");
-
     panelData.forEach(data => {
       const button = document.createElement("button");
       button.type = "button";
@@ -153,16 +148,12 @@
     if (grouping) return;
     const host = document.getElementById("observationsMount");
     if (!host || !host.children.length || host.querySelector(".observation-tabs")) return;
-
     const sections = directChildren(host, "observation-section");
     const mainSection = sections.find(section => section.querySelector("#card-obs-control-third-party"));
     const environmentSection = sections.find(section => section.querySelector("#card-env-multiple-reports"));
     if (!mainSection) return;
-
     grouping = true;
-    const cards = new Map(
-      directChildren(mainSection, "observation-card").map(card => [card.dataset.itemId, card])
-    );
+    const cards = new Map(directChildren(mainSection, "observation-card").map(card => [card.dataset.itemId, card]));
     const panels = [];
     const panelData = [];
 
@@ -177,10 +168,7 @@
       let count = 0;
       for (const id of category.items) {
         const card = cards.get(id);
-        if (card) {
-          panel.appendChild(card);
-          count += 1;
-        }
+        if (card) { panel.appendChild(card); count += 1; }
       }
       panels.push(panel);
       panelData.push({...category, count});
@@ -188,12 +176,7 @@
 
     const remaining = [...cards.values()].filter(card => card.parentElement === mainSection);
     if (remaining.length) {
-      const category = {
-        id: "other",
-        tab: "Overig",
-        title: "Overige waarnemingen",
-        description: "Aanvullende waarnemingen die nog niet in een thematische categorie zijn ondergebracht."
-      };
+      const category = {id:"other", tab:"Overig", title:"Overige waarnemingen", description:"Aanvullende waarnemingen die nog niet in een thematische categorie zijn ondergebracht."};
       const panel = document.createElement("section");
       panel.className = "observation-category";
       panel.dataset.category = category.id;
@@ -216,11 +199,7 @@
       if (envHead) {
         envHead.classList.add("observation-category-head");
         const h3 = envHead.querySelector("h3");
-        if (h3) {
-          const h4 = document.createElement("h4");
-          h4.textContent = "Omgeving & dossier";
-          h3.replaceWith(h4);
-        }
+        if (h3) { const h4 = document.createElement("h4"); h4.textContent = "Omgeving & dossier"; h3.replaceWith(h4); }
       }
       const count = environmentSection.querySelectorAll(".observation-card").length;
       panels.push(environmentSection);
@@ -240,7 +219,6 @@
     const likelihoodPanel = document.querySelector(".likelihood-panel");
     const actions = checkView ? checkView.querySelector(".sticky-workflow-actions") : null;
     if (!checkView || !observationPanel || !likelihoodPanel || !actions) return;
-
     const observationNumber = observationPanel.querySelector(".section-number");
     const likelihoodNumber = likelihoodPanel.querySelector(".section-number");
     const likelihoodKicker = likelihoodPanel.querySelector(".section-kicker");
@@ -262,22 +240,15 @@
   }
 
   function simplifyHomeDashboard() {
-    const labels = {
-      openCheckBtn: "Nieuwe check",
-      openCovertBtn: "Heimelijk",
-      openOverviewBtn: "Overzicht",
-      openSettingsBtn: "Instellingen"
-    };
+    const labels = {openCheckBtn:"Nieuwe check", openCovertBtn:"Heimelijk", openOverviewBtn:"Overzicht", openSettingsBtn:"Instellingen"};
     for (const [id, label] of Object.entries(labels)) {
-      const tile = document.getElementById(id);
-      const title = tile ? tile.querySelector(".tile-copy strong") : null;
+      const title = document.getElementById(id)?.querySelector(".tile-copy strong");
       if (title) title.textContent = label;
     }
   }
 
   function fieldValue(id) {
-    const field = document.getElementById(id);
-    return field ? field.value : "";
+    return document.getElementById(id)?.value || "";
   }
 
   function buildPgaXPayload() {
@@ -293,22 +264,16 @@
     }));
     const covertFields = ["covertCaseCode","covertObservedAt","covertLocation","covertDuration","covertThirdPartyControl","covertExchange","covertArrivals","covertVehicles","covertPattern","covertAds","covertNotes"];
     const covertObservation = Object.fromEntries(covertFields.map(id => [id, fieldValue(id)]));
-
     return {
-      exportType: "PGA-x prototype export",
-      prototype: true,
-      transmitted: false,
-      generatedAt: new Date().toISOString(),
-      source: "Signalencheck Mensenhandel – Gemeente Emmen onderzoeksprototype",
-      warning: "Demo-export. Dit bestand is niet naar PGA-x verzonden en vormt geen operationele koppeling.",
-      controlContext: {
-        caseCode: fieldValue("caseCode"),
-        observedAt: fieldValue("observedAt"),
-        observer: fieldValue("observer"),
-        location: fieldValue("location"),
-        controlType: fieldValue("controlType"),
-        locationType: fieldValue("locationType"),
-        acuteConcern: fieldValue("acuteConcern")
+      exportType:"PGA-x prototype export",
+      prototype:true,
+      transmitted:false,
+      generatedAt:new Date().toISOString(),
+      source:"Signalencheck Mensenhandel – Gemeente Emmen onderzoeksprototype",
+      warning:"Demo-export. Dit bestand is niet naar PGA-x verzonden en vormt geen operationele koppeling.",
+      controlContext:{
+        caseCode:fieldValue("caseCode"), observedAt:fieldValue("observedAt"), observer:fieldValue("observer"), location:fieldValue("location"),
+        controlType:fieldValue("controlType"), locationType:fieldValue("locationType"), acuteConcern:fieldValue("acuteConcern")
       },
       observations,
       likelihood,
@@ -342,13 +307,22 @@
     button.textContent = "Exporteren naar PGA-x";
     button.addEventListener("click", downloadPgaXDemo);
     toolbar.appendChild(button);
-
     const status = document.createElement("p");
     status.id = "pgaXExportStatus";
     status.className = "pga-x-export-status";
     status.setAttribute("role", "status");
     status.textContent = "Prototypekoppeling: export wordt als bestand aangemaakt en niet extern verzonden.";
     toolbar.parentElement?.appendChild(status);
+
+    const copy = document.getElementById("copyReportBtn");
+    if (copy && !copy.dataset.boundPrototype) {
+      copy.dataset.boundPrototype = "true";
+      copy.addEventListener("click", async () => {
+        const text = document.getElementById("reportPreview")?.textContent || "";
+        if (!text) return;
+        try { await navigator.clipboard.writeText(text); } catch (_) {}
+      });
+    }
   }
 
   function applyEnhancements() {
@@ -360,16 +334,11 @@
   }
 
   function bindPostRenderHooks() {
-    const ids = ["openCheckBtn", "newCheckBtn", "resumeBtn", "covertToCheckBtn"];
-    for (const id of ids) {
-      const button = document.getElementById(id);
-      if (button) button.addEventListener("click", applyEnhancements);
+    for (const id of ["openCheckBtn","newCheckBtn","resumeBtn","covertToCheckBtn"]) {
+      document.getElementById(id)?.addEventListener("click", applyEnhancements);
     }
-    for (const button of document.querySelectorAll('[data-mobile-view="check"]')) {
-      button.addEventListener("click", applyEnhancements);
-    }
-    const jump = document.getElementById("jumpUnansweredBtn");
-    if (jump) jump.addEventListener("click", revealAttentionCard);
+    for (const button of document.querySelectorAll('[data-mobile-view="check"]')) button.addEventListener("click", applyEnhancements);
+    document.getElementById("jumpUnansweredBtn")?.addEventListener("click", revealAttentionCard);
   }
 
   document.addEventListener("DOMContentLoaded", () => {
