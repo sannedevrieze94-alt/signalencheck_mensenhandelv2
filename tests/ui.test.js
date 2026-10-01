@@ -21,8 +21,14 @@ assert(html.includes('src="./categories-v41.js"'), "Categoriseringslaag wordt ni
 for (const title of ["Controle & afhankelijkheid","Dwang, kwetsbaarheid & misleiding","Arbeid & arbeidsvoorwaarden","Sekswerk, inkomsten & seksuele uitbuiting","Criminele inzet & jonge aanwas"]) {
   assert(categories.includes(title), "Categorie ontbreekt: " + title);
 }
+for (const tab of ["Controle","Dwang","Arbeid","Sekswerk","Criminele inzet","Omgeving"]) {
+  assert(categories.includes(`tab: "${tab}"`) || categories.includes(`tab:"${tab}"`), "Tab ontbreekt: " + tab);
+}
+assert(categories.includes('role", "tablist') && categories.includes('role", "tab') && categories.includes('role", "tabpanel'), "Toegankelijke tabstructuur ontbreekt");
+assert(categories.includes("ArrowRight") && categories.includes("ArrowLeft"), "Toetsenbordnavigatie voor tabs ontbreekt");
 assert(categories.includes("moveLikelihoodToBottom") && categories.includes('textContent = "03"'), "Likelihood wordt niet als laatste stap gepositioneerd");
-assert(categoryTheme.includes(".observation-category-head") && categoryTheme.includes(".likelihood-panel"), "Categorisatie- of resultaatstyling ontbreekt");
+assert(categoryTheme.includes(".observation-tabs") && categoryTheme.includes(".observation-tab") && categoryTheme.includes(".likelihood-panel"), "Tab- of resultaatstyling ontbreekt");
+assert(categoryTheme.includes("aspect-ratio:1/1") && categoryTheme.includes(".home-tile.tile-control") && categoryTheme.includes("--emmen-red"), "Vierkante rood/grijze apptegels ontbreken");
 assert(html.includes('id="covertThirdPartyControl"') && html.includes('id="covertExchange"') && html.includes('id="covertArrivals"'), "Heimelijke waarneming is niet geactualiseerd");
 assert(html.includes('id="themeSetting"') && html.includes('id="pushSetting"') && html.includes('id="inAppSetting"'), "Instellingen ontbreken");
 assert(html.includes('id="overviewView"') && html.includes('id="historyMount"'), "Overzicht met checks ontbreekt");
@@ -33,4 +39,4 @@ assert(html.includes("Emmen-gemeente-logo.png"), "Gemeente Emmen-logo ontbreekt"
 assert(manifest.includes('"theme_color": "#e30613"'), "PWA-themakleur wijkt af");
 assert(html.includes("geen gevalideerde kansberekening"), "Methodische waarschuwing ontbreekt");
 
-console.log("UI-regressies geslaagd: thematische categorieen, likelihood als laatste stap, checklist, overzicht en instellingen aanwezig.");
+console.log("UI-regressies geslaagd: tabs, vierkante apptegels, likelihood onderaan, checklist, overzicht en instellingen aanwezig.");
