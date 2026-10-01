@@ -1,11 +1,16 @@
-/* Pure gegevenslogica: transparante prototype-score, geen opslag of netwerkverkeer. */
+/* Pure gegevenslogica: modulaire selectie, vormscores en rapportage. */
 (function (root) {
   "use strict";
-  const VERSION = "3.5.0-prototype";
+
+  const VERSION = "3.6.0-prototype";
   const STATUSES = Object.freeze({unknown: "Onbekend / niet onderzocht", seen: "Waargenomen", notSeen: "Niet waargenomen"});
-  const WARNING = "Onderzoeksprototype — uitsluitend fictieve oefencasuïstiek. De indicatieve score is een onderzoeksindex en geen gevalideerde kansberekening, vaststelling van mensenhandel of vervanging van professioneel oordeel. Geen of weinig waargenomen signalen sluit mensenhandel niet uit.";
-  const SAFETY = "Bij direct gevaar: volg de lokale noodprocedure en bel zo nodig 112. Wacht niet op een score, minimumaantal signalen of rapport. Stem overige zorgen af met de bevoegde professional volgens vastgestelde lokale werkafspraken.";
-  const WORKFLOW_NOTICE = "Lokale registratie- en meldroute zijn nog niet bevestigd. Dit rapport bevat een voorstel voor afstemming; er is geen melding, taaktoewijzing of overdracht uitgevoerd.";
+  const SAFETY = "Bij direct gevaar: volg de lokale noodprocedure en bel zo nodig 112.";
+
+  const FORM_CONTEXT_KEYS = Object.freeze({
+    arbeid: "includeArbeid",
+    seksueel: "includeSeksueel",
+    crimineel: "includeCrimineel"
+  });
 
   function flatten(catalog) {
     return catalog.flatMap(form => form.groups.flatMap(group => group.items.map(item => ({...item, formId: form.id, form: form.title, group: group.title}))));
@@ -13,40 +18,85 @@
 
   function createState(catalog) {
     return {
-      active: catalog[0].id, revision: 0, snapshot: null, dirty: false,
+      active: catalog[0].id,
+      revision: 0,
+      snapshot: null,
+      dirty: false,
       context: {
-        caseCode: "", observedAt: "", observer: "", location: "", controlType: "", locationType: "",
-        findings: "", statements: "", observations: "",
-        covertObservationEnabled: false, covertStart: "", covertEnd: "", covertFootfall: "unknown",
-        covertWomenSeen: "", covertWebsiteMatch: "unknown", covertWebsiteName: "", covertWebsiteReference: "",
-        covertVisitCount: "", covertVisitDurations: "", covertPattern: "", covertPlateNumbers: "",
-        covertPersonCharacteristics: "", covertNotes: "",
-        reviewRole: "", followUpBy: "", routeQuestions: "", acuteConcern: "unknown",
-        professionalReview: "", followUp: "", trainingConfirmed: false
+        includeGeneral: false,
+        includeArbeid: false,
+        includeSeksueel: false,
+        includeCrimineel: false,
+        caseCode: "",
+        observedAt: "",
+        observer: "",
+        location: "",
+        controlType: "",
+        locationType: "",
+        findings: "",
+        statements: "",
+        observations: "",
+        covertObservationEnabled: false,
+        covertStart: "",
+        covertEnd: "",
+        covertFootfall: "unknown",
+        covertWomenSeen: "",
+        covertWebsiteMatch: "unknown",
+        covertWebsiteName: "",
+        covertWebsiteReference: "",
+        covertVisitCount: "",
+        covertVisitDurations: "",
+        covertPattern: "",
+        covertPlateNumbers: "",
+        covertPersonCharacteristics: "",
+        covertNotes: "",
+        acuteConcern: "unknown",
+        professionalReview: "",
+        followUp: "",
+        reviewRole: "",
+        followUpBy: "",
+        routeQuestions: ""
       },
       answers: Object.fromEntries(flatten(catalog).map(item => [item.id, {status: "unknown", note: ""}]))
     };
   }
 
-  function invalidate(state) { state.revision++; state.snapshot = null; state.dirty = true; }
+  function invalidate(state) {
+    state.revision += 1;
+    state.snapshot = null;
+    state.dirty = true;
+  }
 
   function setAnswer(state, id, status, note) {
     if (!Object.hasOwn(state.answers, id) || !Object.hasOwn(STATUSES, status)) throw new Error("Onbekend signaal of antwoord.");
     const nextNote = String(note ?? "").slice(0, 2000);
     if (state.answers[id].status !== status || state.answers[id].note !== nextNote) {
-      state.answers[id] = {status, note: nextNote}; invalidate(state);
+      state.answers[id] = {status, note: nextNote};
+      invalidate(state);
     }
   }
 
   function setContext(state, key, value) {
     if (!Object.hasOwn(state.context, key)) throw new Error("Onbekend invoerveld.");
-    const boolKeys = new Set(["trainingConfirmed", "covertObservationEnabled"]);
+    const boolKeys = new Set(["includeGeneral", "includeArbeid", "includeSeksueel", "includeCrimineel", "covertObservationEnabled"]);
     const next = boolKeys.has(key) ? Boolean(value) : String(value).slice(0, 20000);
-    if (state.context[key] !== next) { state.context[key] = next; invalidate(state); }
+    if (state.context[key] !== next) {
+      state.context[key] = next;
+      invalidate(state);
+    }
   }
 
-  function counts(state) {
-    return Object.values(state.answers).reduce((out, a) => { out[a.status]++; return out; }, {seen: 0, notSeen: 0, unknown: 0});
+  function selectedFormIds(context) {
+    return Object.entries(FORM_CONTEXT_KEYS).filter(([, key]) => Boolean(context[key])).map(([id]) => id);
+  }
+
+  function counts(state, catalog, selectedOnly = false) {
+    const selected = new Set(selectedFormIds(state.context));
+    const items = flatten(catalog).filter(item => !selectedOnly || selected.has(item.formId));
+    return items.reduce((out, item) => {
+      out[state.answers[item.id].status] += 1;
+      return out;
+    }, {seen: 0, notSeen: 0, unknown: 0});
   }
 
   function scoreFromSeen(seen) {
@@ -55,147 +105,196 @@
   }
 
   function formAssessments(state, catalog) {
+    const selected = new Set(selectedFormIds(state.context));
     return catalog.map(form => {
       const items = form.groups.flatMap(group => group.items);
       const entries = items.map(item => ({...item, formId: form.id, form: form.title, status: state.answers[item.id].status, note: state.answers[item.id].note}));
-      const seen = entries.filter(item => item.status === "seen").length;
+      const seenEntries = entries.filter(item => item.status === "seen");
       const notSeen = entries.filter(item => item.status === "notSeen").length;
       const unknown = entries.filter(item => item.status === "unknown").length;
-      const assessed = seen + notSeen;
-      return Object.freeze({id: form.id, title: form.title, seen, notSeen, unknown, assessed, total: entries.length, score: scoreFromSeen(seen), maxScore: scoreFromSeen(entries.length), isAssessed: assessed > 0, entries});
+      const assessed = seenEntries.length + notSeen;
+      return Object.freeze({
+        id: form.id,
+        title: form.title,
+        selected: selected.has(form.id),
+        seen: seenEntries.length,
+        notSeen,
+        unknown,
+        assessed,
+        total: entries.length,
+        score: scoreFromSeen(seenEntries.length),
+        maxScore: scoreFromSeen(entries.length),
+        entries,
+        seenEntries
+      });
     });
   }
 
   function prototypeRiskScore(state, catalog) {
     const forms = formAssessments(state, catalog);
-    const assessedForms = forms.filter(form => form.isAssessed);
-    const allThreeAssessed = assessedForms.length === catalog.length && catalog.length === 3;
-    const integratedScore = allThreeAssessed ? Math.round(assessedForms.reduce((sum, form) => sum + form.score, 0) * 4) / 4 : null;
-    const integratedMax = allThreeAssessed ? Math.round(assessedForms.reduce((sum, form) => sum + form.maxScore, 0) * 4) / 4 : null;
-    return Object.freeze({forms, assessedForms: assessedForms.map(form => form.id), allThreeAssessed, integratedScore, integratedMax, method: "0,5 × n^1,45, afgerond op 0,25; n = aantal waargenomen signalen per uitbuitingsvorm", validated: false});
+    const selectedForms = forms.filter(form => form.selected);
+    const allThreeSelected = selectedForms.length === 3;
+    const allThreeAssessed = allThreeSelected && selectedForms.every(form => form.assessed > 0);
+    const integratedScore = allThreeAssessed ? Math.round(selectedForms.reduce((sum, form) => sum + form.score, 0) * 4) / 4 : null;
+    const integratedMax = allThreeAssessed ? Math.round(selectedForms.reduce((sum, form) => sum + form.maxScore, 0) * 4) / 4 : null;
+    return Object.freeze({forms, selectedForms, allThreeSelected, allThreeAssessed, integratedScore, integratedMax, validated: false});
   }
 
-  function reviewPoints(state) {
+  function reviewPoints(state, catalog) {
     const points = [];
-    if (!state.context.observedAt.trim()) points.push("Waarnemingstijd ontbreekt.");
-    if (!state.context.findings.trim()) points.push("Feitelijke bevindingen zijn nog niet beschreven.");
-    if (state.context.acuteConcern === "unknown") points.push("Acute veiligheid is nog niet beoordeeld.");
-    const noSource = Object.values(state.answers).filter(a => a.status === "seen" && !a.note.trim()).length;
-    if (noSource) points.push(noSource + " waargenomen signaal/signalen zonder bron of toelichting.");
-    if (state.context.covertObservationEnabled && !state.context.covertNotes.trim()) points.push("Heimelijke waarneming is geselecteerd, maar feitelijke observatienotities ontbreken.");
-    if (!state.context.professionalReview.trim()) points.push("Professionele duiding ontbreekt.");
-    if (!state.context.followUp.trim()) points.push("Voorgestelde vervolgstap ontbreekt.");
-    if (!state.context.reviewRole.trim()) points.push("Een rol voor beoordeling/afstemming is nog niet voorgesteld.");
-    if (!state.context.followUpBy.trim()) points.push("Gewenst terugkoppelmoment is nog niet voorgesteld.");
-    points.push("Bevestig de lokale registratie- en meldroute buiten deze app.");
+    const selectedForms = selectedFormIds(state.context);
+    if (!state.context.observedAt.trim()) points.push("Datum en tijdstip ontbreken.");
+    if (!state.context.location.trim()) points.push("Locatie ontbreekt.");
+    if (!state.context.controlType.trim()) points.push("Type controle ontbreekt.");
+    if (state.context.includeGeneral && !state.context.findings.trim()) points.push("Algemeen is geselecteerd, maar feitelijke waarnemingen ontbreken.");
+    if (state.context.covertObservationEnabled && !state.context.covertNotes.trim() && !state.context.covertVisitCount.trim() && !state.context.covertPlateNumbers.trim()) points.push("Heimelijke waarneming is geselecteerd, maar er zijn nog geen observaties ingevuld.");
+    if (selectedForms.length) {
+      const noSource = flatten(catalog).filter(item => selectedForms.includes(item.formId) && state.answers[item.id].status === "seen" && !state.answers[item.id].note.trim()).length;
+      if (noSource) points.push(noSource + " waargenomen signaal/signalen hebben nog geen toelichting of bron.");
+    }
     return points;
   }
 
   function createSnapshot(state, catalog, now = new Date().toISOString()) {
-    if (!state.context.trainingConfirmed) throw new Error("Bevestig eerst dat uitsluitend fictieve oefengegevens zijn ingevuld.");
     if (state.snapshot) return state.snapshot;
     const entries = flatten(catalog).map(item => ({...item, ...state.answers[item.id]}));
-    state.snapshot = {version: VERSION, revision: state.revision, generatedAt: now, context: {...state.context}, entries, counts: counts(state), prototypeRisk: prototypeRiskScore(state, catalog), warning: WARNING, safety: SAFETY, workflowNotice: WORKFLOW_NOTICE, reviewPoints: reviewPoints(state)};
+    state.snapshot = {
+      version: VERSION,
+      revision: state.revision,
+      generatedAt: now,
+      context: {...state.context},
+      entries,
+      counts: counts(state, catalog, true),
+      prototypeRisk: prototypeRiskScore(state, catalog),
+      reviewPoints: reviewPoints(state, catalog)
+    };
     return state.snapshot;
   }
 
-  function valueOr(value, fallback) { const text = String(value || "").trim(); return text || fallback; }
-  function scoreLabel(score) { return String(score).replace(".", ","); }
-  function yesNoUnknown(value) { return ({yes: "ja", no: "nee", unknown: "onbekend / niet vastgesteld"}[value] || "onbekend / niet vastgesteld"); }
+  function value(value) {
+    return String(value || "").trim();
+  }
 
-  function formatMoment(value) {
-    if (!value) return "het genoemde tijdstip";
-    const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
-    return match ? match[3] + "-" + match[2] + "-" + match[1] + " om " + match[4] + ":" + match[5] + " uur" : value;
+  function scoreLabel(score) {
+    return String(score).replace(".", ",");
+  }
+
+  function formatMoment(raw) {
+    const v = value(raw);
+    if (!v) return "het genoemde tijdstip";
+    const match = v.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+    return match ? match[3] + "-" + match[2] + "-" + match[1] + " om " + match[4] + ":" + match[5] + " uur" : v;
+  }
+
+  function scopeLabels(context) {
+    const labels = [];
+    if (context.includeGeneral) labels.push("algemene controlebevindingen");
+    if (context.includeArbeid) labels.push("arbeidsuitbuiting");
+    if (context.includeSeksueel) labels.push("seksuele uitbuiting");
+    if (context.includeCrimineel) labels.push("criminele uitbuiting");
+    if (context.covertObservationEnabled) labels.push("heimelijke waarneming");
+    return labels;
   }
 
   function covertReportLines(context) {
     if (!context.covertObservationEnabled) return [];
-    const lines = ["", "HEIMELIJKE WAARNEMING"];
-    lines.push("Binnen deze oefencasus is een afzonderlijke heimelijke waarneming geregistreerd. Onderstaande gegevens betreffen feitelijke observaties en vormen op zichzelf geen vaststelling van mensenhandel.");
-    lines.push("Observatieperiode: " + valueOr(context.covertStart, "niet ingevuld") + " tot " + valueOr(context.covertEnd, "niet ingevuld") + ".");
-    lines.push("Aanloop/bezoekbewegingen waargenomen: " + yesNoUnknown(context.covertFootfall) + ".");
-    lines.push("Aantal waargenomen vrouwen/personen passend bij de onderzochte context: " + valueOr(context.covertWomenSeen, "niet ingevuld") + ".");
-    lines.push("Herleidbaarheid naar publieke advertentiebron: " + yesNoUnknown(context.covertWebsiteMatch) + ".");
-    if (String(context.covertWebsiteName || "").trim()) lines.push("Publieke advertentiebron: " + context.covertWebsiteName.trim() + ".");
-    if (String(context.covertWebsiteReference || "").trim()) lines.push("Publieke advertentie/verwijzing: " + context.covertWebsiteReference.trim() + ".");
-    lines.push("Aantal geregistreerde bezoeken: " + valueOr(context.covertVisitCount, "niet ingevuld") + ".");
-    lines.push("Duur van bezoeken / tijdspatroon: " + valueOr(context.covertVisitDurations, "niet ingevuld") + ".");
-    lines.push("Terugkerend patroon / overige observatiekenmerken: " + valueOr(context.covertPattern, "niet ingevuld") + ".");
-    lines.push("Waargenomen kenteken(s): " + valueOr(context.covertPlateNumbers, "niet ingevuld") + ".");
-    lines.push("Feitelijk waarneembare persoonskenmerken: " + valueOr(context.covertPersonCharacteristics, "niet ingevuld") + ".");
-    lines.push("Aanvullende feitelijke observatienotities: " + valueOr(context.covertNotes, "niet ingevuld") + ".");
-    return lines;
+    const body = [];
+    const start = value(context.covertStart);
+    const end = value(context.covertEnd);
+    if (start || end) body.push("De heimelijke waarneming vond plaats" + (start ? " vanaf " + formatMoment(start) : "") + (end ? " tot " + formatMoment(end) : "") + ".");
+    if (context.covertFootfall === "yes") body.push("Tijdens de observatie werd aanloop naar en/of bezoekbeweging bij de locatie waargenomen.");
+    if (value(context.covertWomenSeen)) body.push("Tijdens de observatie werden " + value(context.covertWomenSeen) + " personen waargenomen binnen de onderzochte context.");
+    if (context.covertWebsiteMatch === "yes") {
+      let sentence = "De waargenomen situatie kon worden gerelateerd aan een openbaar toegankelijke advertentiebron";
+      if (value(context.covertWebsiteName)) sentence += ", te weten " + value(context.covertWebsiteName);
+      if (value(context.covertWebsiteReference)) sentence += " (" + value(context.covertWebsiteReference) + ")";
+      body.push(sentence + ".");
+    }
+    if (value(context.covertVisitCount)) body.push("Er werden " + value(context.covertVisitCount) + " bezoeken geregistreerd.");
+    if (value(context.covertVisitDurations)) body.push("Ten aanzien van de duur van de bezoeken werd het volgende waargenomen: " + value(context.covertVisitDurations));
+    if (value(context.covertPattern)) body.push("Het volgende terugkerende patroon werd waargenomen: " + value(context.covertPattern));
+    if (value(context.covertPlateNumbers)) body.push("De volgende kentekens werden waargenomen: " + value(context.covertPlateNumbers));
+    if (value(context.covertPersonCharacteristics)) body.push("Van de waargenomen personen werden de volgende feitelijke kenmerken vastgelegd: " + value(context.covertPersonCharacteristics));
+    if (value(context.covertNotes)) body.push(value(context.covertNotes));
+    return body.length ? ["", "HEIMELIJKE WAARNEMING", ...body] : [];
   }
 
   function formReportLines(form) {
-    const lines = ["", form.title.toUpperCase()];
-    lines.push("Binnen deze uitbuitingsvorm zijn " + form.assessed + " van de " + form.total + " signalen beoordeeld. Daarvan zijn " + form.seen + " signalen als waargenomen geregistreerd en " + form.notSeen + " als niet waargenomen. " + form.unknown + " signalen zijn niet beoordeeld of onbekend gebleven.");
-    lines.push("De indicatieve score voor " + form.title.toLowerCase() + " bedraagt " + scoreLabel(form.score) + " van maximaal " + scoreLabel(form.maxScore) + ". De score is berekend met de onderzoeksformule 0,5 × n^1,45, afgerond op kwartpunten, waarbij n het aantal waargenomen signalen binnen deze uitbuitingsvorm is.");
-    const seenEntries = form.entries.filter(entry => entry.status === "seen");
-    if (seenEntries.length) {
-      lines.push("", "Waargenomen signalen:");
-      for (const entry of seenEntries) lines.push("- " + entry.text + (entry.note.trim() ? " Toelichting/bron: " + entry.note.trim() : ""));
-    } else lines.push("Er zijn binnen deze uitbuitingsvorm geen signalen als waargenomen geregistreerd. Dit sluit uitbuiting niet uit.");
+    if (!form.selected || !form.seenEntries.length) return [];
+    const lines = ["", form.title.toUpperCase(), "Tijdens de controle werden de volgende signalen waargenomen:"];
+    for (const entry of form.seenEntries) {
+      lines.push("- " + entry.text + (value(entry.note) ? " — " + value(entry.note) : ""));
+    }
+    lines.push("Indicatieve score " + form.title.toLowerCase() + ": " + scoreLabel(form.score) + " van maximaal " + scoreLabel(form.maxScore) + ".");
     return lines;
   }
 
   function reportText(snapshot) {
-    const context = snapshot.context;
+    const c = snapshot.context;
     const risk = snapshot.prototypeRisk;
-    const assessedForms = risk.forms.filter(form => form.isAssessed);
-    const acute = ({unknown: "Acute veiligheid is niet beoordeeld.", no: "Er is geen acute zorg aangegeven; dit is geen veiligheidsverklaring.", yes: "Er is acute zorg aangegeven. De lokale noodprocedure dient direct te worden gevolgd; bij direct gevaar wordt 112 gebeld."}[context.acuteConcern] || "Acute veiligheid is niet beoordeeld.");
-    const location = valueOr(context.location, "de genoemde locatie");
-    const controlType = valueOr(context.controlType, "controle");
-    const locationType = valueOr(context.locationType, "locatie");
-    const moment = formatMoment(context.observedAt);
-
+    const location = value(c.location) || "de genoemde locatie";
+    const controlType = value(c.controlType) || "controle";
+    const locationType = value(c.locationType);
+    const scope = scopeLabels(c);
     const lines = [
-      "RAPPORTAGE TOEZICHT — SIGNALENCHECK MENSENHANDEL",
-      "Oefencode: " + valueOr(context.caseCode, "niet ingevuld"),
-      "Versie: " + snapshot.version,
-      "Rapport opgesteld (UTC): " + snapshot.generatedAt,
+      "RAPPORT VAN BEVINDINGEN – TOEZICHT MENSENHANDEL",
+      "",
+      "Rapport-/zaakcode: " + (value(c.caseCode) || "niet ingevuld"),
+      "Toezichthouder: " + (value(c.observer) || "niet ingevuld"),
+      "Datum en tijdstip: " + formatMoment(c.observedAt),
+      "Locatie: " + location,
+      "Type controle: " + controlType,
       "",
       "AANLEIDING EN CONTROLE",
-      "Ik, toezichthouder in dienst van de gemeente Emmen, handelend in mijn hoedanigheid van toezichthouder als bedoeld in artikel 5:11 van de Algemene wet bestuursrecht (Awb), bevond mij op " + moment + " op " + location + ". Op deze locatie voerde ik een " + controlType.toLowerCase() + " uit bij/ter plaatse van een " + locationType.toLowerCase() + ".",
-      "",
-      "WAARNEMINGEN",
-      valueOr(context.findings, "Er zijn geen afzonderlijke feitelijke waarnemingen beschreven."),
-      "",
-      "VERKLARINGEN VAN ANDEREN",
-      valueOr(context.statements, "Er zijn geen verklaringen van anderen vastgelegd."),
-      "",
-      "CONTEXT EN ALTERNATIEVE VERKLARINGEN",
-      valueOr(context.observations, "Er is geen aanvullende context of alternatieve verklaring vastgelegd.")
+      "Ik, toezichthouder in dienst van de gemeente Emmen, handelend in mijn hoedanigheid van toezichthouder als bedoeld in artikel 5:11 van de Algemene wet bestuursrecht (Awb), bevond mij op " + formatMoment(c.observedAt) + " op " + location + ". Op deze locatie voerde ik een " + controlType.toLowerCase() + (locationType ? " uit ter plaatse van een " + locationType.toLowerCase() : " uit") + "."
     ];
 
-    lines.push(...covertReportLines(context));
-    lines.push("", "BEOORDELING SIGNALEN");
+    if (scope.length) lines.push("De controle richtte zich op: " + scope.join(", ") + ".");
 
-    if (!assessedForms.length) lines.push("Geen van de drie uitbuitingsvormen is inhoudelijk beoordeeld. Daarom wordt geen indicatieve score gerapporteerd.");
-    else for (const form of assessedForms) lines.push(...formReportLines(form));
-
-    if (risk.allThreeAssessed) {
-      lines.push("", "INTEGRALE SAMENVATTING");
-      lines.push("Alle drie de uitbuitingsvormen zijn beoordeeld. De afzonderlijke scores bedragen: " + risk.forms.map(form => form.title + " " + scoreLabel(form.score) + "/" + scoreLabel(form.maxScore)).join("; ") + ".");
-      lines.push("De integrale prototype-score bedraagt " + scoreLabel(risk.integratedScore) + " van maximaal " + scoreLabel(risk.integratedMax) + ". Deze score is uitsluitend de som van de drie afzonderlijke vormscores en is geen kanspercentage of gevalideerde grenswaarde.");
-    } else if (assessedForms.length) {
-      lines.push("", "AFBAKENING RAPPORTAGE");
-      lines.push("Deze rapportage bevat uitsluitend de daadwerkelijk beoordeelde uitbuitingsvorm" + (assessedForms.length === 1 ? "" : "en") + ": " + assessedForms.map(form => form.title).join(", ") + ". Niet beoordeelde vormen zijn niet in de inhoudelijke beoordeling of score meegenomen.");
+    if (c.includeGeneral && value(c.findings)) {
+      lines.push("", "FEITELIJKE WAARNEMINGEN", value(c.findings));
     }
 
-    lines.push("", "PROFESSIONELE DUIDING", valueOr(context.professionalReview, "Nog niet ingevuld."));
-    lines.push("", "VOORGESTELDE OPVOLGING", valueOr(context.followUp, "Nog niet ingevuld."));
-    lines.push("Voorgestelde beoordelaarsrol: " + valueOr(context.reviewRole, "nog niet voorgesteld"));
-    lines.push("Gewenst terugkoppelmoment: " + valueOr(context.followUpBy, "nog niet voorgesteld"));
-    lines.push("Nog af te stemmen over registratie/overdracht: " + valueOr(context.routeQuestions, "niet ingevuld"));
-    lines.push("", "ACUTE VEILIGHEID", acute);
-    lines.push("", "METHODISCHE BEPERKING", "De indicatieve score is een onderzoeksprototype. Zij neemt uitsluitend het aantal waargenomen signalen per uitbuitingsvorm als invoer en laat de score progressief oplopen. De formule is niet empirisch gevalideerd voor de kans op mensenhandel, weegt overlap en ernst niet afzonderlijk en vervangt geen professionele duiding of opvolgingsbesluit.");
-    lines.push("", "REGISTRATIE EN OVERDRACHT", snapshot.workflowNotice, "", snapshot.warning, snapshot.safety);
+    lines.push(...covertReportLines(c));
+
+    const formSections = risk.forms.flatMap(formReportLines);
+    if (formSections.length) lines.push("", "WAARGENOMEN SIGNALEN", ...formSections);
+
+    if (risk.allThreeAssessed) {
+      lines.push("", "INTEGRALE SCORE");
+      lines.push("Alle drie de uitbuitingsvormen zijn beoordeeld. De integrale indicatieve score bedraagt " + scoreLabel(risk.integratedScore) + " van maximaal " + scoreLabel(risk.integratedMax) + ".");
+    }
+
+    if (value(c.professionalReview)) lines.push("", "PROFESSIONELE DUIDING", value(c.professionalReview));
+    if (value(c.followUp)) lines.push("", "VOORGESTELDE OPVOLGING", value(c.followUp));
+    if (value(c.reviewRole)) lines.push("Beoordelaarsrol: " + value(c.reviewRole));
+    if (value(c.followUpBy)) lines.push("Terugkoppelmoment: " + formatMoment(c.followUpBy));
+    if (value(c.routeQuestions)) lines.push("Registratie / overdracht: " + value(c.routeQuestions));
+
+    lines.push("", "Opgemaakt op " + new Date(snapshot.generatedAt).toLocaleString("nl-NL") + ".");
     return lines.join("\n");
   }
 
-  const api = {VERSION, STATUSES, WARNING, SAFETY, WORKFLOW_NOTICE, reviewPoints, flatten, createState, invalidate, setAnswer, setContext, counts, scoreFromSeen, formAssessments, prototypeRiskScore, createSnapshot, reportText};
+  const api = {
+    VERSION,
+    STATUSES,
+    SAFETY,
+    FORM_CONTEXT_KEYS,
+    flatten,
+    createState,
+    invalidate,
+    setAnswer,
+    setContext,
+    selectedFormIds,
+    counts,
+    scoreFromSeen,
+    formAssessments,
+    prototypeRiskScore,
+    reviewPoints,
+    createSnapshot,
+    reportText
+  };
+
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.SignalenModel = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);
