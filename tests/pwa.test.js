@@ -25,10 +25,11 @@ async function run() {
 
   let waiting;
   events.install({waitUntil(promise){waiting=promise;}}); await waiting;
-  assert(stored.length === 14 && stored.every(url => url.startsWith(scope)), "Cache bevat vreemde of ontbrekende appbestanden");
+  assert(stored.length === 16 && stored.every(url => url.startsWith(scope)), "Cache bevat vreemde of ontbrekende appbestanden");
   assert(stored.some(url => url.endsWith("emmen-theme-v37.css")), "Thema ontbreekt in cache");
+  assert(stored.some(url => url.endsWith("categories-v41.css")) && stored.some(url => url.endsWith("categories-v41.js")), "Categorisering ontbreekt in offlinecache");
   assert(stored.some(url => url.endsWith("signals.js")) && stored.some(url => url.endsWith("model.js")), "Checklogica ontbreekt in cache");
-  assert(opened.includes("4.0.0-prototype"), "Cacheversie 4.0 ontbreekt");
+  assert(opened.includes("4.1.0-prototype"), "Cacheversie 4.1 ontbreekt");
 
   events.activate({waitUntil(promise){waiting=promise;}}); await waiting;
   assert(removed.length === 1 && removed[0] === "signalencheck:" + scope + ":old", "Caches andere app gewist");
@@ -45,8 +46,8 @@ async function run() {
   }
 
   let response;
-  events.fetch({request:{url:scope + "script.js",method:"GET"},respondWith(promise){response=promise;}});
-  assert((await response).cached,"Appbestand niet uit offlinecache");
+  events.fetch({request:{url:scope + "categories-v41.js",method:"GET"},respondWith(promise){response=promise;}});
+  assert((await response).cached,"Categoriseringsscript niet uit offlinecache");
 
   assert(typeof events.notificationclick === "function", "Meldingklik-handler ontbreekt");
   let notificationWait;
@@ -54,6 +55,6 @@ async function run() {
   await notificationWait;
   assert(focused,"Meldingklik opent/focust app niet");
 
-  console.log("PWA-logica geslaagd: versie 4-cache, offlinebestanden, scope-isolatie en meldingklik.");
+  console.log("PWA-logica geslaagd: versie 4.1-cache, categorisering, offlinebestanden, scope-isolatie en meldingklik.");
 }
 run();
