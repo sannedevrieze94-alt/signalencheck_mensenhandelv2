@@ -1,4 +1,4 @@
-/* Signalencheck 4.3 — categorie-tabs, compact app-dashboard en PGA-x demo-export. */
+/* Signalencheck 4.4 — categorie-tabs, compact app-dashboard, observatiebijlagen en PGA-x demo-export. */
 .observation-tabs{
   display:flex;
   gap:.5rem;
@@ -93,9 +93,7 @@
   font-size:.78rem;
   line-height:1.4;
 }
-.observation-environment-panel>.observation-category-head{
-  grid-template-columns:minmax(0,1fr);
-}
+.observation-environment-panel>.observation-category-head{grid-template-columns:minmax(0,1fr);}
 
 .likelihood-panel{
   margin-top:1.2rem;
@@ -109,12 +107,12 @@
   font-weight:750;
 }
 
-/* Home: rustig app-dashboard zonder hero of begeleidende tekst. */
+/* Home: rustige vierkante apptegels in één grijstoonfamilie. */
 #homeView .home-hero{display:none!important;}
 .home-tiles-four{
   grid-template-columns:repeat(4,minmax(0,1fr))!important;
-  gap:.85rem!important;
-  margin-top:.9rem!important;
+  gap:.95rem!important;
+  margin-top:1rem!important;
 }
 .home-tile,
 .home-tile.tile-control,
@@ -126,17 +124,27 @@
   position:relative;
   display:flex!important;
   flex-direction:column;
-  align-items:flex-start!important;
-  justify-content:space-between;
-  gap:.75rem!important;
-  padding:1.05rem!important;
-  border-radius:22px!important;
-  background:var(--emmen-surface-strong)!important;
-  border:1px solid var(--emmen-border)!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:1rem!important;
+  padding:1.15rem!important;
+  overflow:hidden;
+  border-radius:26px!important;
+  background:linear-gradient(145deg,#f0f1f3 0%,#e4e7ea 100%)!important;
+  border:1px solid rgba(64,72,84,.12)!important;
   color:var(--emmen-ink)!important;
-  box-shadow:0 10px 24px rgba(25,34,48,.08)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 12px 28px rgba(25,34,48,.09)!important;
 }
 .home-tile::before{display:none!important;}
+.home-tile::after{
+  content:"";
+  position:absolute;
+  inset:auto 14% 0;
+  height:3px;
+  border-radius:99px 99px 0 0;
+  background:transparent;
+  transition:background .18s ease;
+}
 .home-tile .tile-icon,
 .home-tile.tile-control .tile-icon,
 .home-tile.tile-covert .tile-icon,
@@ -144,18 +152,30 @@
 .home-tile.tile-settings .tile-icon{
   display:grid;
   place-items:center;
-  width:3rem;
-  height:3rem;
+  width:4rem;
+  height:4rem;
   flex:0 0 auto;
-  border-radius:15px;
-  background:var(--emmen-surface)!important;
-  color:var(--emmen-ink)!important;
-  font-size:1.35rem;
+  border-radius:20px;
+  background:rgba(255,255,255,.68)!important;
+  border:1px solid rgba(74,82,94,.1);
+  color:#4a5058!important;
+  box-shadow:0 8px 18px rgba(35,43,55,.08);
+  font-size:0;
+}
+.home-tile .tile-icon svg{
+  width:1.75rem;
+  height:1.75rem;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
 }
 .home-tile .tile-copy{
   width:100%;
   min-width:0;
-  margin-top:auto;
+  margin:0;
+  text-align:center;
 }
 .home-tile .tile-copy strong,
 .home-tile.tile-control .tile-copy strong,
@@ -164,27 +184,171 @@
 .home-tile.tile-settings .tile-copy strong{
   display:block;
   margin:0;
-  color:var(--emmen-ink)!important;
-  font-size:1rem;
+  color:#3e444c!important;
+  font-size:.98rem;
+  font-weight:800;
+  letter-spacing:-.01em;
   line-height:1.2;
 }
 .home-tile .tile-copy small{display:none!important;}
 .home-tile .tile-arrow{display:none!important;}
-.home-tile:hover{
-  transform:translateY(-2px)!important;
-  border-color:color-mix(in srgb,var(--emmen-red) 32%,var(--emmen-border))!important;
-  box-shadow:0 14px 30px rgba(25,34,48,.12)!important;
+.home-tile:hover,
+.home-tile:focus-visible{
+  transform:translateY(-3px)!important;
+  border-color:rgba(227,6,19,.22)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 17px 34px rgba(25,34,48,.13)!important;
 }
+.home-tile:hover::after,
+.home-tile:focus-visible::after{background:var(--emmen-red);}
+.home-tile:active{transform:translateY(-1px) scale(.985)!important;}
+
 html[data-theme="dark"] .home-tile,
 html[data-theme="dark"] .home-tile.tile-control,
 html[data-theme="dark"] .home-tile.tile-covert,
 html[data-theme="dark"] .home-tile.tile-overview,
 html[data-theme="dark"] .home-tile.tile-settings{
-  background:#292d34!important;
-  border-color:#3b424d!important;
+  background:linear-gradient(145deg,#30343b 0%,#25292f 100%)!important;
+  border-color:#3c424c!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 12px 28px rgba(0,0,0,.24)!important;
 }
-html[data-theme="dark"] .home-tile .tile-icon{background:#353a43!important;color:#f2f4f7!important;}
+html[data-theme="dark"] .home-tile .tile-icon{
+  background:#383d45!important;
+  border-color:#454c57;
+  color:#e6e8eb!important;
+}
 html[data-theme="dark"] .home-tile .tile-copy strong{color:#f2f4f7!important;}
+
+/* Lokale fotobijlagen bij de observatiemodule. */
+.observation-photo-panel{
+  margin:1.2rem 0 .25rem;
+  padding:1rem;
+  border:1px solid var(--emmen-border);
+  border-radius:18px;
+  background:var(--emmen-surface-soft);
+}
+.photo-panel-heading{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:1rem;
+  margin-bottom:.45rem;
+}
+.photo-panel-heading h2{margin:.1rem 0 0;font-size:1.15rem;}
+.photo-local-badge{
+  flex:0 0 auto;
+  padding:.35rem .55rem;
+  border-radius:999px;
+  background:var(--emmen-surface);
+  border:1px solid var(--emmen-border);
+  color:var(--emmen-ink-soft);
+  font-size:.68rem;
+  font-weight:800;
+}
+.photo-help,
+.photo-export-note,
+.photo-status{
+  color:var(--emmen-ink-soft);
+  font-size:.76rem;
+  line-height:1.45;
+}
+.photo-help{margin:.15rem 0 .8rem;}
+.photo-export-note{margin:.8rem 0 0;}
+.photo-status{margin:.65rem 0 .2rem;}
+.photo-upload-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.6rem;
+  align-items:center;
+}
+.photo-file-input{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  overflow:hidden!important;
+  clip:rect(0 0 0 0)!important;
+  clip-path:inset(50%)!important;
+  white-space:nowrap!important;
+}
+.photo-upload-button,
+.photo-clear-button{
+  min-height:42px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:.45rem;
+  padding:.65rem .85rem;
+  border-radius:12px;
+  font-size:.78rem;
+  font-weight:800;
+  cursor:pointer;
+}
+.photo-upload-button{
+  background:var(--emmen-red);
+  border:1px solid var(--emmen-red);
+  color:#fff;
+}
+.photo-clear-button{
+  background:var(--emmen-surface)!important;
+  border:1px solid var(--emmen-border)!important;
+  color:var(--emmen-ink)!important;
+}
+.observation-photo-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:.65rem;
+  margin-top:.65rem;
+}
+.observation-photo-card{
+  position:relative;
+  margin:0;
+  min-width:0;
+  overflow:hidden;
+  border-radius:14px;
+  border:1px solid var(--emmen-border);
+  background:var(--emmen-surface);
+}
+.observation-photo-card img{
+  display:block;
+  width:100%;
+  aspect-ratio:4/3;
+  object-fit:cover;
+  background:var(--emmen-surface-strong);
+}
+.observation-photo-card figcaption{
+  display:flex;
+  flex-direction:column;
+  gap:.12rem;
+  min-width:0;
+  padding:.55rem .6rem;
+}
+.observation-photo-card figcaption span{
+  overflow:hidden;
+  color:var(--emmen-ink);
+  font-size:.72rem;
+  font-weight:750;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.observation-photo-card figcaption small{color:var(--emmen-ink-soft);font-size:.65rem;}
+.photo-remove-button{
+  position:absolute;
+  top:.4rem;
+  right:.4rem;
+  display:grid!important;
+  place-items:center;
+  width:2rem!important;
+  min-width:2rem!important;
+  height:2rem!important;
+  min-height:2rem!important;
+  padding:0!important;
+  border:1px solid rgba(255,255,255,.5)!important;
+  border-radius:999px!important;
+  background:rgba(22,25,30,.72)!important;
+  color:#fff!important;
+  font-size:1.2rem!important;
+  line-height:1!important;
+  backdrop-filter:blur(6px);
+}
 
 /* PGA-x is bewust een demo-export, geen operationele koppeling. */
 .pga-x-export-button{
@@ -212,18 +376,22 @@ html[data-theme="dark"] .home-tile .tile-copy strong{color:#f2f4f7!important;}
   .observation-tab{padding:.6rem .7rem!important;font-size:.74rem;}
   .observation-category-head{padding:.65rem .7rem;}
   .likelihood-panel .section-heading::after{display:none;}
-  .home-tiles-four{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:.7rem!important;}
+  .home-tiles-four{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:.75rem!important;}
   .home-tile,
   .home-tile.tile-control,
   .home-tile.tile-covert,
   .home-tile.tile-overview,
-  .home-tile.tile-settings{padding:.9rem!important;border-radius:19px!important;}
-  .home-tile .tile-icon{width:2.65rem;height:2.65rem;border-radius:13px;}
-  .home-tile .tile-copy strong{font-size:.9rem;}
+  .home-tile.tile-settings{padding:.85rem!important;border-radius:22px!important;gap:.75rem!important;}
+  .home-tile .tile-icon{width:3.35rem;height:3.35rem;border-radius:17px;}
+  .home-tile .tile-icon svg{width:1.5rem;height:1.5rem;}
+  .home-tile .tile-copy strong{font-size:.88rem;}
+  .observation-photo-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
 }
 @media(max-width:430px){
   #reportView .report-toolbar .actions{grid-template-columns:1fr!important;}
+  .observation-photo-panel{padding:.85rem;}
 }
 @media(max-width:380px){
-  .home-tile{padding:.8rem!important;gap:.55rem!important;}
+  .home-tile{padding:.75rem!important;gap:.55rem!important;}
+  .home-tile .tile-icon{width:3rem;height:3rem;}
 }
