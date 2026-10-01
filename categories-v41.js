@@ -160,11 +160,23 @@
     groupObservationCards();
   }
 
+  function bindPostRenderHooks() {
+    const ids = ["openCheckBtn", "newCheckBtn", "resumeBtn", "covertToCheckBtn"];
+    for (const id of ids) {
+      const button = document.getElementById(id);
+      if (button) button.addEventListener("click", applyEnhancements);
+    }
+    for (const button of document.querySelectorAll('[data-mobile-view="check"]')) {
+      button.addEventListener("click", applyEnhancements);
+    }
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     applyEnhancements();
+    bindPostRenderHooks();
     const host = document.getElementById("observationsMount");
     if (!host) return;
-    const observer = new MutationObserver(() => window.requestAnimationFrame(applyEnhancements));
+    const observer = new MutationObserver(applyEnhancements);
     observer.observe(host, {childList:true, subtree:false});
   });
 })();
