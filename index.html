@@ -19,6 +19,7 @@
   <script src="./signals.js" defer></script>
   <script src="./model.js" defer></script>
   <script src="./script.js" defer></script>
+  <script src="./categories-v41.js" defer></script>
 </head>
 <body>
 <a class="skip-link" href="#main">Ga naar inhoud</a>
@@ -91,7 +92,7 @@
   <section id="checkView" class="app-view" hidden aria-labelledby="checkTitle">
     <div class="view-header workflow-header">
       <button type="button" class="back-button" data-go-home aria-label="Terug naar home">‹</button>
-      <div><span class="section-kicker">Signalencheck</span><h1 id="checkTitle">Waarnemingen beoordelen</h1><p>Beantwoord iedere waarneming met Ja of Nee. De app berekent tegelijkertijd drie indicatieve likelihood-scores.</p></div>
+      <div><span class="section-kicker">Signalencheck</span><h1 id="checkTitle">Waarnemingen beoordelen</h1><p>Beantwoord iedere waarneming met Ja of Nee. Bekijk daarna onderaan het gecombineerde signaalbeeld.</p></div>
       <button type="button" class="report-shortcut" id="checkReportBtn">Rapportage</button>
     </div>
 
@@ -110,14 +111,14 @@
     </section>
 
     <section class="card app-section likelihood-panel" aria-labelledby="likelihoodTitle">
-      <div class="section-heading"><span class="section-number">02</span><div><p class="section-kicker">Live analyse</p><h2 id="likelihoodTitle">Likelihood-indicatie</h2></div></div>
+      <div class="section-heading"><span class="section-number">03</span><div><p class="section-kicker">Resultaat</p><h2 id="likelihoodTitle">Likelihood-indicatie</h2></div></div>
       <div id="likelihoodCards" class="likelihood-grid"></div>
       <div class="completion-row"><span id="completionText">0 van 0 beoordeeld</span><progress id="completionProgress" max="100" value="0">0%</progress></div>
       <p class="muted likelihood-note">De percentages zijn een gewogen prototype-index. Zij mogen niet worden gelezen als statistisch gevalideerde kans op mensenhandel.</p>
     </section>
 
     <section class="card app-section" aria-labelledby="observationsTitle">
-      <div class="section-heading"><span class="section-number">03</span><div><p class="section-kicker">Waarnemingen</p><h2 id="observationsTitle">Mogelijke waarnemingen</h2></div></div>
+      <div class="section-heading"><span class="section-number">02</span><div><p class="section-kicker">Waarnemingen</p><h2 id="observationsTitle">Mogelijke waarnemingen</h2></div></div>
       <div class="observation-toolbar"><span id="unansweredCount">0 onbeantwoord</span><button type="button" id="jumpUnansweredBtn">Ga naar eerste onbeantwoorde</button></div>
       <div id="observationsMount"></div>
     </section>
