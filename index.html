@@ -1,18 +1,16 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="nl" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#e30613">
-  <meta name="description" content="Onderzoeksprototype voor signalenherkenning en rapportage rond mensenhandel.">
+  <meta name="description" content="Onderzoeksprototype voor waarnemingen en signalering rond mensenhandel.">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https://upload.wikimedia.org; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Signalencheck">
   <title>Signalencheck Mensenhandel</title>
   <link rel="stylesheet" href="./styles.css">
-  <link rel="stylesheet" href="./effects.css">
-  <link rel="stylesheet" href="./app-shell-v36.css">
-  <link rel="stylesheet" href="./emmen-theme-v37.css">
+  <link rel="stylesheet" href="./app-v4.css">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
@@ -25,198 +23,62 @@
 <header class="topbar app-topbar">
   <button type="button" class="brand brand-button" id="homeBtn" aria-label="Naar startscherm">
     <img class="municipality-logo" src="https://upload.wikimedia.org/wikipedia/commons/8/88/Emmen-gemeente-logo.png" width="176" height="64" alt="Gemeente Emmen">
-    <img class="tool-mark" src="./icons/icon.svg" width="42" height="42" alt="">
     <span class="brand-copy"><strong>Signalencheck Mensenhandel</strong><span>Toezicht & signalering</span></span>
   </button>
   <nav aria-label="Hoofdnavigatie">
-    <button type="button" class="top-nav-btn" id="topHomeBtn">Home</button>
-    <button type="button" class="top-nav-btn" id="topReportBtn">Rapportage</button>
-    <button type="button" id="resetBtn">Nieuwe sessie</button>
+    <button type="button" class="top-nav-btn" data-open="observationsView">Waarnemingen</button>
+    <button type="button" class="top-nav-btn" data-open="overviewView">Overzicht</button>
+    <button type="button" id="resetBtn">Nieuwe check</button>
   </nav>
 </header>
-
-<main id="main" class="page app-shell app-router">
+<main id="main" class="page app-router">
   <noscript><p class="notice">JavaScript is nodig om deze app te gebruiken.</p></noscript>
+  <aside class="prototype-notice"><strong>Onderzoeksprototype</strong><span>De getoonde percentages zijn relatieve signaalmatches op basis van beantwoorde waarnemingen. Het zijn geen gevalideerde kansen op mensenhandel.</span></aside>
 
-  <aside class="prototype-notice" aria-label="Status onderzoeksprototype">
-    <strong>Onderzoeksprototype</strong>
-    <span>Uitsluitend voor fictieve oefencasuïstiek. Geen officieel gemeentelijk registratiesysteem en geen gevalideerde kansberekening.</span>
-  </aside>
-
-  <section id="homeView" class="app-view" aria-labelledby="homeTitle">
-    <div class="home-hero">
-      <div>
-        <span class="home-eyebrow">Gemeente Emmen · toezicht</span>
-        <h1 id="homeTitle">Wat wil je vastleggen?</h1>
-        <p>Kies een werkstroom. Je ziet daarna alleen de onderdelen die voor die controle relevant zijn.</p>
-      </div>
-      <div class="session-pill" id="sessionPill"><span class="session-dot"></span><span id="sessionStatus">Nieuwe sessie</span></div>
+  <section id="homeView" class="app-view">
+    <div class="home-hero"><div><span class="home-eyebrow">Gemeente Emmen · toezicht</span><h1>Signalencheck Mensenhandel</h1><p>Leg één keer vast wat je feitelijk waarneemt. De app vergelijkt dezelfde waarnemingen vervolgens met arbeids-, seksuele en criminele uitbuiting.</p></div><div class="session-pill"><span class="session-dot"></span><span id="sessionStatus">Nieuwe check</span></div></div>
+    <div class="home-tiles">
+      <button type="button" class="home-tile tile-observations" id="openObservationsBtn"><span class="tile-icon">✓</span><span class="tile-copy"><strong>Waarnemingen</strong><small>Beoordeel één gecombineerde lijst met Ja, Nee of Niet beoordeeld.</small></span><span class="tile-arrow">›</span></button>
+      <button type="button" class="home-tile tile-control" id="openControlBtn"><span class="tile-icon">⌖</span><span class="tile-copy"><strong>Controle</strong><small>Leg zaakcode, toezichthouder, locatie, controletype en acute veiligheid vast.</small></span><span class="tile-arrow">›</span></button>
+      <button type="button" class="home-tile tile-covert" id="openCovertBtn"><span class="tile-icon">◉</span><span class="tile-copy"><strong>Heimelijke waarneming</strong><small>Registreer bezoek-, voertuig-, online- en patroonwaarnemingen feitelijk en chronologisch.</small></span><span class="tile-arrow">›</span></button>
+      <button type="button" class="home-tile tile-overview" id="openOverviewBtn"><span class="tile-icon">▦</span><span class="tile-copy"><strong>Overzicht</strong><small>Bekijk afgeronde checks die lokaal op dit apparaat zijn opgeslagen.</small></span><span class="tile-arrow">›</span></button>
+      <button type="button" class="home-tile tile-report" id="openReportBtn"><span class="tile-icon">▤</span><span class="tile-copy"><strong>Rapportage</strong><small>Maak een rapport van bevindingen met alleen positieve feitelijke waarnemingen.</small></span><span class="tile-arrow">›</span></button>
+      <button type="button" class="home-tile tile-settings" id="openSettingsBtn"><span class="tile-icon">⚙</span><span class="tile-copy"><strong>Instellingen</strong><small>Kies licht/donker thema en beheer browser- en in-appmeldingen.</small></span><span class="tile-arrow">›</span></button>
     </div>
-
-    <div class="home-tiles" aria-label="Werkstromen">
-      <button type="button" class="home-tile tile-control" id="openIntegralBtn">
-        <span class="tile-icon" aria-hidden="true">✓</span>
-        <span class="tile-copy"><strong>Integrale controle</strong><small>Kies algemeen, arbeidsuitbuiting, seksuele uitbuiting en/of criminele uitbuiting.</small></span>
-        <span class="tile-arrow" aria-hidden="true">›</span>
-      </button>
-
-      <button type="button" class="home-tile tile-covert" id="openCovertBtn">
-        <span class="tile-icon" aria-hidden="true">◉</span>
-        <span class="tile-copy"><strong>Heimelijke waarneming</strong><small>Leg aanloop, bezoeken, kentekens, persoonskenmerken en openbare advertentie-informatie vast.</small></span>
-        <span class="tile-arrow" aria-hidden="true">›</span>
-      </button>
-
-      <button type="button" class="home-tile tile-report" id="openReportBtn">
-        <span class="tile-icon" aria-hidden="true">▤</span>
-        <span class="tile-copy"><strong>Rapportage</strong><small>Maak van de huidige invoer een rapport van bevindingen in toezichthoudersstijl.</small></span>
-        <span class="tile-arrow" aria-hidden="true">›</span>
-      </button>
-    </div>
-
-    <section class="home-summary card-lite" aria-labelledby="summaryTitle">
-      <div class="summary-heading"><div><span class="section-kicker">Huidige sessie</span><h2 id="summaryTitle">Voortgang</h2></div><button type="button" class="link-button" id="resumeBtn">Doorgaan</button></div>
-      <div class="summary-grid">
-        <div><span>Geselecteerd</span><strong id="summaryModules">Geen onderdelen</strong></div>
-        <div><span>Waargenomen signalen</span><strong id="summarySeen">0</strong></div>
-        <div><span>Locatie</span><strong id="summaryLocation">Niet ingevuld</strong></div>
-      </div>
-    </section>
-
-    <details class="home-help card-lite">
-      <summary>Over score, installatie en gegevensgebruik</summary>
-      <p>De indicatieve score wordt per uitbuitingsvorm berekend met 0,5 × n<sup>1,45</sup>, afgerond op 0,25 punt. De score is een onderzoeksindex en geen kanspercentage.</p>
-      <p>De app bewaart antwoorden niet in een database. Gegevens staan alleen in het geheugen van de actieve pagina. Exports vallen daarna buiten de app.</p>
-      <button type="button" id="installBtn" hidden>App installeren</button>
-      <p id="offlineStatus" role="status">Offlinebeschikbaarheid nog niet bevestigd.</p>
-      <p id="updateStatus" role="status"></p>
-    </details>
+    <section class="home-summary card-lite"><div class="summary-heading"><div><span class="section-kicker">Huidige check</span><h2>Voortgang</h2></div><button type="button" class="link-button" id="resumeBtn">Doorgaan</button></div><div class="summary-grid"><div><span>Beoordeeld</span><strong id="summaryAssessed">0</strong></div><div><span>Ja</span><strong id="summaryYes">0</strong></div><div><span>Locatie</span><strong id="summaryLocation">Niet ingevuld</strong></div></div></section>
   </section>
 
-  <section id="setupView" class="app-view" hidden aria-labelledby="setupTitle">
-    <div class="view-header">
-      <button type="button" class="back-button" data-go-home aria-label="Terug naar home">‹</button>
-      <div><span class="section-kicker">Integrale controle</span><h1 id="setupTitle">Welke onderdelen neem je mee?</h1><p>Selecteer alleen wat voor deze controle relevant is.</p></div>
-    </div>
-
-    <div class="module-picker">
-      <label class="module-choice">
-        <input type="checkbox" id="includeGeneral" data-context="includeGeneral">
-        <span class="module-check">✓</span>
-        <span><strong>Algemeen</strong><small>Controlecontext, feitelijke waarnemingen en algemene bevindingen.</small></span>
-      </label>
-      <label class="module-choice">
-        <input type="checkbox" id="includeArbeid" data-context="includeArbeid">
-        <span class="module-check">✓</span>
-        <span><strong>Arbeidsuitbuiting</strong><small>Alleen signalen en score voor arbeidsuitbuiting.</small></span>
-      </label>
-      <label class="module-choice">
-        <input type="checkbox" id="includeSeksueel" data-context="includeSeksueel">
-        <span class="module-check">✓</span>
-        <span><strong>Seksuele uitbuiting</strong><small>Alleen signalen en score voor seksuele uitbuiting.</small></span>
-      </label>
-      <label class="module-choice">
-        <input type="checkbox" id="includeCrimineel" data-context="includeCrimineel">
-        <span class="module-check">✓</span>
-        <span><strong>Criminele uitbuiting</strong><small>Alleen signalen en score voor criminele uitbuiting.</small></span>
-      </label>
-    </div>
-    <p id="selectionMessage" class="validation-message" role="status"></p>
-    <div class="view-actions"><button type="button" class="primary" id="startIntegralBtn">Start geselecteerde controle</button><button type="button" data-go-home>Annuleren</button></div>
+  <section id="controlView" class="app-view" hidden>
+    <div class="view-header"><button type="button" class="back-button" data-home>‹</button><div><span class="section-kicker">Controle</span><h1>Controlecontext</h1><p>Leg alleen controle-informatie vast die nodig is voor de rapportage.</p></div></div>
+    <section class="card app-section"><div class="field-grid">
+      <label>Rapport-/zaakcode<input id="caseCode" data-context="caseCode" autocomplete="off" maxlength="100"></label><label>Datum en tijdstip<input id="observedAt" data-context="observedAt" type="datetime-local"></label><label>Toezichthouder / code<input id="observer" data-context="observer" autocomplete="off" maxlength="100"></label><label>Locatie<input id="location" data-context="location" autocomplete="off" maxlength="250"></label>
+      <label>Type controle<select id="controlType" data-context="controlType"><option value="">Kies een type</option><option>Integrale controle</option><option>Controle seksinrichting</option><option>Controle kassen/tuinbouw</option><option>Woningcontrole</option><option>Bedrijfscontrole</option><option>Heimelijke waarneming</option><option>Overig</option></select></label>
+      <label>Type locatie<select id="locationType" data-context="locationType"><option value="">Kies een type</option><option>Woning</option><option>Bedrijfspand</option><option>Seksinrichting</option><option>Kassen</option><option>Horeca</option><option>Loods / opslag</option><option>Garage / werkplaats</option><option>Openbare ruimte</option><option>Overig</option></select></label>
+    </div><label>Zorgen over acute veiligheid?<select id="acuteConcern" data-context="acuteConcern"><option value="unknown">Niet beoordeeld</option><option value="yes">Ja</option><option value="no">Nee</option></select></label><p id="acuteNotice" class="notice" hidden>Acute zorg aangegeven. Volg direct de lokale noodprocedure en bel bij direct gevaar zo nodig 112.</p><div class="view-actions"><button type="button" class="primary" id="controlToObservationsBtn">Naar waarnemingen</button></div></section>
   </section>
 
-  <section id="workflowView" class="app-view" hidden aria-labelledby="workflowTitle">
-    <div class="view-header workflow-header">
-      <button type="button" class="back-button" data-go-home aria-label="Terug naar home">‹</button>
-      <div><span class="section-kicker" id="workflowKicker">Controle</span><h1 id="workflowTitle">Integrale controle</h1><p id="workflowSubtitle">Vul alleen de onderdelen in die je hebt geselecteerd.</p></div>
-      <button type="button" class="report-shortcut" id="workflowReportBtn">Rapportage</button>
-    </div>
-
-    <section id="contextCard" class="card app-section compact-section" aria-labelledby="contextTitle">
-      <div class="section-heading"><span class="section-number">01</span><div><p class="section-kicker">Basisgegevens</p><h2 id="contextTitle">Controlecontext</h2></div></div>
-      <div class="field-grid">
-        <label>Rapport-/zaakcode<input id="caseCode" data-context="caseCode" autocomplete="off" maxlength="100" placeholder="Bijvoorbeeld OOV-2026-001"></label>
-        <label>Datum en tijdstip<input id="observedAt" data-context="observedAt" type="datetime-local"></label>
-        <label>Toezichthouder / code<input id="observer" data-context="observer" autocomplete="off" maxlength="100" placeholder="Naam of registratienummer"></label>
-        <label>Locatie<input id="location" data-context="location" autocomplete="off" maxlength="250" placeholder="Adres of locatieomschrijving"></label>
-        <label>Type controle<select id="controlType" data-context="controlType"><option value="">Kies een type</option><option>Integrale controle</option><option>Controle seksinrichting</option><option>Controle kassen/tuinbouw</option><option>Woningcontrole</option><option>Bedrijfscontrole</option><option>Heimelijke waarneming</option><option>Overig</option></select></label>
-        <label>Type locatie<select id="locationType" data-context="locationType"><option value="">Kies een type</option><option>Woning</option><option>Bedrijfspand</option><option>Seksinrichting</option><option>Kassen</option><option>Horeca</option><option>Loods / opslag</option><option>Garage / werkplaats</option><option>Overig</option></select></label>
-      </div>
-      <label>Zijn er zorgen over acute veiligheid?<select id="acuteConcern" data-context="acuteConcern"><option value="unknown">Niet beoordeeld</option><option value="yes">Ja</option><option value="no">Nee</option></select></label>
-      <p id="acuteNotice" class="notice" role="status" hidden>Acute zorg aangegeven. Volg direct de lokale noodprocedure en bel bij direct gevaar zo nodig 112.</p>
-    </section>
-
-    <section id="generalCard" class="card app-section" hidden aria-labelledby="generalTitle">
-      <div class="section-heading"><span class="section-number">A</span><div><p class="section-kicker">Algemeen</p><h2 id="generalTitle">Feitelijke bevindingen</h2></div></div>
-      <label>Eigen feitelijke waarnemingen<textarea id="findings" data-context="findings" maxlength="20000" placeholder="Beschrijf chronologisch en feitelijk wat je hebt waargenomen."></textarea></label>
-      <div class="text-grid secondary-inputs">
-        <label>Verklaringen van anderen<textarea id="statements" data-context="statements" maxlength="20000" placeholder="Leg relevante verklaringen apart vast."></textarea></label>
-        <label>Context / alternatieve verklaring<textarea id="observations" data-context="observations" maxlength="20000" placeholder="Werk context en mogelijke alternatieve verklaringen apart uit."></textarea></label>
-      </div>
-    </section>
-
-    <section id="covertCard" class="card app-section" hidden aria-labelledby="covertTitle">
-      <div class="section-heading"><span class="section-number">H</span><div><p class="section-kicker">Heimelijke waarneming</p><h2 id="covertTitle">Observatie vastleggen</h2></div></div>
-      <div class="field-grid">
-        <label>Start observatie<input id="covertStart" data-context="covertStart" type="datetime-local"></label>
-        <label>Einde observatie<input id="covertEnd" data-context="covertEnd" type="datetime-local"></label>
-        <label>Aanloop / bezoekbewegingen<select id="covertFootfall" data-context="covertFootfall"><option value="unknown">Niet vastgesteld</option><option value="yes">Waargenomen</option><option value="no">Niet waargenomen</option></select></label>
-        <label>Aantal waargenomen personen<input id="covertWomenSeen" data-context="covertWomenSeen" type="number" min="0" placeholder="Bijvoorbeeld 2"></label>
-        <label>Relatie met openbare advertentie<select id="covertWebsiteMatch" data-context="covertWebsiteMatch"><option value="unknown">Niet vastgesteld</option><option value="yes">Ja</option><option value="no">Nee</option></select></label>
-        <label>Openbare advertentiebron<input id="covertWebsiteName" data-context="covertWebsiteName" autocomplete="off" placeholder="Bijvoorbeeld Kinky.nl"></label>
-        <label>Advertentie / profielverwijzing<input id="covertWebsiteReference" data-context="covertWebsiteReference" autocomplete="off" placeholder="URL, alias of advertentie-ID"></label>
-        <label>Aantal bezoeken<input id="covertVisitCount" data-context="covertVisitCount" type="number" min="0" placeholder="Bijvoorbeeld 4"></label>
-      </div>
-      <label>Duur van bezoeken / tijdspatroon<textarea id="covertVisitDurations" data-context="covertVisitDurations" maxlength="20000" placeholder="Bijvoorbeeld: drie bezoeken van circa 20–30 minuten."></textarea></label>
-      <label>Terugkerend patroon<textarea id="covertPattern" data-context="covertPattern" maxlength="20000" placeholder="Beschrijf feitelijk terugkerende aankomst-, vertrek- of begeleidingspatronen."></textarea></label>
-      <label>Waargenomen kenteken(s)<textarea id="covertPlateNumbers" data-context="covertPlateNumbers" maxlength="20000" placeholder="Noteer kenteken, tijdstip en zo nodig voertuigomschrijving."></textarea></label>
-      <label>Feitelijk waarneembare persoonskenmerken<textarea id="covertPersonCharacteristics" data-context="covertPersonCharacteristics" maxlength="20000" placeholder="Bijvoorbeeld leeftijdscategorie, lengte, kleding, haarkleur en opvallende uiterlijke kenmerken."></textarea></label>
-      <label>Aanvullende feitelijke observaties<textarea id="covertNotes" data-context="covertNotes" maxlength="20000" placeholder="Chronologische observatienotities."></textarea></label>
-    </section>
-
-    <section id="signalsCard" class="card app-section" hidden aria-labelledby="signalsTitle">
-      <div class="section-heading"><span class="section-number">02</span><div><p class="section-kicker">Signalering</p><h2 id="signalsTitle">Geselecteerde uitbuitingsvormen</h2></div></div>
-      <div id="scoreStrip" class="score-strip" aria-label="Indicatieve scores"></div>
-      <div id="formButtons" class="tabs app-tabs" role="group" aria-label="Kies uitbuitingsvorm"></div>
-      <div id="signalsMount"></div>
-    </section>
-
-    <section id="followupCard" class="card app-section" aria-labelledby="followTitle">
-      <div class="section-heading"><span class="section-number">03</span><div><p class="section-kicker">Duiding</p><h2 id="followTitle">Professionele duiding en vervolg</h2></div></div>
-      <label>Professionele duiding<textarea id="professionalReview" data-context="professionalReview" maxlength="20000" placeholder="Beschrijf de samenhang en professionele duiding. Houd dit gescheiden van feitelijke waarnemingen."></textarea></label>
-      <label>Voorgestelde opvolging<textarea id="followUp" data-context="followUp" maxlength="20000" placeholder="Beschrijf de voorgestelde vervolgstap."></textarea></label>
-      <div class="field-grid">
-        <label>Beoordelaarsrol<input id="reviewRole" data-context="reviewRole" maxlength="250" autocomplete="off" placeholder="Bijvoorbeeld aandachtsfunctionaris mensenhandel"></label>
-        <label>Terugkoppelmoment<input id="followUpBy" data-context="followUpBy" type="datetime-local"></label>
-      </div>
-      <label>Registratie / overdracht<textarea id="routeQuestions" data-context="routeQuestions" maxlength="5000" placeholder="Leg openstaande afspraken over registratie of overdracht vast."></textarea></label>
-    </section>
-
-    <div class="sticky-workflow-actions no-print"><button type="button" id="workflowHomeBtn">Home</button><button type="button" class="primary" id="buildFromWorkflowBtn">Rapportage opstellen</button></div>
+  <section id="observationsView" class="app-view" hidden>
+    <div class="view-header"><button type="button" class="back-button" data-home>‹</button><div><span class="section-kicker">Waarnemingen</span><h1>Mogelijke waarnemingen</h1><p>Beantwoord wat je daadwerkelijk hebt kunnen beoordelen. Eén waarneming kan bij meerdere uitbuitingsvormen meewegen.</p></div></div>
+    <section class="profile-panel card"><div class="profile-heading"><div><span class="section-kicker">Relatieve signaalmatch</span><h2>Uitbuitingsprofiel</h2></div><span class="profile-disclaimer">Geen gevalideerde kans</span></div><div id="profileCards" class="profile-grid"></div></section>
+    <section class="card app-section"><div class="observation-tools"><strong id="observationProgress">0 van 0 beoordeeld</strong><button type="button" id="clearObservationsBtn">Beoordelingen wissen</button></div><div id="observationsMount"></div></section>
+    <div class="sticky-workflow-actions"><button type="button" id="saveCheckBtn">Afronden & lokaal opslaan</button><button type="button" class="primary" id="observationsReportBtn">Rapportage</button></div>
   </section>
 
-  <section id="reportView" class="app-view" hidden aria-labelledby="reportTitle">
-    <div class="view-header report-view-header">
-      <button type="button" class="back-button" data-go-home aria-label="Terug naar home">‹</button>
-      <div><span class="section-kicker">Verslaglegging</span><h1 id="reportTitle">Rapport van bevindingen</h1><p>De rapportage noemt alleen daadwerkelijk waargenomen bevindingen en signalen.</p></div>
-    </div>
-
-    <section class="card report-card">
-      <div class="report-toolbar no-print">
-        <div><strong>Toezichthoudersrapportage</strong><span id="reportState">Nog niet opgebouwd</span></div>
-        <div class="actions"><button type="button" class="primary" id="buildReportBtn">Opnieuw opstellen</button><button type="button" id="downloadTextBtn">Download .txt</button><button type="button" id="printBtn">Afdrukken / PDF</button></div>
-      </div>
-      <p id="actionMessage" role="status" class="no-print"></p>
-      <pre id="reportPreview" class="report-paper" aria-label="Inhoud toezichthoudersrapportage">Nog geen rapportage opgesteld.</pre>
-    </section>
+  <section id="covertView" class="app-view" hidden>
+    <div class="view-header"><button type="button" class="back-button" data-home>‹</button><div><span class="section-kicker">Heimelijke waarneming</span><h1>Observatie vastleggen</h1><p>Beschrijf uitsluitend feitelijk waarneembare gedragingen en patronen.</p></div></div>
+    <section class="card app-section"><div class="field-grid">
+      <label>Start observatie<input data-context="covertStart" type="datetime-local"></label><label>Einde observatie<input data-context="covertEnd" type="datetime-local"></label><label>Object / locatieomschrijving<input data-context="covertTarget" maxlength="250"></label><label>Aanloop / bezoekbewegingen<select data-context="covertFootfall"><option value="unknown">Niet beoordeeld</option><option value="yes">Ja</option><option value="no">Nee</option></select></label><label>Aantal waargenomen personen<input data-context="covertPersonsSeen" type="number" min="0"></label><label>Korte / repeterende bezoeken<select data-context="covertShortVisits"><option value="unknown">Niet beoordeeld</option><option value="yes">Ja</option><option value="no">Nee</option></select></label><label>Sturing of controle door derde<select data-context="covertThirdPartyControl"><option value="unknown">Niet beoordeeld</option><option value="yes">Ja</option><option value="no">Nee</option></select></label><label>Overdracht geld/goederen<select data-context="covertExchange"><option value="unknown">Niet beoordeeld</option><option value="yes">Ja</option><option value="no">Nee</option></select></label><label>Koeriers- / haal-brengpatroon<select data-context="covertCourierPattern"><option value="unknown">Niet beoordeeld</option><option value="yes">Ja</option><option value="no">Nee</option></select></label><label>Relatie met openbare online bron<select data-context="covertWebsiteMatch"><option value="unknown">Niet beoordeeld</option><option value="yes">Ja</option><option value="no">Nee</option></select></label><label>Openbare bron<input data-context="covertWebsiteName" placeholder="Bijv. openbare advertentie- of profielsite"></label><label>Profiel-/advertentieverwijzing<input data-context="covertWebsiteReference"></label>
+    </div><label>Voertuigbewegingen<textarea data-context="covertVehicleMovements" rows="3"></textarea></label><label>Waargenomen kenteken(s)<textarea data-context="covertPlateNumbers" rows="3"></textarea></label><label>Feitelijk waarneembare persoonskenmerken<textarea data-context="covertPersonCharacteristics" rows="3"></textarea></label><label>Terugkerend patroon<textarea data-context="covertPattern" rows="3"></textarea></label><label>Chronologische aanvullende observaties<textarea data-context="covertNotes" rows="5"></textarea></label><div class="view-actions"><button type="button" class="primary" id="covertToReportBtn">Naar rapportage</button></div></section>
   </section>
+
+  <section id="overviewView" class="app-view" hidden><div class="view-header"><button type="button" class="back-button" data-home>‹</button><div><span class="section-kicker">Overzicht</span><h1>Gedane checks</h1><p>Alleen een beperkte samenvatting wordt lokaal op dit apparaat opgeslagen; geen notities, kentekens of persoonskenmerken.</p></div></div><section class="card app-section"><div class="overview-toolbar"><span id="historyCount">0 checks</span><button type="button" id="clearHistoryBtn">Wis overzicht</button></div><div id="historyList" class="history-list"></div></section></section>
+
+  <section id="reportView" class="app-view" hidden><div class="view-header"><button type="button" class="back-button" data-home>‹</button><div><span class="section-kicker">Rapportage</span><h1>Rapport van bevindingen</h1><p>De rapporttekst bevat alleen positieve feitelijke waarnemingen; de signaalmatch blijft buiten het formele rapport.</p></div></div><section class="profile-panel card"><div class="profile-heading"><div><span class="section-kicker">Analyse naast rapport</span><h2>Relatieve signaalmatch</h2></div><span class="profile-disclaimer">Geen gevalideerde kans</span></div><div id="reportProfileCards" class="profile-grid"></div></section><section class="card report-card"><div class="report-toolbar"><div><strong>Toezichthoudersrapportage</strong><span id="reportState">Nog niet opgebouwd</span></div><div class="actions"><button id="buildReportBtn" class="primary">Opnieuw opstellen</button><button id="downloadTextBtn">Download .txt</button><button id="printBtn">Afdrukken / PDF</button></div></div><pre id="reportPreview" class="report-paper">Nog geen rapportage opgesteld.</pre></section></section>
+
+  <section id="settingsView" class="app-view" hidden><div class="view-header"><button type="button" class="back-button" data-home>‹</button><div><span class="section-kicker">Instellingen</span><h1>App-instellingen</h1><p>Instellingen worden lokaal in deze browser bewaard.</p></div></div><section class="card app-section settings-card"><fieldset><legend>Weergave</legend><label class="setting-row"><span><strong>Licht thema</strong><small>Heldere werkweergave.</small></span><input type="radio" name="theme" value="light"></label><label class="setting-row"><span><strong>Donker thema</strong><small>Donkere werkweergave voor weinig omgevingslicht.</small></span><input type="radio" name="theme" value="dark"></label></fieldset><fieldset><legend>Meldingen</legend><label class="setting-row"><span><strong>Pushmeldingen (browser)</strong><small>Het prototype kan lokale browsermeldingen tonen. Remote push vereist later een server/pushservice.</small></span><input id="pushToggle" type="checkbox"></label><label class="setting-row"><span><strong>In-app meldingen</strong><small>Toon korte meldingen bij opslaan en belangrijke acties.</small></span><input id="inAppToggle" type="checkbox"></label></fieldset><button type="button" id="installBtn" hidden>App installeren</button><p id="offlineStatus" class="muted">Offlinebeschikbaarheid nog niet bevestigd.</p><p id="settingsStatus" role="status"></p></section></section>
 </main>
-
-<nav class="mobile-tabbar app-mobile-nav no-print" aria-label="Appnavigatie">
-  <button type="button" data-mobile-view="home"><span aria-hidden="true">⌂</span><small>Home</small></button>
-  <button type="button" data-mobile-view="integral"><span aria-hidden="true">✓</span><small>Controle</small></button>
-  <button type="button" data-mobile-view="covert"><span aria-hidden="true">◉</span><small>Heimelijk</small></button>
-  <button type="button" data-mobile-view="report"><span aria-hidden="true">▤</span><small>Rapport</small></button>
-</nav>
-<footer class="page muted app-footer">© Sanne de Vrieze 2026 · <span id="versionLabel"></span><span class="logo-credit">Gemeente Emmen-logo: bron gemeente.emmen.nl; weergegeven via Wikimedia Commons.</span></footer>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<nav class="mobile-tabbar app-mobile-nav"><button type="button" data-mobile="homeView"><span>⌂</span><small>Home</small></button><button type="button" data-mobile="observationsView"><span>✓</span><small>Waarnemen</small></button><button type="button" data-mobile="controlView"><span>⌖</span><small>Controle</small></button><button type="button" data-mobile="overviewView"><span>▦</span><small>Overzicht</small></button><button type="button" data-mobile="settingsView"><span>⚙</span><small>Instellingen</small></button></nav>
+<footer class="page muted app-footer">© Sanne de Vrieze 2026 · <span id="versionLabel"></span></footer>
 </body>
 </html>
