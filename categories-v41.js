@@ -118,7 +118,7 @@
     tabList.setAttribute("role", "tablist");
     tabList.setAttribute("aria-label", "Categorieën waarnemingen");
 
-    panelData.forEach((data, index) => {
+    panelData.forEach(data => {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "observation-tab";
@@ -261,10 +261,102 @@
     }
   }
 
+  function simplifyHomeDashboard() {
+    const labels = {
+      openCheckBtn: "Nieuwe check",
+      openCovertBtn: "Heimelijk",
+      openOverviewBtn: "Overzicht",
+      openSettingsBtn: "Instellingen"
+    };
+    for (const [id, label] of Object.entries(labels)) {
+      const tile = document.getElementById(id);
+      const title = tile ? tile.querySelector(".tile-copy strong") : null;
+      if (title) title.textContent = label;
+    }
+  }
+
+  function fieldValue(id) {
+    const field = document.getElementById(id);
+    return field ? field.value : "";
+  }
+
+  function buildPgaXPayload() {
+    const observations = [...document.querySelectorAll(".observation-card")].map(card => ({
+      id: card.dataset.itemId || "",
+      status: card.dataset.status || "unknown",
+      observation: card.querySelector(".observation-text")?.textContent || "",
+      note: card.querySelector("textarea")?.value || ""
+    }));
+    const likelihood = [...document.querySelectorAll(".likelihood-card")].map(card => ({
+      domain: card.querySelector(".likelihood-card-top span")?.textContent || "",
+      indication: card.querySelector(".likelihood-card-top strong")?.textContent || ""
+    }));
+    const covertFields = ["covertCaseCode","covertObservedAt","covertLocation","covertDuration","covertThirdPartyControl","covertExchange","covertArrivals","covertVehicles","covertPattern","covertAds","covertNotes"];
+    const covertObservation = Object.fromEntries(covertFields.map(id => [id, fieldValue(id)]));
+
+    return {
+      exportType: "PGA-x prototype export",
+      prototype: true,
+      transmitted: false,
+      generatedAt: new Date().toISOString(),
+      source: "Signalencheck Mensenhandel – Gemeente Emmen onderzoeksprototype",
+      warning: "Demo-export. Dit bestand is niet naar PGA-x verzonden en vormt geen operationele koppeling.",
+      controlContext: {
+        caseCode: fieldValue("caseCode"),
+        observedAt: fieldValue("observedAt"),
+        observer: fieldValue("observer"),
+        location: fieldValue("location"),
+        controlType: fieldValue("controlType"),
+        locationType: fieldValue("locationType"),
+        acuteConcern: fieldValue("acuteConcern")
+      },
+      observations,
+      likelihood,
+      covertObservation
+    };
+  }
+
+  function downloadPgaXDemo() {
+    const payload = buildPgaXPayload();
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    const caseCode = payload.controlContext.caseCode.trim().replace(/[^a-z0-9_-]+/gi, "-") || "check";
+    link.download = "pga-x-demo-export-" + caseCode + ".json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 60000);
+    const status = document.getElementById("pgaXExportStatus");
+    if (status) status.textContent = "Demo-export aangemaakt. Er is niets naar PGA-x verzonden.";
+  }
+
+  function installPgaXDemo() {
+    const toolbar = document.querySelector("#reportView .report-toolbar .actions");
+    if (!toolbar || document.getElementById("pgaXExportBtn")) return;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.id = "pgaXExportBtn";
+    button.className = "pga-x-export-button";
+    button.textContent = "Exporteren naar PGA-x";
+    button.addEventListener("click", downloadPgaXDemo);
+    toolbar.appendChild(button);
+
+    const status = document.createElement("p");
+    status.id = "pgaXExportStatus";
+    status.className = "pga-x-export-status";
+    status.setAttribute("role", "status");
+    status.textContent = "Prototypekoppeling: export wordt als bestand aangemaakt en niet extern verzonden.";
+    toolbar.parentElement?.appendChild(status);
+  }
+
   function applyEnhancements() {
     ensureStylesheet();
     moveLikelihoodToBottom();
     groupObservationCards();
+    simplifyHomeDashboard();
+    installPgaXDemo();
   }
 
   function bindPostRenderHooks() {
