@@ -1,4 +1,4 @@
-/* Signalencheck 4.2 — categorie-tabs en compact app-grid op home. */
+/* Signalencheck 4.3 — categorie-tabs, compact app-dashboard en PGA-x demo-export. */
 .observation-tabs{
   display:flex;
   gap:.5rem;
@@ -109,18 +109,25 @@
   font-weight:750;
 }
 
-/* Homepage als app-grid: één primaire rode tegel, overige functionele tegels grijs. */
+/* Home: rustig app-dashboard zonder hero of begeleidende tekst. */
+#homeView .home-hero{display:none!important;}
 .home-tiles-four{
   grid-template-columns:repeat(4,minmax(0,1fr))!important;
   gap:.85rem!important;
+  margin-top:.9rem!important;
 }
-.home-tile{
+.home-tile,
+.home-tile.tile-control,
+.home-tile.tile-covert,
+.home-tile.tile-overview,
+.home-tile.tile-settings{
   aspect-ratio:1/1;
   min-height:0!important;
+  position:relative;
   display:flex!important;
   flex-direction:column;
   align-items:flex-start!important;
-  justify-content:flex-start;
+  justify-content:space-between;
   gap:.75rem!important;
   padding:1.05rem!important;
   border-radius:22px!important;
@@ -130,70 +137,75 @@
   box-shadow:0 10px 24px rgba(25,34,48,.08)!important;
 }
 .home-tile::before{display:none!important;}
-.home-tile.tile-control{
-  background:linear-gradient(145deg,var(--emmen-red),var(--emmen-red-deep))!important;
-  border-color:var(--emmen-red-deep)!important;
-  color:#fff!important;
-}
-.home-tile .tile-icon{
-  width:2.8rem;
-  height:2.8rem;
+.home-tile .tile-icon,
+.home-tile.tile-control .tile-icon,
+.home-tile.tile-covert .tile-icon,
+.home-tile.tile-overview .tile-icon,
+.home-tile.tile-settings .tile-icon{
+  display:grid;
+  place-items:center;
+  width:3rem;
+  height:3rem;
   flex:0 0 auto;
-  border-radius:14px;
-  background:color-mix(in srgb,var(--emmen-surface) 78%,transparent)!important;
+  border-radius:15px;
+  background:var(--emmen-surface)!important;
   color:var(--emmen-ink)!important;
-}
-.home-tile.tile-control .tile-icon{
-  background:rgba(255,255,255,.16)!important;
-  color:#fff!important;
+  font-size:1.35rem;
 }
 .home-tile .tile-copy{
   width:100%;
   min-width:0;
+  margin-top:auto;
 }
-.home-tile .tile-copy strong{
-  margin:.05rem 0 .35rem;
+.home-tile .tile-copy strong,
+.home-tile.tile-control .tile-copy strong,
+.home-tile.tile-covert .tile-copy strong,
+.home-tile.tile-overview .tile-copy strong,
+.home-tile.tile-settings .tile-copy strong{
+  display:block;
+  margin:0;
   color:var(--emmen-ink)!important;
   font-size:1rem;
   line-height:1.2;
 }
-.home-tile .tile-copy small{
-  display:-webkit-box;
-  -webkit-box-orient:vertical;
-  -webkit-line-clamp:3;
-  overflow:hidden;
-  color:var(--emmen-ink-soft)!important;
-  font-size:.76rem;
-  line-height:1.4;
-}
-.home-tile.tile-control .tile-copy strong,
-.home-tile.tile-control .tile-copy small{
-  color:#fff!important;
-}
-.home-tile .tile-arrow{
-  position:absolute;
-  right:1rem;
-  bottom:.8rem;
-  color:var(--emmen-ink-soft)!important;
-  font-size:1.55rem;
-}
-.home-tile.tile-control .tile-arrow{color:#fff!important;}
+.home-tile .tile-copy small{display:none!important;}
+.home-tile .tile-arrow{display:none!important;}
 .home-tile:hover{
   transform:translateY(-2px)!important;
-  border-color:color-mix(in srgb,var(--emmen-red) 45%,var(--emmen-border))!important;
+  border-color:color-mix(in srgb,var(--emmen-red) 32%,var(--emmen-border))!important;
   box-shadow:0 14px 30px rgba(25,34,48,.12)!important;
 }
-
-html[data-theme="dark"] .home-tile:not(.tile-control){
+html[data-theme="dark"] .home-tile,
+html[data-theme="dark"] .home-tile.tile-control,
+html[data-theme="dark"] .home-tile.tile-covert,
+html[data-theme="dark"] .home-tile.tile-overview,
+html[data-theme="dark"] .home-tile.tile-settings{
   background:#292d34!important;
   border-color:#3b424d!important;
 }
-html[data-theme="dark"] .home-tile:not(.tile-control) .tile-icon{
-  background:#353a43!important;
+html[data-theme="dark"] .home-tile .tile-icon{background:#353a43!important;color:#f2f4f7!important;}
+html[data-theme="dark"] .home-tile .tile-copy strong{color:#f2f4f7!important;}
+
+/* PGA-x is bewust een demo-export, geen operationele koppeling. */
+.pga-x-export-button{
+  border-color:var(--emmen-red)!important;
+  background:var(--emmen-red)!important;
+  color:#fff!important;
+  font-weight:850!important;
+}
+.pga-x-export-status{
+  width:100%;
+  margin:.5rem 0 0;
+  color:var(--emmen-ink-soft);
+  font-size:.72rem;
+  line-height:1.4;
 }
 
 @media(max-width:980px){
   .home-tiles-four{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+}
+@media(max-width:800px){
+  #reportView .report-toolbar .actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
 }
 @media(max-width:620px){
   .observation-tabs{margin-left:-.15rem;margin-right:-.15rem;padding:.4rem;}
@@ -201,13 +213,17 @@ html[data-theme="dark"] .home-tile:not(.tile-control) .tile-icon{
   .observation-category-head{padding:.65rem .7rem;}
   .likelihood-panel .section-heading::after{display:none;}
   .home-tiles-four{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:.7rem!important;}
-  .home-tile{padding:.9rem!important;border-radius:19px!important;}
-  .home-tile .tile-icon{width:2.45rem;height:2.45rem;border-radius:12px;}
+  .home-tile,
+  .home-tile.tile-control,
+  .home-tile.tile-covert,
+  .home-tile.tile-overview,
+  .home-tile.tile-settings{padding:.9rem!important;border-radius:19px!important;}
+  .home-tile .tile-icon{width:2.65rem;height:2.65rem;border-radius:13px;}
   .home-tile .tile-copy strong{font-size:.9rem;}
-  .home-tile .tile-copy small{font-size:.7rem;-webkit-line-clamp:3;}
-  .home-tile .tile-arrow{right:.8rem;bottom:.65rem;font-size:1.35rem;}
+}
+@media(max-width:430px){
+  #reportView .report-toolbar .actions{grid-template-columns:1fr!important;}
 }
 @media(max-width:380px){
-  .home-tile .tile-copy small{-webkit-line-clamp:2;}
   .home-tile{padding:.8rem!important;gap:.55rem!important;}
 }
