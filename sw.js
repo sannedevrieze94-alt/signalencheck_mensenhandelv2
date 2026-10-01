@@ -1,9 +1,9 @@
 /* Cache uitsluitend vaste appbestanden, nooit ingevoerde gegevens of rapporten. */
 "use strict";
-const VERSION = "3.6.0-prototype";
+const VERSION = "3.6.1-prototype";
 const PREFIX = "signalencheck:" + self.registration.scope + ":";
 const CACHE = PREFIX + VERSION;
-const FILES = ["./", "./index.html", "./styles.css", "./effects.css", "./app-shell-v36.css", "./signals.js", "./model.js", "./script.js", "./manifest.webmanifest", "./icons/icon.svg", "./icons/gemeente-emmen.svg", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png"];
+const FILES = ["./", "./index.html", "./styles.css", "./effects.css", "./app-shell-v36.css", "./emmen-theme-v37.css", "./signals.js", "./model.js", "./script.js", "./manifest.webmanifest", "./icons/icon.svg", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png"];
 const URLS = FILES.map(path => new URL(path, self.registration.scope).href);
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(URLS.map(url => new Request(url, {cache: "reload"})))));
