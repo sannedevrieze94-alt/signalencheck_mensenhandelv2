@@ -293,13 +293,13 @@
     const photos = document.getElementById("observationPhotoGrid");
     if (photos) new MutationObserver(renderFormattedReport).observe(photos, {childList:true, subtree:true});
     document.addEventListener("input", event => {
-      if (event.target?.matches?.("[data-context]")) window.requestAnimationFrame(renderFormattedReport);
+      if (event.target?.matches?.("[data-context]")) renderFormattedReport();
     });
     document.addEventListener("change", event => {
-      if (event.target?.matches?.("[data-context]")) window.requestAnimationFrame(renderFormattedReport);
+      if (event.target?.matches?.("[data-context]")) renderFormattedReport();
     });
     for (const id of ["checkReportBtn","buildReportBtn","buildFromCheckBtn"]) {
-      document.getElementById(id)?.addEventListener("click", () => window.setTimeout(renderFormattedReport, 0));
+      document.getElementById(id)?.addEventListener("click", renderFormattedReport);
     }
   }
 
