@@ -18,7 +18,8 @@ async function run() {
   new Function("self", "caches", "URL", "Request", "fetch", source)(selfDouble, cachesDouble, URL, RequestDouble, async () => ({network: true}));
   let waiting;
   events.install({waitUntil(promise) { waiting = promise; }}); await waiting;
-  assert(stored.length === 13 && stored.every(url => url.startsWith(scope)), "Cache bevat vreemde bronnen");
+  assert(stored.length === 14 && stored.every(url => url.startsWith(scope)), "Cache bevat vreemde of ontbrekende appbestanden");
+  assert(stored.some(url => url.endsWith("app-shell-v36.css")), "Nieuwe app-shell ontbreekt in cache");
   assert(opened.includes(scope), "Cache niet geïsoleerd per app");
   events.activate({waitUntil(promise) { waiting = promise; }}); await waiting;
   assert(removed.length === 1 && removed[0] === "signalencheck:" + scope + ":old", "Caches andere app gewist");
@@ -35,6 +36,6 @@ async function run() {
   let response;
   events.fetch({request: {url: scope + "script.js", method: "GET"}, respondWith(promise) { response = promise; }});
   assert((await response).cached, "Appbestand niet uit offlinecache");
-  console.log("PWA-logica geslaagd: vaste cachelijst, scope-isolatie, beperkte cacheverwijdering en geen rapport-/POST-/externe cache.");
+  console.log("PWA-logica geslaagd: 3.6-appshell, vaste cachelijst, scope-isolatie en beperkte cacheverwijdering.");
 }
 module.exports = run();
