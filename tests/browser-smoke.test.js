@@ -15,7 +15,7 @@ window.URL.createObjectURL = () => "blob:test";
 window.URL.revokeObjectURL = () => {};
 Object.defineProperty(window, "isSecureContext", {value:false, configurable:true});
 
-for (const file of ["signals.js", "model.js", "script.js", "categories-v41.js"]) window.eval(fs.readFileSync(path.join(root, file), "utf8"));
+for (const file of ["signals.js", "model.js", "script.js", "categories-v41.js", "report-layout-v46.js"]) window.eval(fs.readFileSync(path.join(root, file), "utf8"));
 document.dispatchEvent(new window.Event("DOMContentLoaded", {bubbles:true}));
 
 function assert(condition, message) { if (!condition) throw new Error(message); }
@@ -73,9 +73,9 @@ inApp.dispatchEvent(new window.Event("change",{bubbles:true}));
 const savedSettings = JSON.parse(window.localStorage.getItem("signalencheck:settings:v4") || "{}");
 assert(savedSettings.theme === "dark" && savedSettings.inApp === false, "Instellingen worden niet bewaard");
 
-// 6. Heimelijke waarneming heeft nieuwe velden en verschijnt in rapport.
+// 6. Observatie heeft nieuwe velden en verschijnt in formeel rapport.
 click("openCovertBtn");
-assert(!document.getElementById("covertView").hidden, "Heimelijke waarneming opent niet");
+assert(!document.getElementById("covertView").hidden, "Observatie opent niet");
 change("covertFootfall", "yes");
 change("covertThirdPartyControl", "yes");
 change("covertExchange", "yes");
@@ -84,10 +84,17 @@ change("covertArrivals", "20:14 aankomst; 20:39 vertrek");
 click("covertToCheckBtn");
 click("checkReportBtn");
 const report = document.getElementById("reportPreview").textContent;
-assert(report.includes("HEIMELIJKE WAARNEMING"), "Heimelijke waarneming ontbreekt in rapport");
+assert(report.includes("HEIMELIJKE WAARNEMING"), "Observatie ontbreekt in rapportbron");
 assert(report.includes("AB-12-CD"), "Kenteken ontbreekt in rapport");
 assert(report.includes("INDICATIEVE LIKELIHOOD"), "Likelihood ontbreekt in rapport");
 assert(!report.includes("Loonstrook gezien"), "Nee-waarneming wordt onterecht gerapporteerd");
+const formatted = document.getElementById("formattedReport");
+assert(formatted, "Dossierwaardige rapportweergave ontbreekt");
+assert(formatted.textContent.includes("Rapport van bevindingen"), "Formele rapporttitel ontbreekt");
+assert(formatted.textContent.includes("OOV-TEST-001"), "Rapportcode ontbreekt in documentkop");
+assert(formatted.querySelector(".report-meta-grid"), "Rapportmetadata ontbreken");
+assert(formatted.querySelector(".report-attachments"), "Bijlagenoverzicht ontbreekt");
+assert(formatted.querySelector(".report-print-footer"), "Printfooter/paginanummering ontbreekt");
 
 // 7. Nieuwe check reset invoer maar niet geschiedenis/instellingen.
 click("newCheckBtn");
@@ -95,4 +102,4 @@ assert(document.getElementById("summaryYes").textContent === "0", "Nieuwe check 
 assert(JSON.parse(window.localStorage.getItem("signalencheck:history:v4") || "[]").length === 1, "Nieuwe check wist geschiedenis");
 assert(document.documentElement.dataset.theme === "dark", "Nieuwe check wist thema-instelling");
 
-console.log("Browser-smoketest geslaagd: thematische categorisering, likelihood onderaan, multi-domain score, overzicht, instellingen, heimelijke waarneming en reset.");
+console.log("Browser-smoketest geslaagd: tabs, likelihood onderaan, multi-domain score, overzicht, instellingen, observatie, formele A4-rapportweergave en reset.");
