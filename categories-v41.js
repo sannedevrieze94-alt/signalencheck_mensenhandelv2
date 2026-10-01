@@ -1,6 +1,10 @@
 (function () {
   "use strict";
 
+  const MAX_PHOTOS = 6;
+  const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
+  let observationPhotos = [];
+
   function prepareDomCompatibility() {
     const reportOutput = document.getElementById("reportOutput");
     if (reportOutput && !document.getElementById("reportPreview")) reportOutput.id = "reportPreview";
@@ -61,6 +65,13 @@
     {id:"sexual-exploitation",tab:"Sekswerk",title:"Sekswerk, inkomsten & seksuele uitbuiting",description:"Waarnemingen over seksuele dienstverlening, aansturing van sekswerk en het afstaan van opbrengsten.",items:["obs-coerced-sex","obs-surrender-money-goods","obs-sex-work-managed"]},
     {id:"criminal-exploitation",tab:"Criminele inzet",title:"Criminele inzet & jonge aanwas",description:"Waarnemingen over strafbare opdrachten, ronseling, koeriersbewegingen en inzet van jongeren of kwetsbare personen.",items:["obs-criminal-tasks","obs-young-directed-older","obs-risk-location","obs-multiple-phones-hidden-tasks","obs-unclear-role","obs-drugs-theft-mule"]}
   ];
+
+  const TILE_ICONS = {
+    openCheckBtn:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4 4L19 7"/><path d="M4 4h16v16H4z"/></svg>',
+    openCovertBtn:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.8"/></svg>',
+    openOverviewBtn:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>',
+    openSettingsBtn:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"/></svg>'
+  };
 
   let grouping = false;
   let activeCategory = "control-dependency";
@@ -234,12 +245,104 @@
     }
   }
 
+  function polishObservationLabels() {
+    const tile = document.getElementById("openCovertBtn");
+    if (tile) tile.setAttribute("aria-label", "Observatie openen");
+    const kicker = document.querySelector("#covertView .section-kicker");
+    if (kicker) kicker.textContent = "Observatie";
+    const title = document.getElementById("covertTitle");
+    if (title) title.textContent = "Gerichte waarneming";
+    const option = [...document.querySelectorAll("#controlType option")].find(item => item.textContent.trim() === "Heimelijke waarneming");
+    if (option) option.textContent = "Observatie";
+  }
+
   function simplifyHomeDashboard() {
-    const labels = {openCheckBtn:"Nieuwe check",openCovertBtn:"Heimelijk",openOverviewBtn:"Overzicht",openSettingsBtn:"Instellingen"};
+    const labels = {openCheckBtn:"Nieuwe check",openCovertBtn:"Observatie",openOverviewBtn:"Overzicht",openSettingsBtn:"Instellingen"};
     for (const [id,label] of Object.entries(labels)) {
-      const title = document.getElementById(id)?.querySelector(".tile-copy strong");
+      const button = document.getElementById(id);
+      const title = button?.querySelector(".tile-copy strong");
+      const icon = button?.querySelector(".tile-icon");
       if (title) title.textContent = label;
+      if (icon && TILE_ICONS[id]) icon.innerHTML = TILE_ICONS[id];
     }
+  }
+
+  function revokePhoto(photo) {
+    if (photo?.url) URL.revokeObjectURL(photo.url);
+  }
+
+  function clearObservationPhotos() {
+    observationPhotos.forEach(revokePhoto);
+    observationPhotos = [];
+    const input = document.getElementById("observationPhotoInput");
+    if (input) input.value = "";
+    renderPhotoPreviews();
+  }
+
+  function photoSize(bytes) {
+    if (bytes < 1024 * 1024) return Math.max(1,Math.round(bytes / 1024)) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  }
+
+  function renderPhotoPreviews(message) {
+    const grid = document.getElementById("observationPhotoGrid");
+    const status = document.getElementById("observationPhotoStatus");
+    if (!grid || !status) return;
+    grid.replaceChildren();
+    observationPhotos.forEach((photo,index) => {
+      const card = document.createElement("figure");
+      card.className = "observation-photo-card";
+      const img = document.createElement("img");
+      img.src = photo.url;
+      img.alt = "Preview van fotobijlage " + (index + 1);
+      const caption = document.createElement("figcaption");
+      const name = document.createElement("span");
+      name.textContent = photo.file.name || "Foto " + (index + 1);
+      const meta = document.createElement("small");
+      meta.textContent = photoSize(photo.file.size);
+      caption.append(name,meta);
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "photo-remove-button";
+      remove.setAttribute("aria-label", "Verwijder " + (photo.file.name || "foto"));
+      remove.textContent = "×";
+      remove.addEventListener("click", () => {
+        revokePhoto(photo);
+        observationPhotos.splice(index,1);
+        renderPhotoPreviews("Foto verwijderd.");
+      });
+      card.append(img,caption,remove);
+      grid.appendChild(card);
+    });
+    status.textContent = message || (observationPhotos.length ? observationPhotos.length + " van maximaal " + MAX_PHOTOS + " foto's lokaal toegevoegd." : "Nog geen foto's toegevoegd.");
+  }
+
+  function addObservationPhotos(fileList) {
+    let rejected = 0;
+    for (const file of [...fileList]) {
+      if (observationPhotos.length >= MAX_PHOTOS) { rejected += 1; continue; }
+      if (!file.type.startsWith("image/") || file.size > MAX_PHOTO_BYTES) { rejected += 1; continue; }
+      observationPhotos.push({file,url:URL.createObjectURL(file)});
+    }
+    renderPhotoPreviews(rejected ? "Sommige bestanden zijn niet toegevoegd. Maximaal 6 afbeeldingen van maximaal 10 MB per foto." : undefined);
+  }
+
+  function installPhotoUpload() {
+    const covertView = document.getElementById("covertView");
+    if (!covertView || document.getElementById("observationPhotoPanel")) return;
+    const section = covertView.querySelector(".app-section");
+    const actions = section?.querySelector(".view-actions");
+    if (!section || !actions) return;
+
+    const panel = document.createElement("section");
+    panel.id = "observationPhotoPanel";
+    panel.className = "observation-photo-panel";
+    panel.setAttribute("aria-labelledby", "observationPhotoTitle");
+    panel.innerHTML = '<div class="photo-panel-heading"><div><span class="section-kicker">Bijlagen</span><h2 id="observationPhotoTitle">Foto\'s</h2></div><span class="photo-local-badge">Alleen lokaal</span></div><p class="photo-help">Voeg alleen beeld toe wanneer dit noodzakelijk en toegestaan is voor de waarneming. Foto\'s blijven in deze sessie op het apparaat en worden niet automatisch verzonden.</p><div class="photo-upload-row"><label class="photo-upload-button" for="observationPhotoInput"><span aria-hidden="true">＋</span> Foto\'s toevoegen</label><input id="observationPhotoInput" class="photo-file-input" type="file" accept="image/*" multiple><button type="button" id="clearObservationPhotos" class="photo-clear-button">Alles verwijderen</button></div><p id="observationPhotoStatus" class="photo-status" role="status">Nog geen foto\'s toegevoegd.</p><div id="observationPhotoGrid" class="observation-photo-grid" aria-live="polite"></div><p class="photo-export-note">PGA-x demo-export bevat alleen metadata van deze bijlagen; de afbeeldingsbestanden zelf worden niet meegestuurd.</p>';
+    section.insertBefore(panel,actions);
+
+    document.getElementById("observationPhotoInput")?.addEventListener("change", event => addObservationPhotos(event.target.files || []));
+    document.getElementById("clearObservationPhotos")?.addEventListener("click", clearObservationPhotos);
   }
 
   function fieldValue(id) { return document.getElementById(id)?.value || ""; }
@@ -248,11 +351,12 @@
     const observations = [...document.querySelectorAll(".observation-card")].map(card => ({id:card.dataset.itemId||"",status:card.dataset.status||"unknown",observation:card.querySelector(".observation-text")?.textContent||"",note:card.querySelector("textarea")?.value||""}));
     const likelihood = [...document.querySelectorAll(".likelihood-card")].map(card => ({domain:card.querySelector(".likelihood-card-top span")?.textContent||"",indication:card.querySelector(".likelihood-card-top strong")?.textContent||""}));
     const covertFields = ["covertCaseCode","covertObservedAt","covertLocation","covertDuration","covertThirdPartyControl","covertExchange","covertArrivals","covertVehicles","covertPattern","covertAds","covertNotes"];
+    const photoAttachments = observationPhotos.map((photo,index) => ({index:index+1,name:photo.file.name||("foto-"+(index+1)),type:photo.file.type,sizeBytes:photo.file.size,includedInExport:false}));
     return {
       exportType:"PGA-x prototype export",prototype:true,transmitted:false,generatedAt:new Date().toISOString(),source:"Signalencheck Mensenhandel – Gemeente Emmen onderzoeksprototype",
-      warning:"Demo-export. Dit bestand is niet naar PGA-x verzonden en vormt geen operationele koppeling.",
+      warning:"Demo-export. Dit bestand is niet naar PGA-x verzonden en vormt geen operationele koppeling. Fotobijlagen worden niet meegestuurd.",
       controlContext:{caseCode:fieldValue("caseCode"),observedAt:fieldValue("observedAt"),observer:fieldValue("observer"),location:fieldValue("location"),controlType:fieldValue("controlType"),locationType:fieldValue("locationType"),acuteConcern:fieldValue("acuteConcern")},
-      observations,likelihood,covertObservation:Object.fromEntries(covertFields.map(id => [id,fieldValue(id)]))
+      observations,likelihood,covertObservation:Object.fromEntries(covertFields.map(id => [id,fieldValue(id)])),photoAttachments
     };
   }
 
@@ -295,6 +399,8 @@
     moveLikelihoodToBottom();
     groupObservationCards();
     simplifyHomeDashboard();
+    polishObservationLabels();
+    installPhotoUpload();
     installPgaXDemo();
   }
 
@@ -302,6 +408,7 @@
     for (const id of ["openCheckBtn","newCheckBtn","resumeBtn","covertToCheckBtn"]) document.getElementById(id)?.addEventListener("click",applyEnhancements);
     for (const button of document.querySelectorAll('[data-mobile-view="check"]')) button.addEventListener("click",applyEnhancements);
     document.getElementById("jumpUnansweredBtn")?.addEventListener("click",revealAttentionCard);
+    document.getElementById("newCheckBtn")?.addEventListener("click",clearObservationPhotos);
   }
 
   document.addEventListener("DOMContentLoaded", () => {
@@ -312,4 +419,6 @@
     const observer = new MutationObserver(applyEnhancements);
     observer.observe(host,{childList:true,subtree:false});
   });
+
+  window.addEventListener("pagehide", () => observationPhotos.forEach(revokePhoto));
 })();
