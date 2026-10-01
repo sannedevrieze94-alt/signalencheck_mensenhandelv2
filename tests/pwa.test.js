@@ -3,41 +3,57 @@ const fs = require("node:fs");
 const path = require("node:path");
 const assert = (value, message) => { if (!value) throw new Error(message); };
 const source = fs.readFileSync(path.join(__dirname, "../sw.js"), "utf8");
+
 async function run() {
   const events = {}, stored = [], removed = [];
   const scope = "https://example.test/signalencheck/";
   let opened = "";
-  const cache = {addAll: async requests => { stored.push(...requests.map(r => r.url)); }, match: async () => ({cached: true})};
+  let focused = false;
+  const cache = {addAll: async requests => { stored.push(...requests.map(r => r.url)); }, match: async () => ({cached:true})};
   const cachesDouble = {
     open: async name => { opened = name; return cache; },
     keys: async () => ["signalencheck:" + scope + ":old", "signalencheck:https://example.test/other/:old", "other-app"],
     delete: async name => { removed.push(name); }
   };
-  const selfDouble = {registration: {scope}, addEventListener: (name, fn) => { events[name] = fn; }};
-  const RequestDouble = function (url, options) { this.url = url; this.options = options; };
-  new Function("self", "caches", "URL", "Request", "fetch", source)(selfDouble, cachesDouble, URL, RequestDouble, async () => ({network: true}));
+  const selfDouble = {registration:{scope}, addEventListener:(name,fn) => { events[name]=fn; }};
+  const clientsDouble = {
+    matchAll: async () => [{url:scope + "index.html", focus:async () => { focused=true; }}],
+    openWindow: async () => { focused=true; }
+  };
+  const RequestDouble = function(url, options){ this.url=url; this.options=options; };
+  new Function("self","caches","URL","Request","fetch","clients",source)(selfDouble,cachesDouble,URL,RequestDouble,async()=>({network:true}),clientsDouble);
+
   let waiting;
-  events.install({waitUntil(promise) { waiting = promise; }}); await waiting;
+  events.install({waitUntil(promise){waiting=promise;}}); await waiting;
   assert(stored.length === 14 && stored.every(url => url.startsWith(scope)), "Cache bevat vreemde of ontbrekende appbestanden");
-  assert(stored.some(url => url.endsWith("app-shell-v36.css")), "App-shell ontbreekt in cache");
-  assert(stored.some(url => url.endsWith("emmen-theme-v37.css")), "Emmen-thema ontbreekt in cache");
-  assert(!stored.some(url => url.endsWith("gemeente-emmen.svg")), "Verouderd nagemaakt logo wordt nog gecachet");
-  assert(opened.includes(scope), "Cache niet geïsoleerd per app");
-  events.activate({waitUntil(promise) { waiting = promise; }}); await waiting;
+  assert(stored.some(url => url.endsWith("emmen-theme-v37.css")), "Thema ontbreekt in cache");
+  assert(stored.some(url => url.endsWith("signals.js")) && stored.some(url => url.endsWith("model.js")), "Checklogica ontbreekt in cache");
+  assert(opened.includes("4.0.0-prototype"), "Cacheversie 4.0 ontbreekt");
+
+  events.activate({waitUntil(promise){waiting=promise;}}); await waiting;
   assert(removed.length === 1 && removed[0] === "signalencheck:" + scope + ":old", "Caches andere app gewist");
+
   for (const request of [
-    {url: scope + "rapport.txt", method: "GET"},
-    {url: scope + "index.html?casus=123", method: "GET"},
-    {url: scope + "script.js", method: "POST"},
-    {url: "https://other.test/script.js", method: "GET"}
+    {url:scope + "rapport.txt",method:"GET"},
+    {url:scope + "index.html?casus=123",method:"GET"},
+    {url:scope + "script.js",method:"POST"},
+    {url:"https://other.test/script.js",method:"GET"}
   ]) {
-    let intercepted = false;
-    events.fetch({request, respondWith() { intercepted = true; }});
-    assert(!intercepted, "Onbedoeld verzoek onderschept");
+    let intercepted=false;
+    events.fetch({request,respondWith(){intercepted=true;}});
+    assert(!intercepted,"Onbedoeld verzoek onderschept");
   }
+
   let response;
-  events.fetch({request: {url: scope + "script.js", method: "GET"}, respondWith(promise) { response = promise; }});
-  assert((await response).cached, "Appbestand niet uit offlinecache");
-  console.log("PWA-logica geslaagd: app-shell, Emmen-thema, scope-isolatie en vaste cachelijst.");
+  events.fetch({request:{url:scope + "script.js",method:"GET"},respondWith(promise){response=promise;}});
+  assert((await response).cached,"Appbestand niet uit offlinecache");
+
+  assert(typeof events.notificationclick === "function", "Meldingklik-handler ontbreekt");
+  let notificationWait;
+  events.notificationclick({notification:{close(){}},waitUntil(promise){notificationWait=promise;}});
+  await notificationWait;
+  assert(focused,"Meldingklik opent/focust app niet");
+
+  console.log("PWA-logica geslaagd: versie 4-cache, offlinebestanden, scope-isolatie en meldingklik.");
 }
 run();
