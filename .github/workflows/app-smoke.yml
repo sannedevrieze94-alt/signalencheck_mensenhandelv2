@@ -25,4 +25,4 @@ jobs:
       - name: Browser smoke test
         run: node tests/browser-smoke.test.js
       - name: PWA tests
-        run: node -e "require('./tests/pwa.test.js')()"
+        run: node tests/pwa.test.js
