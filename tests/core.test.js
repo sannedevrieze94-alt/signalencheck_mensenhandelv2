@@ -60,12 +60,15 @@ test("Rapport noemt alleen Ja-waarnemingen en geen Nee-waarnemingen", () => {
   const state = M.createState(catalog);
   M.setContext(state, "caseCode", "OOV-001");
   M.setContext(state, "observedAt", "2026-10-01T10:15");
+  M.setContext(state, "observer", "Testtoezichthouder");
   M.setContext(state, "location", "Locatie A");
   M.setAnswer(state, "obs-threat-violence", "yes", "Bedreiging letterlijk gehoord");
   M.setAnswer(state, "obs-underpaid", "no", "Loonstrook gezien");
   const report = M.reportText(M.createSnapshot(state, catalog, "2026-10-01T10:30:00.000Z"));
+  assert(report.includes("zoals bedoeld in artikel 5:11 van de Algemene wet bestuursrecht"), "Formele aanhef toezichthouder ontbreekt");
   assert(report.includes("Bedreiging letterlijk gehoord"), "Ja-waarneming ontbreekt");
   assert(!report.includes("Loonstrook gezien"), "Nee-waarneming wordt uitgeschreven");
+  assert(report.includes("SIGNALEN EN BIJZONDERHEDEN"), "Signaalsectie ontbreekt");
   assert(report.includes("INDICATIEVE LIKELIHOOD"), "Likelihoodsectie ontbreekt");
   assert(report.includes("geen gevalideerde kansberekening"), "Methodische waarschuwing ontbreekt");
 });
@@ -78,9 +81,9 @@ test("Heimelijke waarneming neemt alleen positieve of ingevulde observaties op",
   M.setContext(state, "covertPlateNumbers", "AB-12-CD");
   M.setContext(state, "covertThirdPartyControl", "yes");
   const report = M.reportText(M.createSnapshot(state, catalog));
-  assert(report.includes("HEIMELIJKE WAARNEMING"), "Heimelijke sectie ontbreekt");
+  assert(report.includes("HEIMELIJKE WAARNEMING"), "Observatiesectie ontbreekt");
   assert(report.includes("AB-12-CD"), "Kenteken ontbreekt");
-  assert(report.includes("stuurde of controleerde"), "Derdecontrole ontbreekt");
+  assert(report.includes("sturing of controle door een derde"), "Derdecontrole ontbreekt");
   assert(!report.includes("advertentiebron vastgesteld"), "Negatieve advertentiebevinding onterecht opgenomen");
 });
 
