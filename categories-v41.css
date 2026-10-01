@@ -1,0 +1,57 @@
+/* Signalencheck 4.1 — thematische groepering van waarnemingen. */
+.observation-category{
+  margin:1.25rem 0 1.7rem;
+  padding:0 0 .15rem;
+}
+.observation-category + .observation-category{
+  border-top:1px solid var(--emmen-border);
+  padding-top:1.35rem;
+}
+.observation-category-head{
+  display:grid;
+  grid-template-columns:5px minmax(0,1fr);
+  gap:.75rem;
+  align-items:stretch;
+  margin:0 0 .8rem;
+  padding:.7rem .8rem;
+  border-radius:12px;
+  background:var(--emmen-surface-soft);
+}
+.observation-category-head .category-marker{
+  width:5px;
+  min-height:100%;
+  border-radius:99px;
+  background:var(--emmen-red);
+}
+.observation-category[data-category="coercion-vulnerability"] .category-marker{background:var(--emmen-attention);}
+.observation-category[data-category="labour"] .category-marker{background:#9b6b14;}
+.observation-category[data-category="sexual-exploitation"] .category-marker{background:#b23065;}
+.observation-category[data-category="criminal-exploitation"] .category-marker{background:var(--emmen-blue);}
+.observation-category[data-category="other"] .category-marker{background:#7d8795;}
+.observation-category-head h4{
+  margin:0;
+  color:var(--emmen-ink);
+  font-size:.98rem;
+  line-height:1.25;
+}
+.observation-category-head p{
+  margin:.22rem 0 0;
+  color:var(--emmen-ink-soft);
+  font-size:.78rem;
+  line-height:1.4;
+}
+.likelihood-panel{
+  margin-top:1.2rem;
+  border-top:4px solid var(--emmen-red)!important;
+}
+.likelihood-panel .section-heading::after{
+  content:"Na beoordeling van de waarnemingen";
+  margin-left:auto;
+  color:var(--emmen-ink-soft);
+  font-size:.72rem;
+  font-weight:750;
+}
+@media(max-width:620px){
+  .observation-category-head{padding:.65rem .7rem;}
+  .likelihood-panel .section-heading::after{display:none;}
+}
