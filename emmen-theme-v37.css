@@ -1,0 +1,154 @@
+/* Signalencheck 3.7 — visueel thema rond Gemeente Emmen-branding. */
+:root{
+  --emmen-red:#e30613;
+  --emmen-red-deep:#b8000b;
+  --emmen-red-soft:#fff1f2;
+  --emmen-ink:#1d2533;
+  --emmen-ink-soft:#5f6978;
+  --emmen-surface:#ffffff;
+  --emmen-surface-soft:#f5f7fa;
+  --emmen-border:#dfe4eb;
+  --emmen-seen:#18795f;
+  --emmen-seen-soft:#eaf6f1;
+  --emmen-attention:#b77700;
+  --emmen-attention-soft:#fff6df;
+  --emmen-shadow:0 16px 42px rgba(25,34,48,.10);
+}
+
+body{
+  background:linear-gradient(180deg,#f8f9fb 0,#eef2f6 100%);
+  color:var(--emmen-ink);
+}
+body::before{
+  background:
+    radial-gradient(circle at 8% 7%,rgba(227,6,19,.075),transparent 26rem),
+    radial-gradient(circle at 94% 12%,rgba(29,37,51,.055),transparent 30rem),
+    linear-gradient(180deg,#fbfcfd 0,#f2f5f8 55rem,#eef2f6 100%);
+}
+
+.app-topbar{
+  border-top:5px solid var(--emmen-red);
+  background:rgba(255,255,255,.97);
+  box-shadow:0 8px 25px rgba(25,34,48,.08);
+}
+.brand .municipality-logo{
+  width:176px;
+  height:58px;
+  padding:2px .95rem 2px 0;
+  object-fit:contain;
+  object-position:left center;
+}
+.brand .tool-mark{border-radius:13px;box-shadow:0 7px 18px rgba(25,34,48,.12);}
+.brand-copy strong{color:var(--emmen-ink);font-size:1rem;}
+.brand-copy span{color:var(--emmen-ink-soft);}
+
+.prototype-notice{
+  border-color:rgba(227,6,19,.18);
+  background:var(--emmen-red-soft);
+  color:#76121a;
+}
+.prototype-notice strong{color:var(--emmen-red-deep);}
+
+.home-hero{
+  background:
+    radial-gradient(circle at 100% 0,rgba(255,255,255,.13),transparent 33%),
+    linear-gradient(135deg,#202735 0%,#30394a 62%,#3a4353 100%);
+  box-shadow:0 22px 55px rgba(25,34,48,.19);
+}
+.home-eyebrow{color:rgba(255,255,255,.66);}
+.session-dot{background:#67d4ac;}
+
+.home-tile{
+  border-color:var(--emmen-border)!important;
+  box-shadow:var(--emmen-shadow)!important;
+}
+.home-tile::before,.home-tile.tile-control::before{background:var(--emmen-red);}
+.home-tile.tile-covert::before{background:var(--emmen-attention);}
+.home-tile.tile-report::before{background:var(--emmen-seen);}
+.home-tile:hover{border-color:#c8cfd9!important;box-shadow:0 20px 44px rgba(25,34,48,.14)!important;}
+.tile-icon{background:#f0f2f5;color:#333d4c;}
+.tile-control .tile-icon{background:var(--emmen-red-soft);color:var(--emmen-red-deep);}
+.tile-covert .tile-icon{background:var(--emmen-attention-soft);color:#8a5900;}
+.tile-report .tile-icon{background:var(--emmen-seen-soft);color:var(--emmen-seen);}
+.tile-copy strong{color:var(--emmen-ink);}
+.tile-copy small{color:var(--emmen-ink-soft);}
+
+.card,.card-lite,.module-choice,.report-card{
+  border-color:var(--emmen-border)!important;
+  box-shadow:0 12px 30px rgba(25,34,48,.075)!important;
+}
+.section-kicker{color:#7a8492;}
+.section-number{background:#f1f3f6;color:#343d4b;border-color:var(--emmen-border);}
+
+.module-choice input:checked+.module-check{
+  border-color:var(--emmen-red);
+  background:var(--emmen-red);
+  box-shadow:0 6px 15px rgba(227,6,19,.2);
+}
+.module-choice:has(input:checked){
+  border-color:rgba(227,6,19,.38)!important;
+  background:linear-gradient(180deg,#fff,#fff9f9);
+}
+
+button.primary,.view-actions button.primary,.sticky-workflow-actions button.primary,.report-toolbar button.primary{
+  background:linear-gradient(135deg,var(--emmen-red),var(--emmen-red-deep))!important;
+  border-color:var(--emmen-red-deep)!important;
+  color:#fff!important;
+  box-shadow:0 9px 20px rgba(227,6,19,.21)!important;
+}
+button.primary:hover,.view-actions button.primary:hover,.sticky-workflow-actions button.primary:hover,.report-toolbar button.primary:hover{
+  box-shadow:0 12px 25px rgba(227,6,19,.28)!important;
+}
+.back-button{color:var(--emmen-ink)!important;}
+.link-button{color:var(--emmen-red-deep)!important;}
+
+.tabs button.active{
+  border-color:rgba(227,6,19,.4)!important;
+  background:var(--emmen-red-soft)!important;
+  color:var(--emmen-red-deep)!important;
+}
+.tabs button.active::after{background:var(--emmen-red)!important;}
+.signal-item[data-status="seen"]{
+  border-left-color:var(--emmen-seen);
+  background:linear-gradient(90deg,rgba(24,121,95,.07),#fff 24%);
+}
+.signal-item[data-status="seen"] select{border-color:rgba(24,121,95,.45);box-shadow:0 0 0 3px rgba(24,121,95,.07);}
+.signal-item[data-status="unknown"]{border-left-color:#d5ad54;}
+
+.score-badge{border-color:var(--emmen-border);background:#f7f9fb;}
+.score-badge.integrated{background:var(--emmen-seen-soft);border-color:#bcded1;}
+.validation-message{color:#9c241d;}
+.notice{border-radius:14px;}
+
+.report-card{background:#e9edf2!important;}
+.report-toolbar{background:#fff;border-bottom-color:var(--emmen-border);}
+.report-paper{
+  max-width:900px;
+  margin:1.4rem auto 2rem!important;
+  min-height:900px;
+  padding:3rem 3.4rem!important;
+  border-radius:3px!important;
+  box-shadow:0 18px 44px rgba(25,34,48,.13)!important;
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-size:.92rem!important;
+  line-height:1.65!important;
+}
+
+.app-mobile-nav{
+  border-color:#d7dde5;
+  background:rgba(255,255,255,.96);
+}
+.app-mobile-nav button.active{background:var(--emmen-red-soft)!important;color:var(--emmen-red-deep)!important;}
+
+@media(max-width:800px){
+  .brand .municipality-logo{width:150px;height:50px;}
+  .report-paper{margin:.8rem!important;padding:1.8rem 1.35rem!important;min-height:70vh;}
+}
+@media(max-width:620px){
+  .brand .municipality-logo{width:128px;height:44px;padding-right:.6rem;}
+  .home-hero{background:linear-gradient(145deg,#202735,#3b4555);}
+}
+@media print{
+  .report-card{background:#fff!important;}
+  .report-paper{max-width:none;margin:0!important;padding:0!important;box-shadow:none!important;min-height:0;}
+}

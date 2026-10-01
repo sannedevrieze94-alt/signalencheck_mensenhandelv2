@@ -3,15 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#17233f">
+  <meta name="theme-color" content="#e30613">
   <meta name="description" content="Onderzoeksprototype voor signalenherkenning en rapportage rond mensenhandel.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https://upload.wikimedia.org; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Signalencheck">
   <title>Signalencheck Mensenhandel</title>
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./effects.css">
   <link rel="stylesheet" href="./app-shell-v36.css">
+  <link rel="stylesheet" href="./emmen-theme-v37.css">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
@@ -23,7 +24,7 @@
 <a class="skip-link" href="#main">Ga naar inhoud</a>
 <header class="topbar app-topbar">
   <button type="button" class="brand brand-button" id="homeBtn" aria-label="Naar startscherm">
-    <img class="municipality-logo" src="./icons/gemeente-emmen.svg" width="160" height="48" alt="Gemeente Emmen">
+    <img class="municipality-logo" src="https://upload.wikimedia.org/wikipedia/commons/8/88/Emmen-gemeente-logo.png" width="176" height="64" alt="Gemeente Emmen">
     <img class="tool-mark" src="./icons/icon.svg" width="42" height="42" alt="">
     <span class="brand-copy"><strong>Signalencheck Mensenhandel</strong><span>Toezicht & signalering</span></span>
   </button>
@@ -216,6 +217,6 @@
   <button type="button" data-mobile-view="covert"><span aria-hidden="true">◉</span><small>Heimelijk</small></button>
   <button type="button" data-mobile-view="report"><span aria-hidden="true">▤</span><small>Rapport</small></button>
 </nav>
-<footer class="page muted app-footer">© Sanne de Vrieze 2026 · <span id="versionLabel"></span></footer>
+<footer class="page muted app-footer">© Sanne de Vrieze 2026 · <span id="versionLabel"></span><span class="logo-credit">Gemeente Emmen-logo: bron gemeente.emmen.nl; weergegeven via Wikimedia Commons.</span></footer>
 </body>
 </html>
