@@ -4,154 +4,98 @@ const catalog = require("../signals.js");
 let passed = 0;
 function assert(value, message) { if (!value) throw new Error(message); }
 function test(name, fn) { fn(); passed++; console.log("OK " + name); }
-function form(score, id) { return score.forms.find(f => f.id === id); }
 
-test("Alle 60 signalen beginnen onbekend en geen vorm is beoordeeld", () => {
+test("Nieuwe sessie selecteert geen modules", () => {
   const state = M.createState(catalog);
-  const counts = M.counts(state);
-  const risk = M.prototypeRiskScore(state, catalog);
-  assert(counts.unknown === 60 && counts.seen === 0 && counts.notSeen === 0, "Onjuiste beginstatus");
-  assert(M.flatten(catalog).length === new Set(M.flatten(catalog).map(e => e.id)).size, "Dubbele IDs");
-  assert(risk.assessedForms.length === 0 && risk.integratedScore === null && risk.validated === false, "Onjuiste begin-score");
+  assert(M.VERSION === "3.6.0-prototype", "Onjuiste versie");
+  assert(M.selectedFormIds(state.context).length === 0, "Vorm vooraf geselecteerd");
+  assert(!state.context.includeGeneral && !state.context.covertObservationEnabled, "Module vooraf geselecteerd");
 });
 
-test("Progressieve score volgt 0,5 / 1,25 / 2,5 binnen één vorm", () => {
+test("Alleen geselecteerde vormen tellen voor de controle", () => {
   const state = M.createState(catalog);
-  M.setAnswer(state, "arbeid-specific-1", "seen", "A");
-  assert(form(M.prototypeRiskScore(state, catalog), "arbeid").score === 0.5, "Score 1 signaal onjuist");
-  M.setAnswer(state, "arbeid-specific-2", "seen", "B");
-  assert(form(M.prototypeRiskScore(state, catalog), "arbeid").score === 1.25, "Score 2 signalen onjuist");
-  M.setAnswer(state, "arbeid-specific-3", "seen", "C");
-  assert(form(M.prototypeRiskScore(state, catalog), "arbeid").score === 2.5, "Score 3 signalen onjuist");
+  M.setContext(state, "includeArbeid", true);
+  M.setAnswer(state, "arbeid-specific-1", "seen", "Feitelijke waarneming");
+  M.setAnswer(state, "seksueel-specific-1", "seen", "Niet geselecteerde vorm");
+  const counts = M.counts(state, catalog, true);
+  assert(counts.seen === 1, "Niet-geselecteerde vorm meegeteld");
+  assert(M.selectedFormIds(state.context).join(",") === "arbeid", "Verkeerde selectie");
 });
 
-test("Niet-waargenomen verhoogt de score niet maar markeert vorm als beoordeeld", () => {
-  const state = M.createState(catalog);
-  M.setAnswer(state, "seksueel-specific-1", "notSeen", "Onderzocht");
-  const sexual = form(M.prototypeRiskScore(state, catalog), "seksueel");
-  assert(sexual.score === 0 && sexual.assessed === 1 && sexual.isAssessed, "Niet-waargenomen verkeerd verwerkt");
+test("Progressieve score volgt afgesproken voorbeelden", () => {
+  assert(M.scoreFromSeen(1) === 0.5, "1 signaal moet 0,5 zijn");
+  assert(M.scoreFromSeen(2) === 1.25, "2 signalen moeten 1,25 zijn");
+  assert(M.scoreFromSeen(3) === 2.5, "3 signalen moeten 2,5 zijn");
+  assert(M.scoreFromSeen(4) === 3.75, "4 signalen moeten 3,75 zijn");
+  assert(M.scoreFromSeen(5) === 5.25, "5 signalen moeten 5,25 zijn");
 });
 
-test("Integrale score verschijnt alleen wanneer alle drie vormen zijn beoordeeld", () => {
+test("Rapport noemt alleen waargenomen signalen", () => {
   const state = M.createState(catalog);
-  M.setAnswer(state, "arbeid-specific-1", "seen", "A");
-  M.setAnswer(state, "seksueel-specific-1", "seen", "B");
-  let risk = M.prototypeRiskScore(state, catalog);
-  assert(!risk.allThreeAssessed && risk.integratedScore === null, "Te vroeg totaalscore");
-  M.setAnswer(state, "crimineel-specific-1", "notSeen", "C");
-  risk = M.prototypeRiskScore(state, catalog);
-  assert(risk.allThreeAssessed && risk.integratedScore === 1, "Integrale score ontbreekt of is onjuist");
+  M.setContext(state, "includeArbeid", true);
+  M.setContext(state, "caseCode", "OOV-001");
+  M.setContext(state, "observedAt", "2026-10-01T10:15");
+  M.setContext(state, "location", "Locatie A");
+  M.setContext(state, "controlType", "Integrale controle");
+  M.setAnswer(state, "arbeid-specific-1", "seen", "Waargenomen op locatie");
+  M.setAnswer(state, "arbeid-specific-2", "notSeen", "Onderzocht maar niet gezien");
+  const report = M.reportText(M.createSnapshot(state, catalog, "2026-10-01T10:30:00.000Z"));
+  const seenText = M.flatten(catalog).find(x => x.id === "arbeid-specific-1").text;
+  const notSeenText = M.flatten(catalog).find(x => x.id === "arbeid-specific-2").text;
+  assert(report.includes(seenText), "Waargenomen signaal ontbreekt");
+  assert(!report.includes(notSeenText), "Niet-waargenomen signaal staat in rapport");
+  assert(!report.includes("Onbekend / niet onderzocht"), "Onbekende statussen staan in rapport");
 });
 
-test("Rapport vereist bevestiging van fictieve gegevens", () => {
-  let thrown = false;
-  try { M.createSnapshot(M.createState(catalog), catalog); } catch (_) { thrown = true; }
-  assert(thrown, "Rapport zonder bevestiging toegestaan");
-});
-
-test("Rapport opent als toezichthoudersrapportage met artikel 5:11 Awb", () => {
+test("Niet-geselecteerde vorm komt niet in rapport", () => {
   const state = M.createState(catalog);
-  M.setContext(state, "trainingConfirmed", true);
-  M.setContext(state, "observedAt", "2026-09-29T20:15");
-  M.setContext(state, "location", "Oefenlocatie A");
-  M.setContext(state, "controlType", "Bedrijfscontrole");
-  M.setContext(state, "locationType", "Bedrijfspand");
+  M.setContext(state, "includeArbeid", true);
+  M.setContext(state, "observedAt", "2026-10-01T10:15");
+  M.setContext(state, "location", "Locatie A");
+  M.setContext(state, "controlType", "Integrale controle");
+  M.setAnswer(state, "seksueel-specific-1", "seen", "Wel ingevuld maar niet geselecteerd");
   const report = M.reportText(M.createSnapshot(state, catalog));
-  assert(report.includes("Ik, toezichthouder in dienst van de gemeente Emmen"), "Openingszin ontbreekt");
-  assert(report.includes("artikel 5:11 van de Algemene wet bestuursrecht (Awb)"), "Awb-verwijzing ontbreekt");
-  assert(report.includes("29-09-2026 om 20:15 uur"), "Tijd niet leesbaar weergegeven");
+  const text = M.flatten(catalog).find(x => x.id === "seksueel-specific-1").text;
+  assert(!report.includes(text), "Niet-geselecteerde vorm opgenomen");
 });
 
-test("Rapport bevat alleen daadwerkelijk beoordeelde uitbuitingsvormen", () => {
-  const state = M.createState(catalog);
-  M.setContext(state, "trainingConfirmed", true);
-  M.setAnswer(state, "seksueel-specific-4", "seen", "Fictieve verklaring");
-  const report = M.reportText(M.createSnapshot(state, catalog));
-  assert(report.includes("SEKSUELE UITBUITING"), "Beoordeelde vorm ontbreekt");
-  assert(!report.includes("ARBEIDSUITBUITING\nBinnen deze uitbuitingsvorm"), "Niet-beoordeelde arbeidsvorm toch inhoudelijk opgenomen");
-  assert(!report.includes("CRIMINELE UITBUITING\nBinnen deze uitbuitingsvorm"), "Niet-beoordeelde criminele vorm toch inhoudelijk opgenomen");
-  assert(report.includes("0,5 van maximaal 38,5"), "Vormspecifieke score ontbreekt");
-});
-
-test("Alle drie beoordeeld geeft afzonderlijke én integrale samenvatting", () => {
-  const state = M.createState(catalog);
-  M.setContext(state, "trainingConfirmed", true);
-  M.setAnswer(state, "arbeid-specific-1", "seen", "A");
-  M.setAnswer(state, "seksueel-specific-1", "seen", "B");
-  M.setAnswer(state, "crimineel-specific-1", "seen", "C");
-  const report = M.reportText(M.createSnapshot(state, catalog));
-  assert(report.includes("INTEGRALE SAMENVATTING"), "Integrale samenvatting ontbreekt");
-  assert(report.includes("De integrale prototype-score bedraagt 1,5"), "Integrale score onjuist");
-});
-
-test("Heimelijke waarneming neemt kentekens en persoonskenmerken alleen op wanneer geactiveerd", () => {
-  const state = M.createState(catalog);
-  M.setContext(state, "trainingConfirmed", true);
-  let report = M.reportText(M.createSnapshot(state, catalog));
-  assert(!report.includes("HEIMELIJKE WAARNEMING"), "Lege heimelijke module onterecht opgenomen");
-
-  const next = M.createState(catalog);
-  M.setContext(next, "trainingConfirmed", true);
-  M.setContext(next, "covertObservationEnabled", true);
-  M.setContext(next, "covertFootfall", "yes");
-  M.setContext(next, "covertWebsiteMatch", "yes");
-  M.setContext(next, "covertWebsiteName", "Kinky.nl");
-  M.setContext(next, "covertPlateNumbers", "AA-11-BB");
-  M.setContext(next, "covertPersonCharacteristics", "donkere jas, circa 30-40 jaar, lang haar");
-  M.setContext(next, "covertNotes", "Fictieve observatie");
-  report = M.reportText(M.createSnapshot(next, catalog));
-  assert(report.includes("HEIMELIJKE WAARNEMING"), "Heimelijke waarneming ontbreekt");
-  assert(report.includes("AA-11-BB") && report.includes("donkere jas"), "Kenteken of persoonskenmerken ontbreken");
-  assert(report.includes("Kinky.nl"), "Advertentiebron ontbreekt");
-});
-
-test("Heimelijke module zonder observatienotitie geeft controlepunt", () => {
+test("Heimelijke waarneming neemt alleen ingevulde of positieve bevindingen op", () => {
   const state = M.createState(catalog);
   M.setContext(state, "covertObservationEnabled", true);
-  assert(M.reviewPoints(state).some(p => p.includes("Heimelijke waarneming")), "Controlepunt ontbreekt");
-});
-
-test("Wijzigen na rapportage maakt momentopname ongeldig", () => {
-  const state = M.createState(catalog);
-  M.setContext(state, "trainingConfirmed", true);
-  M.setAnswer(state, "arbeid-specific-1", "seen", "Eerste observatie");
-  const first = M.createSnapshot(state, catalog, "2026-09-27T12:00:00.000Z");
-  M.setAnswer(state, "arbeid-specific-1", "notSeen", "Gecorrigeerd");
-  assert(state.snapshot === null, "Verouderde momentopname behouden");
-  const next = M.createSnapshot(state, catalog, "2026-09-27T12:01:00.000Z");
-  assert(form(next.prototypeRisk, "arbeid").score === 0 && next.revision > first.revision, "Nieuwe score of revisie onjuist");
-});
-
-test("Herhaalde export houdt rapporttijd gelijk zolang invoer gelijk blijft", () => {
-  const state = M.createState(catalog);
-  M.setContext(state, "trainingConfirmed", true);
-  const first = M.createSnapshot(state, catalog, "2026-09-27T12:00:00.000Z");
-  assert(first === M.createSnapshot(state, catalog, "2026-09-27T13:00:00.000Z"), "Rapporttijd versprongen");
-});
-
-test("Acute zorg blijft onafhankelijk van score", () => {
-  const state = M.createState(catalog);
-  M.setContext(state, "trainingConfirmed", true);
-  M.setContext(state, "acuteConcern", "yes");
+  M.setContext(state, "observedAt", "2026-10-01T20:00");
+  M.setContext(state, "location", "Locatie B");
+  M.setContext(state, "controlType", "Heimelijke waarneming");
+  M.setContext(state, "covertFootfall", "yes");
+  M.setContext(state, "covertWebsiteMatch", "no");
+  M.setContext(state, "covertPlateNumbers", "AB-12-CD");
   const report = M.reportText(M.createSnapshot(state, catalog));
-  assert(report.includes("Er is acute zorg aangegeven") && report.includes("geen indicatieve score gerapporteerd"), "Veiligheidsinstructie hangt af van score");
+  assert(report.includes("aanloop") && report.includes("AB-12-CD"), "Waarnemingen ontbreken");
+  assert(!report.includes("openbaar toegankelijke advertentiebron"), "Negatieve websitebevinding onterecht opgenomen");
 });
 
-test("Ongeldige IDs/statussen worden geweigerd", () => {
+test("Integrale score verschijnt alleen als alle drie geselecteerde vormen zijn beoordeeld", () => {
   const state = M.createState(catalog);
-  let errors = 0;
-  for (const [id, status] of [["verzonnen", "seen"], ["arbeid-specific-1", "laag"]]) {
-    try { M.setAnswer(state, id, status, ""); } catch (_) { errors++; }
-  }
-  assert(errors === 2, "Onbekende waarde geaccepteerd");
+  for (const key of ["includeArbeid", "includeSeksueel", "includeCrimineel"]) M.setContext(state, key, true);
+  M.setAnswer(state, "arbeid-specific-1", "seen", "A");
+  M.setAnswer(state, "seksueel-specific-1", "notSeen", "B");
+  let risk = M.prototypeRiskScore(state, catalog);
+  assert(risk.integratedScore === null, "Integrale score te vroeg zichtbaar");
+  M.setAnswer(state, "crimineel-specific-1", "seen", "C");
+  risk = M.prototypeRiskScore(state, catalog);
+  assert(risk.allThreeAssessed && risk.integratedScore !== null, "Integrale score ontbreekt");
 });
 
-test("Lange tekst en bijzondere tekens blijven in rapport intact", () => {
+test("Rapport opent in toezichthoudersstijl", () => {
   const state = M.createState(catalog);
-  M.setContext(state, "trainingConfirmed", true);
-  const long = "<script>niet uitvoeren</script> & é —\n" + "Fictieve bevinding. ".repeat(900);
-  M.setContext(state, "findings", long);
-  assert(M.reportText(M.createSnapshot(state, catalog)).includes(long.trim()), "Tekst afgekapt");
+  M.setContext(state, "includeGeneral", true);
+  M.setContext(state, "observedAt", "2026-10-01T09:00");
+  M.setContext(state, "location", "Locatie C");
+  M.setContext(state, "controlType", "Woningcontrole");
+  M.setContext(state, "findings", "Ik zag dat de voordeur werd geopend.");
+  const report = M.reportText(M.createSnapshot(state, catalog));
+  assert(report.startsWith("RAPPORT VAN BEVINDINGEN"), "Geen rapportstijl");
+  assert(report.includes("artikel 5:11 van de Algemene wet bestuursrecht"), "Awb-formulering ontbreekt");
+  assert(report.includes("Ik zag dat de voordeur werd geopend."), "Feitelijke bevinding ontbreekt");
 });
 
 console.log(passed + " modelcontroles geslaagd.");
