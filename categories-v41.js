@@ -66,6 +66,15 @@
 
   let grouping = false;
 
+  function ensureStylesheet() {
+    if (document.querySelector('link[data-category-style="v41"]')) return;
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "./categories-v41.css";
+    link.dataset.categoryStyle = "v41";
+    document.head.appendChild(link);
+  }
+
   function makeHeader(category) {
     const header = document.createElement("div");
     header.className = "observation-category-head";
@@ -109,8 +118,7 @@
       mainSection.appendChild(group);
     }
 
-    // Houd onverwachte/toekomstige waarnemingen zichtbaar in plaats van ze kwijt te raken.
-    const remaining = [...cards.values()].filter(card => mainSection.contains(card) && card.parentElement === mainSection);
+    const remaining = [...cards.values()].filter(card => card.parentElement === mainSection);
     if (remaining.length) {
       const group = document.createElement("section");
       group.className = "observation-category";
@@ -138,12 +146,11 @@
     if (likelihoodNumber) likelihoodNumber.textContent = "03";
     if (likelihoodKicker) likelihoodKicker.textContent = "Resultaat";
 
-    if (likelihoodPanel.nextElementSibling !== actions) {
-      checkView.insertBefore(likelihoodPanel, actions);
-    }
+    if (likelihoodPanel.nextElementSibling !== actions) checkView.insertBefore(likelihoodPanel, actions);
   }
 
   function applyEnhancements() {
+    ensureStylesheet();
     moveLikelihoodToBottom();
     groupObservationCards();
   }
@@ -152,9 +159,7 @@
     applyEnhancements();
     const host = document.getElementById("observationsMount");
     if (!host) return;
-    const observer = new MutationObserver(() => {
-      window.requestAnimationFrame(applyEnhancements);
-    });
+    const observer = new MutationObserver(() => window.requestAnimationFrame(applyEnhancements));
     observer.observe(host, {childList:true, subtree:false});
   });
 })();
