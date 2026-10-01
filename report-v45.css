@@ -1,0 +1,41 @@
+/* Signalencheck 4.5 — formele rapportagevelden en copyright. */
+.report-details-panel{
+  padding:0!important;
+  overflow:hidden;
+  border:1px solid var(--emmen-border)!important;
+}
+.report-details-panel>summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:1rem;
+  padding:1rem 1.1rem;
+  cursor:pointer;
+  list-style:none;
+  background:var(--emmen-surface-soft);
+}
+.report-details-panel>summary::-webkit-details-marker{display:none;}
+.report-details-panel>summary span:first-child{display:grid;gap:.15rem;}
+.report-details-panel>summary small{
+  color:var(--emmen-red);
+  font-size:.7rem;
+  font-weight:850;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.report-details-panel>summary strong{font-size:1rem;color:var(--emmen-ink);}
+.report-details-hint{color:var(--emmen-ink-soft);font-size:.75rem;text-align:right;}
+.report-details-panel[open]>summary{border-bottom:1px solid var(--emmen-border);}
+.report-details-body{display:grid;gap:1rem;padding:1.1rem;}
+.report-details-body>label,
+.report-details-body .field-grid>label{display:grid;gap:.4rem;font-weight:750;color:var(--emmen-ink);}
+.report-details-body input,
+.report-details-body select,
+.report-details-body textarea{font-weight:500;}
+.footer-copyright{opacity:.78;white-space:nowrap;}
+.app-footer{display:flex;justify-content:space-between;gap:1rem;align-items:center;flex-wrap:wrap;}
+@media(max-width:620px){
+  .report-details-panel>summary{align-items:flex-start;flex-direction:column;gap:.35rem;}
+  .report-details-hint{text-align:left;}
+  .app-footer{justify-content:center;text-align:center;}
+}
