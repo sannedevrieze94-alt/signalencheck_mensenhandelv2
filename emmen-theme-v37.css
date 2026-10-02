@@ -44,6 +44,35 @@ body{background:var(--page-bg);color:var(--emmen-ink);}
 body::before{background:radial-gradient(circle at 8% 7%,rgba(227,6,19,.07),transparent 26rem),var(--page-bg);}
 html[data-theme="dark"] body::before{background:radial-gradient(circle at 8% 7%,rgba(227,6,19,.10),transparent 26rem),var(--page-bg);}
 
+
+/* Donker thema: alle app- en werktekst blijft leesbaar op donkere oppervlakken.
+   Het A4-rapport zelf blijft bewust wit met donkere tekst voor dossier/printgebruik. */
+html[data-theme="dark"] .view-header,
+html[data-theme="dark"] .view-header h1,
+html[data-theme="dark"] .view-header p,
+html[data-theme="dark"] .report-toolbar,
+html[data-theme="dark"] .report-toolbar strong,
+html[data-theme="dark"] .settings-card label,
+html[data-theme="dark"] .observation-toolbar,
+html[data-theme="dark"] .overview-toolbar,
+html[data-theme="dark"] .summary-grid strong,
+html[data-theme="dark"] .field-grid label,
+html[data-theme="dark"] .app-section > label{
+  color:var(--emmen-ink)!important;
+}
+html[data-theme="dark"] .report-toolbar span,
+html[data-theme="dark"] .muted,
+html[data-theme="dark"] .settings-card p,
+html[data-theme="dark"] .summary-grid span,
+html[data-theme="dark"] .view-header .section-kicker{
+  color:var(--emmen-ink-soft)!important;
+}
+html[data-theme="dark"] .report-toolbar button{
+  background:var(--emmen-surface-soft)!important;
+  color:var(--emmen-ink)!important;
+  border-color:var(--emmen-border)!important;
+}
+
 .app-topbar{border-top:5px solid var(--emmen-red);background:color-mix(in srgb,var(--emmen-surface) 96%,transparent);box-shadow:0 8px 25px rgba(25,34,48,.08);}
 .brand .municipality-logo{width:176px;height:58px;padding:2px .95rem 2px 0;object-fit:contain;object-position:left center;}
 html[data-theme="dark"] .brand .municipality-logo{background:#fff;border-radius:8px;padding:5px 10px;margin-right:.5rem;}
