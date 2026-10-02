@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#e30613">
-  <meta name="description" content="Onderzoeksprototype voor signalenherkenning en likelihood-indicatie rond mensenhandel.">
+  <meta name="description" content="Onderzoeksprototype voor signalenherkenning en een indicatief signaalbeeld rond mensenhandel.">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https://upload.wikimedia.org; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Signalencheck">
@@ -45,7 +45,7 @@
 
   <aside class="prototype-notice" aria-label="Status onderzoeksprototype">
     <strong>Onderzoeksprototype</strong>
-    <span>De likelihood-indicatie is gebaseerd op voorlopige onderzoeksgewichten en is geen gevalideerde kansberekening of juridische vaststelling.</span>
+    <span>Het signaalbeeld is gebaseerd op voorlopige onderzoeksgewichten. De matchscore is geen gevalideerde kans op mensenhandel en geen juridische vaststelling.</span>
   </aside>
 
   <section id="homeView" class="app-view" aria-labelledby="homeTitle">
@@ -79,8 +79,7 @@
 
     <section class="home-summary card-lite" aria-labelledby="summaryTitle">
       <div class="summary-heading"><div><span class="section-kicker">Huidige sessie</span><h2 id="summaryTitle">Voortgang</h2></div><button type="button" class="link-button" id="resumeBtn">Doorgaan</button></div>
-      <div class="summary-grid summary-grid-four">
-        <div><span>Beoordeeld</span><strong id="summaryAnswered">0 / 0</strong></div>
+      <div class="summary-grid">
         <div><span>Ja</span><strong id="summaryYes">0</strong></div>
         <div><span>Locatie</span><strong id="summaryLocation">Niet ingevuld</strong></div>
         <div><span>Laatste check</span><strong id="summaryLastCheck">Nog geen</strong></div>
@@ -109,10 +108,10 @@
     </section>
 
     <section class="card app-section likelihood-panel" aria-labelledby="likelihoodTitle">
-      <div class="section-heading"><span class="section-number">03</span><div><p class="section-kicker">Resultaat</p><h2 id="likelihoodTitle">Likelihood-indicatie</h2></div></div>
+      <div class="section-heading"><span class="section-number">03</span><div><p class="section-kicker">Resultaat</p><h2 id="likelihoodTitle">Signaalbeeld</h2></div></div>
       <div id="likelihoodCards" class="likelihood-grid"></div>
       <div class="completion-row"><span id="completionText">0 van 0 beoordeeld</span><progress id="completionProgress" max="100" value="0">0%</progress></div>
-      <p class="muted likelihood-note">De percentages zijn een gewogen prototype-index. Zij mogen niet worden gelezen als statistisch gevalideerde kans op mensenhandel.</p>
+      <p class="muted likelihood-note">De matchscore geeft weer in welke mate de vastgelegde waarnemingen overeenkomen met het signalenprofiel van de betreffende uitbuitingsvorm. Het is geen statistisch gevalideerde kans op mensenhandel.</p>
     </section>
 
     <section class="card app-section" aria-labelledby="observationsTitle">
