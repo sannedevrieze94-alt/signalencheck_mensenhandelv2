@@ -5,7 +5,7 @@
   const VERSION = "4.0.0-prototype";
   const STATUSES = Object.freeze({unknown: "Nog niet beoordeeld", yes: "Ja", no: "Nee"});
   const SAFETY = "Bij direct gevaar: volg de lokale noodprocedure en bel zo nodig 112.";
-  const LIKELIHOOD_NOTICE = "Likelihood-indicatie op basis van voorlopige onderzoeksgewichten. Dit is geen gevalideerde kansberekening of juridische vaststelling van mensenhandel.";
+  const LIKELIHOOD_NOTICE = "Het signaalbeeld en de matchscores zijn gebaseerd op voorlopige onderzoeksgewichten. Zij zijn geen gevalideerde kansberekening en geen juridische vaststelling van mensenhandel.";
 
   function flatten(catalog) {
     return catalog.sections.flatMap(section => section.items.map(item => ({...item, sectionId: section.id, section: section.title})));
@@ -306,9 +306,9 @@
     if (value(c.observerTeam)) lines.push(value(c.observerTeam));
     lines.push("", "[handtekening of digitale vaststelling]");
 
-    lines.push("", "----------------------------------------", "INDICATIEVE LIKELIHOOD – INTERNE SIGNAALDUIDING (ONDERZOEKSPROTOTYPE)");
+    lines.push("", "----------------------------------------", "SIGNAALBEELD – INTERNE SIGNAALDUIDING (ONDERZOEKSPROTOTYPE)");
     for (const domain of snapshot.likelihood.domains) {
-      lines.push(domain.title + ": " + domain.score + "% — " + domain.band + " (" + domain.completeness + "% van relevante waarnemingen beoordeeld).");
+      lines.push(domain.title + ": matchscore " + domain.score + "/100 — " + domain.band + " (" + domain.completeness + "% van relevante waarnemingen beoordeeld).");
     }
     lines.push("", LIKELIHOOD_NOTICE, "Deze interne signaalduiding is geen feitelijke constatering en geen juridische kwalificatie. Controleer vóór formeel gebruik of dit blok in de definitieve rapportage thuishoort.");
     if (snapshot.reviewPoints.length) lines.push("", "CONTROLEPUNTEN VÓÓR VASTSTELLING", ...snapshot.reviewPoints.map(point => "- " + point));
