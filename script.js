@@ -1,4 +1,4 @@
-/* Signalencheck 4.0 — één checklist, likelihood, historie, instellingen en heimelijke waarneming. */
+/* Signalencheck — één checklist, signaalbeeld, historie, instellingen en gerichte waarneming. */
 (function () {
   "use strict";
 
@@ -199,12 +199,13 @@
       for (const domain of result.domains) {
         const card = element("article", undefined, "likelihood-card likelihood-" + domain.id);
         const top = element("div", undefined, "likelihood-card-top");
-        top.append(element("span", domain.title), element("strong", domain.score + "%"));
+        const strength = domain.band.replace(/ signaalbeeld$/i, "");
+        top.append(element("span", domain.title), element("strong", strength.charAt(0).toUpperCase() + strength.slice(1)));
         const bar = element("div", undefined, "likelihood-bar");
         const fill = element("span");
         fill.style.width = domain.score + "%";
         bar.appendChild(fill);
-        card.append(top, bar, element("small", domain.band + " · " + domain.completeness + "% relevant beoordeeld"));
+        card.append(top, bar, element("small", "Matchscore " + domain.score + "/100 · " + domain.completeness + "% relevant beoordeeld"));
         host.appendChild(card);
       }
     }
@@ -217,7 +218,6 @@
   function updateHomeSummary() {
     const counts = M.answerCounts(state, catalog);
     const history = loadHistory();
-    if ($("summaryAnswered")) $("summaryAnswered").textContent = (counts.yes + counts.no) + " / " + (counts.yes + counts.no + counts.unknown);
     if ($("summaryYes")) $("summaryYes").textContent = counts.yes;
     if ($("summaryLocation")) $("summaryLocation").textContent = state.context.location.trim() || "Niet ingevuld";
     if ($("homeCheckCount")) $("homeCheckCount").textContent = history.length;
@@ -262,6 +262,9 @@
       controlType: state.context.controlType,
       scores: Object.fromEntries(likelihood.domains.map(d => [d.id, d.score])),
       yesCount: M.answerCounts(state, catalog).yes,
+      yesSignalIds: catalog.sections.flatMap(section => section.items)
+        .filter(item => state.answers[item.id]?.status === "yes")
+        .map(item => item.id),
       complete: likelihood.complete
     };
   }
@@ -290,6 +293,54 @@
     const host = $("historyMount");
     if (!host) return;
     host.replaceChildren();
+
+    if (history.length) {
+      const items = catalog.sections.flatMap(section => section.items.map(item => ({...item, sectionTitle: section.title})));
+      const codedHistory = history.filter(item => Array.isArray(item.yesSignalIds));
+      const counts = new Map(items.map(item => [item.id, 0]));
+      for (const check of codedHistory) {
+        for (const id of new Set(check.yesSignalIds)) {
+          if (counts.has(id)) counts.set(id, counts.get(id) + 1);
+        }
+      }
+
+      const summary = element("section", undefined, "history-signal-summary");
+      const heading = element("div", undefined, "history-signal-summary-head");
+      const headingCopy = element("div");
+      headingCopy.append(
+        element("span", "Totaaloverzicht", "section-kicker"),
+        element("h2", "Signalen over afgeronde checks")
+      );
+      heading.append(headingCopy, element("strong", history.length + (history.length === 1 ? " rapport" : " rapporten"), "history-total-badge"));
+      summary.appendChild(heading);
+
+      const coverage = element(
+        "p",
+        codedHistory.length === history.length
+          ? "Frequentie van met ‘Ja’ vastgelegde signalen in alle opgeslagen checks."
+          : "Signaalfrequenties zijn beschikbaar voor " + codedHistory.length + " van " + history.length + " opgeslagen checks. Oudere checks bevatten deze detailregistratie nog niet.",
+        "history-signal-note"
+      );
+      summary.appendChild(coverage);
+
+      const ranked = items
+        .map(item => ({...item, count:counts.get(item.id) || 0}))
+        .sort((a,b) => b.count - a.count || a.text.localeCompare(b.text, "nl"));
+
+      const list = element("div", undefined, "history-signal-list");
+      for (const item of ranked) {
+        const row = element("div", undefined, "history-signal-row");
+        const copy = element("div");
+        copy.append(element("strong", item.text), element("small", item.sectionTitle));
+        const count = element("span", String(item.count), "history-signal-count");
+        count.title = item.count + (item.count === 1 ? " check met Ja" : " checks met Ja");
+        row.append(copy, count);
+        list.appendChild(row);
+      }
+      summary.appendChild(list);
+      host.appendChild(summary);
+    }
+
     for (const item of history) {
       const card = element("article", undefined, "history-card");
       const head = element("div", undefined, "history-card-head");
@@ -297,7 +348,7 @@
       const meta = element("p", [item.controlType || "Controle", item.location || "Locatie niet opgeslagen"].join(" · "));
       const scores = element("div", undefined, "history-scores");
       for (const [id,label] of [["arbeid","Arbeid"],["seksueel","Seksueel"],["crimineel","Crimineel"]]) {
-        const badge = element("span", label + " " + Number(item.scores?.[id] || 0) + "%", "history-score score-" + id);
+        const badge = element("span", label + " · " + Number(item.scores?.[id] || 0) + "/100", "history-score score-" + id);
         scores.appendChild(badge);
       }
       card.append(head, meta, scores, element("small", item.yesCount + " waarneming(en) met Ja"));
@@ -319,7 +370,7 @@
       const snapshot = M.createSnapshot(state, catalog);
       $("reportPreview").textContent = M.reportText(snapshot);
       $("reportState").textContent = "Actueel · versie " + M.VERSION;
-      $("actionMessage").textContent = "Controleer feitelijke juistheid vóór gebruik. Likelihood is indicatief en niet gevalideerd.";
+      $("actionMessage").textContent = "Controleer feitelijke juistheid vóór gebruik. Het signaalbeeld en de matchscores zijn indicatief en niet gevalideerd als kansberekening.";
       return snapshot;
     } catch (error) {
       $("reportPreview").textContent = "Rapportage kon niet worden opgebouwd.";
@@ -390,7 +441,7 @@
   async function sendCompletionNotification(likelihood) {
     if (!settings.push || !("Notification" in window) || Notification.permission !== "granted") return;
     const top = [...likelihood.domains].sort((a,b) => b.score-a.score)[0];
-    const options = {body:"Check afgerond. Hoogste indicatie: " + top.title + " " + top.score + "%.", icon:"./icons/icon-192.png", badge:"./icons/icon-192.png"};
+    const options = {body:"Check afgerond. Sterkste signaalbeeld: " + top.title + " · matchscore " + top.score + "/100.", icon:"./icons/icon-192.png", badge:"./icons/icon-192.png"};
     try {
       if ("serviceWorker" in navigator) {
         const registration = await navigator.serviceWorker.ready;
