@@ -10,7 +10,8 @@ const {window} = dom;
 const {document} = window;
 window.scrollTo = () => {};
 window.confirm = () => true;
-window.print = () => {};
+let printCalls = 0;
+window.print = () => { printCalls += 1; };
 window.URL.createObjectURL = () => "blob:test";
 window.URL.revokeObjectURL = () => {};
 Object.defineProperty(window, "isSecureContext", {value:false, configurable:true});
@@ -93,8 +94,11 @@ assert(formatted, "Dossierwaardige rapportweergave ontbreekt");
 assert(formatted.textContent.includes("Rapport van bevindingen"), "Formele rapporttitel ontbreekt");
 assert(formatted.textContent.includes("OOV-TEST-001"), "Rapportcode ontbreekt in documentkop");
 assert(formatted.querySelector(".report-meta-grid"), "Rapportmetadata ontbreken");
+assert(formatted.querySelector(".report-municipality-logo")?.src.includes("Emmen-gemeente-logo.png"), "Echt Gemeente Emmen-logo ontbreekt in rapport");
 assert(formatted.querySelector(".report-attachments"), "Bijlagenoverzicht ontbreekt");
 assert(formatted.querySelector(".report-print-footer"), "Printfooter/paginanummering ontbreekt");
+click("printBtn");
+assert(printCalls === 1, "Print/PDF-knop roept printdialoog niet exact één keer aan");
 
 // 7. Nieuwe check reset invoer maar niet geschiedenis/instellingen.
 click("newCheckBtn");
@@ -102,4 +106,4 @@ assert(document.getElementById("summaryYes").textContent === "0", "Nieuwe check 
 assert(JSON.parse(window.localStorage.getItem("signalencheck:history:v4") || "[]").length === 1, "Nieuwe check wist geschiedenis");
 assert(document.documentElement.dataset.theme === "dark", "Nieuwe check wist thema-instelling");
 
-console.log("Browser-smoketest geslaagd: tabs, likelihood onderaan, multi-domain score, overzicht, instellingen, observatie, formele A4-rapportweergave en reset.");
+console.log("Browser-smoketest geslaagd: tabs, donker thema, likelihood, observatie, echt Emmen-logo, A4-rapportweergave, Print/PDF en reset.");
