@@ -21,9 +21,9 @@
   line-height:1.55;
 }
 .report-doc-header{display:flex;justify-content:space-between;align-items:flex-start;gap:1.5rem;padding-bottom:8mm;border-bottom:2px solid var(--report-red);}
-.report-wordmark{display:flex;align-items:center;gap:.7rem;font-size:12pt;font-weight:800;letter-spacing:-.02em;}
-.report-wordmark-mark{display:grid;place-items:center;width:34px;height:34px;background:var(--report-red);color:#fff;font-size:18px;font-weight:900;line-height:1;}
-.report-wordmark small{display:block;margin-top:.15rem;color:var(--report-muted);font-size:7.5pt;font-weight:600;letter-spacing:.06em;text-transform:uppercase;}
+.report-wordmark{display:flex;align-items:center;gap:.8rem;font-size:12pt;font-weight:800;letter-spacing:-.02em;}
+.report-municipality-logo{display:block;width:176px;max-width:50mm;height:auto;object-fit:contain;object-position:left center;}
+.report-wordmark small{display:block;color:var(--report-muted);font-size:7.5pt;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
 .report-status-badge{padding:.4rem .65rem;border:1px solid #b9c0c7;border-radius:999px;color:#4f5c67;background:#f8f9fa;font-size:7.5pt;font-weight:800;letter-spacing:.08em;text-transform:uppercase;}
 .report-title-block{padding:9mm 0 6mm;}
 .report-title-block h1{margin:0;color:#111820;font-size:21pt;line-height:1.1;letter-spacing:-.035em;}
@@ -58,11 +58,11 @@
 .report-print-footer{display:none;}
 .report-view-header h1{letter-spacing:-.02em;}
 #reportView .report-toolbar .actions{flex-wrap:wrap;}
-#reportView #printBtn::after,#reportView #printReportBtn::after{content:" / PDF";}
 
 @media(max-width:720px){
   .formatted-report{padding:9mm 7mm 15mm;border-radius:0;box-shadow:none;font-size:9.5pt;}
   .report-doc-header{padding-bottom:5mm;}
+  .report-municipality-logo{width:150px;max-width:44mm;}
   .report-title-block{padding:6mm 0 4mm;}
   .report-title-block h1{font-size:18pt;}
   .report-meta-grid{grid-template-columns:1fr;}
@@ -81,6 +81,7 @@
   #reportView .report-card{border:0!important;box-shadow:none!important;padding:0!important;margin:0!important;background:#fff!important;}
   .formatted-report{display:block!important;width:auto!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:#000!important;font-size:9.5pt!important;}
   .report-doc-header{break-inside:avoid;}
+  .report-municipality-logo{width:46mm!important;max-width:46mm!important;height:auto!important;}
   .report-title-block,.report-meta-grid,.report-signature,.report-attachments,.report-likelihood-section,.report-review-section{break-inside:avoid;}
   .report-section h2{break-after:avoid;}
   .report-section p,.report-section li{orphans:3;widows:3;}
