@@ -446,7 +446,18 @@
     $("clearHistoryBtn").addEventListener("click", clearHistory);
     $("buildReportBtn").addEventListener("click", renderReport);
     $("downloadTextBtn").addEventListener("click", downloadText);
-    $("printBtn").addEventListener("click", () => { if (renderReport()) window.print(); });
+    const printButton = $("printBtn") || $("printReportBtn");
+    if (printButton) printButton.addEventListener("click", () => {
+      const snapshot = renderReport();
+      if (!snapshot) return;
+      const ua = String(navigator.userAgent || "");
+      const appleTouchDevice = /iPad|iPhone|iPod/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      if (appleTouchDevice && typeof document.execCommand === "function") {
+        try { if (document.execCommand("print")) return; } catch (_) {}
+      }
+      if (typeof window.print === "function") window.print();
+      else toast("Afdrukken wordt op dit apparaat niet ondersteund. Open de rapportage in Safari of Chrome en kies daar Druk af.", "warning");
+    });
     for (const btn of all("[data-go-home]")) btn.addEventListener("click", goHome);
     for (const btn of all("[data-mobile-view]")) btn.addEventListener("click", () => {
       const target = btn.dataset.mobileView;
