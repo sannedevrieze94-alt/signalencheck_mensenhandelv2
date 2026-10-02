@@ -9,14 +9,21 @@ async function run() {
   const scope = "https://example.test/signalencheck/";
   let opened = "";
   let focused = false;
+  let skipWaitingCalled = false;
+  let claimCalled = false;
   const cache = {addAll: async requests => { stored.push(...requests.map(r => r.url)); }, match: async () => ({cached:true})};
   const cachesDouble = {
     open: async name => { opened = name; return cache; },
     keys: async () => ["signalencheck:" + scope + ":old", "signalencheck:https://example.test/other/:old", "other-app"],
     delete: async name => { removed.push(name); }
   };
-  const selfDouble = {registration:{scope}, addEventListener:(name,fn) => { events[name]=fn; }};
+  const selfDouble = {
+    registration:{scope},
+    skipWaiting: async () => { skipWaitingCalled = true; },
+    addEventListener:(name,fn) => { events[name]=fn; }
+  };
   const clientsDouble = {
+    claim: async () => { claimCalled = true; },
     matchAll: async () => [{url:scope + "index.html", focus:async () => { focused=true; }}],
     openWindow: async () => { focused=true; }
   };
@@ -31,10 +38,12 @@ async function run() {
   assert(stored.some(url => url.endsWith("report-v45.css")), "Rapportagevelden ontbreken in offlinecache");
   assert(stored.some(url => url.endsWith("report-layout-v46.css")) && stored.some(url => url.endsWith("report-layout-v46.js")), "A4-rapportlayout ontbreekt in offlinecache");
   assert(stored.some(url => url.endsWith("signals.js")) && stored.some(url => url.endsWith("model.js")), "Checklogica ontbreekt in cache");
-  assert(opened.includes("4.6.0-prototype"), "Cacheversie 4.6 ontbreekt");
+  assert(opened.includes("4.6.1-prototype"), "Cacheversie 4.6.1 ontbreekt");
+  assert(skipWaitingCalled, "Nieuwe PWA-versie neemt niet direct de wachtstatus over");
 
   events.activate({waitUntil(promise){waiting=promise;}}); await waiting;
   assert(removed.length === 1 && removed[0] === "signalencheck:" + scope + ":old", "Caches andere app gewist");
+  assert(claimCalled, "Nieuwe service worker claimt geopende app niet");
 
   for (const request of [
     {url:scope + "rapport.txt",method:"GET"},
@@ -57,6 +66,6 @@ async function run() {
   await notificationWait;
   assert(focused,"Meldingklik opent/focust app niet");
 
-  console.log("PWA-logica geslaagd: versie 4.6-cache, tabs, dashboard, observatiefoto's, uitgebreide rapportage, A4/PDF-layout, PGA-x demo-export, offlinebestanden, scope-isolatie en meldingklik.");
+  console.log("PWA-logica geslaagd: versie 4.6.1-cache, directe update-activatie, tabs, rapportage, A4/PDF-layout, offlinebestanden en meldingklik.");
 }
 run();
