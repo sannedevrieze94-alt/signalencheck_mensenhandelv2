@@ -230,6 +230,66 @@ html[data-theme="dark"] .home-tile .tile-icon{
 }
 html[data-theme="dark"] .home-tile .tile-copy strong{color:#fff!important;}
 
+.resume-session-button{
+  width:100%;
+  min-height:72px;
+  margin:1rem 0 0;
+  padding:.9rem 1rem!important;
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  gap:.9rem;
+  align-items:center;
+  text-align:left;
+  border-radius:18px!important;
+  border:1px solid color-mix(in srgb,var(--emmen-red) 32%,var(--emmen-border))!important;
+  background:color-mix(in srgb,var(--emmen-red-soft) 68%,var(--emmen-surface))!important;
+  color:var(--emmen-ink)!important;
+  box-shadow:0 10px 26px rgba(25,34,48,.08)!important;
+}
+.resume-session-button:hover,
+.resume-session-button:focus-visible{
+  transform:translateY(-1px);
+  border-color:var(--emmen-red)!important;
+  box-shadow:0 14px 30px rgba(25,34,48,.12)!important;
+}
+.resume-session-icon{
+  display:grid;
+  place-items:center;
+  width:2.8rem;
+  height:2.8rem;
+  border-radius:14px;
+  background:var(--emmen-red);
+  color:#fff;
+  font-size:1.25rem;
+  font-weight:900;
+}
+.resume-session-button strong{
+  display:block;
+  color:var(--emmen-ink);
+  font-size:.95rem;
+  font-weight:850;
+}
+.resume-session-button small{
+  display:block;
+  margin-top:.15rem;
+  color:var(--emmen-ink-soft);
+  font-size:.74rem;
+  line-height:1.35;
+}
+html[data-theme="dark"] .resume-session-button{
+  background:var(--emmen-surface-soft)!important;
+  color:var(--emmen-ink)!important;
+  border-color:var(--emmen-border)!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.22)!important;
+}
+html[data-theme="dark"] .resume-session-button strong{color:var(--emmen-ink)!important;}
+html[data-theme="dark"] .resume-session-button small{color:var(--emmen-ink-soft)!important;}
+html[data-theme="dark"] .resume-session-button:hover,
+html[data-theme="dark"] .resume-session-button:focus-visible{
+  background:#2c323b!important;
+  border-color:var(--emmen-red)!important;
+}
+
 /* Lokale fotobijlagen bij de observatiemodule. */
 .observation-photo-panel{
   margin:1.2rem 0 .25rem;
