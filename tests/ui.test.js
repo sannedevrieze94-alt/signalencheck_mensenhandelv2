@@ -45,7 +45,7 @@ assert(theme.includes('html[data-theme="dark"] .brand .municipality-logo') && th
 assert(html.includes("Emmen-gemeente-logo.png"), "Gemeente Emmen-logo ontbreekt in appkop");
 assert(reportLayout.includes("report-municipality-logo") && reportLayout.includes("Emmen-gemeente-logo.png"), "Echt Gemeente Emmen-logo ontbreekt in rapportlayout");
 assert(manifest.includes('"theme_color": "#e30613"'), "PWA-themakleur wijkt af");
-assert(html.includes("geen gevalideerde kansberekening"), "Methodische waarschuwing ontbreekt");
+assert(html.includes("geen gevalideerde kans op mensenhandel") && html.includes("geen juridische vaststelling"), "Methodische waarschuwing ontbreekt");
 
 assert(!html.includes('id="summaryAnswered"') && !html.includes('id="summaryYes"') && !html.includes('id="summaryLocation"') && !html.includes('id="summaryLastCheck"'), "Voortgangsblok staat nog op homepage");
 assert(script.includes("yesSignalIds") && script.includes("Signalen over afgeronde checks") && script.includes("history-signal-summary"), "Geaggregeerd signalenoverzicht ontbreekt");
