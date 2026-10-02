@@ -216,12 +216,8 @@
   }
 
   function updateHomeSummary() {
-    const counts = M.answerCounts(state, catalog);
     const history = loadHistory();
-    if ($("summaryYes")) $("summaryYes").textContent = counts.yes;
-    if ($("summaryLocation")) $("summaryLocation").textContent = state.context.location.trim() || "Niet ingevuld";
     if ($("homeCheckCount")) $("homeCheckCount").textContent = history.length;
-    if ($("summaryLastCheck")) $("summaryLastCheck").textContent = history.length ? new Date(history[0].savedAt).toLocaleDateString("nl-NL") : "Nog geen";
     if ($("sessionStatus")) $("sessionStatus").textContent = state.dirty ? "Sessie in bewerking" : "Nieuwe sessie";
     if ($("resumeBtn")) $("resumeBtn").hidden = !state.dirty;
   }
@@ -483,7 +479,7 @@
     $("topOverviewBtn").addEventListener("click", openOverview);
     $("topSettingsBtn").addEventListener("click", openSettings);
     $("newCheckBtn").addEventListener("click", resetSession);
-    $("openCheckBtn").addEventListener("click", openCheck);
+    $("openCheckBtn").addEventListener("click", resetSession);
     $("openCovertBtn").addEventListener("click", openCovert);
     $("openOverviewBtn").addEventListener("click", openOverview);
     $("openSettingsBtn").addEventListener("click", openSettings);
