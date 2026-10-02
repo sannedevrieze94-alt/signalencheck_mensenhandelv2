@@ -18,7 +18,7 @@ test("Versie 4 gebruikt één gecombineerde observatielijst zonder algemene sign
   assert(ids.length >= 30, "Gecombineerde lijst is onverwacht klein");
 });
 
-test("Eén waarneming kan meerdere likelihoods tegelijk verhogen", () => {
+test("Eén waarneming kan meerdere domeinscores tegelijk verhogen", () => {
   const state = M.createState(catalog);
   M.setAnswer(state, "obs-threat-violence", "yes", "Feitelijk waargenomen");
   const risk = M.likelihood(state, catalog);
@@ -27,7 +27,7 @@ test("Eén waarneming kan meerdere likelihoods tegelijk verhogen", () => {
   assert(risk.domains.find(d => d.id === "crimineel").score > 0, "Crimineel reageert niet");
 });
 
-test("Domeinspecifieke waarneming verhoogt alleen relevante likelihood", () => {
+test("Domeinspecifieke waarneming verhoogt alleen relevante domeinscore", () => {
   const state = M.createState(catalog);
   M.setAnswer(state, "obs-coerced-sex", "yes", "Waarneming");
   const risk = M.likelihood(state, catalog);
@@ -69,7 +69,8 @@ test("Rapport noemt alleen Ja-waarnemingen en geen Nee-waarnemingen", () => {
   assert(report.includes("Bedreiging letterlijk gehoord"), "Ja-waarneming ontbreekt");
   assert(!report.includes("Loonstrook gezien"), "Nee-waarneming wordt uitgeschreven");
   assert(report.includes("SIGNALEN EN BIJZONDERHEDEN"), "Signaalsectie ontbreekt");
-  assert(report.includes("INDICATIEVE LIKELIHOOD"), "Likelihoodsectie ontbreekt");
+  assert(report.includes("SIGNAALBEELD – INTERNE SIGNAALDUIDING"), "Signaalbeeldsectie ontbreekt");
+  assert(report.includes("matchscore"), "Matchscore ontbreekt");
   assert(report.includes("geen gevalideerde kansberekening"), "Methodische waarschuwing ontbreekt");
 });
 
