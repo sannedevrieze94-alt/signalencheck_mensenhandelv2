@@ -7,7 +7,7 @@
     "SIGNALEN EN BIJZONDERHEDEN",
     "VERVOLG",
     "AFSLUITING",
-    "INDICATIEVE LIKELIHOOD – INTERNE SIGNAALDUIDING (ONDERZOEKSPROTOTYPE)",
+    "SIGNAALBEELD – INTERNE SIGNAALDUIDING (ONDERZOEKSPROTOTYPE)",
     "CONTROLEPUNTEN VÓÓR VASTSTELLING"
   ]);
 
@@ -168,7 +168,7 @@
   }
 
   function sectionClass(title) {
-    if (title.startsWith("INDICATIEVE LIKELIHOOD")) return " report-likelihood-section";
+    if (title.startsWith("SIGNAALBEELD")) return " report-likelihood-section";
     if (title.startsWith("CONTROLEPUNTEN")) return " report-review-section";
     if (title === "INLEIDING") return " report-intro";
     return "";
@@ -176,7 +176,7 @@
 
   function displayTitle(title) {
     if (title === "INLEIDING") return "";
-    if (title.startsWith("INDICATIEVE LIKELIHOOD")) return "Interne signaalduiding — onderzoeksprototype";
+    if (title.startsWith("SIGNAALBEELD")) return "Signaalbeeld — interne signaalduiding";
     if (title === "HEIMELIJKE WAARNEMING / OBSERVATIE") return "Gerichte waarneming / observatie";
     return title.charAt(0) + title.slice(1).toLowerCase();
   }
@@ -192,7 +192,7 @@
       }
       if (data.title === "AFSLUITING") appendSignature(section, data.lines);
       else appendTextContent(section, data.lines);
-      if (data.title.startsWith("INDICATIEVE LIKELIHOOD")) {
+      if (data.title.startsWith("SIGNAALBEELD")) {
         const note = document.createElement("p");
         note.className = "report-prototype-note";
         note.textContent = "Dit blok is uitsluitend een interne prototype-uitkomst. Het maakt geen deel uit van de feitelijke waarneming en is geen juridische kwalificatie.";
