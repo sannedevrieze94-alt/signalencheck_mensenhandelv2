@@ -15,7 +15,7 @@ const manifest = fs.readFileSync(path.join(__dirname, "../manifest.webmanifest")
 assert(html.includes('id="homeView"') && html.includes('id="checkView"'), "Home of checkview ontbreekt");
 assert(!html.includes('class="report-shortcut" id="checkReportBtn"') && html.includes('<button type="button" class="primary" id="checkReportBtn">Rapportage opstellen</button>'), "Rapportageknop staat niet onderaan bij de workflow-acties");
 assert(html.includes('id="openCheckBtn"') && html.includes('id="openCovertBtn"') && html.includes('id="openOverviewBtn"') && html.includes('id="openSettingsBtn"'), "Vier homepage-tegels ontbreken");
-assert(html.includes('id="likelihoodCards"') && html.includes("Likelihood-indicatie"), "Likelihoodweergave ontbreekt");
+assert(html.includes('id="likelihoodCards"') && html.includes(">Signaalbeeld</h2>") && html.includes("matchscore"), "Signaalbeeld of matchscore ontbreekt");
 assert(html.includes('id="observationsMount"') && !html.includes('id="includeArbeid"') && !html.includes('id="includeSeksueel"') && !html.includes('id="includeCrimineel"'), "Oude driedeling is nog aanwezig");
 assert(!signals.includes("general-1") && !signals.includes('id: "general"'), "Algemene signalen zijn niet verwijderd");
 assert(signals.includes('id: "environment"') && signals.includes("env-multiple-reports"), "Omgevingssignalen ontbreken");
@@ -46,4 +46,6 @@ assert(reportLayout.includes("report-municipality-logo") && reportLayout.include
 assert(manifest.includes('"theme_color": "#e30613"'), "PWA-themakleur wijkt af");
 assert(html.includes("geen gevalideerde kansberekening"), "Methodische waarschuwing ontbreekt");
 
-console.log("UI-regressies geslaagd: tabs, vierkante apptegels, likelihood onderaan, checklist, overzicht en instellingen aanwezig.");
+assert(!html.includes('id="summaryAnswered"'), "0/34-voortgangsteller staat nog op homepage");
+assert(script.includes("yesSignalIds") && script.includes("Signalen over afgeronde checks") && script.includes("history-signal-summary"), "Geaggregeerd signalenoverzicht ontbreekt");
+console.log("UI-regressies geslaagd: tabs, signaalbeeld, rustig dashboard, signalenoverzicht en instellingen aanwezig.");
