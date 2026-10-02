@@ -13,6 +13,7 @@ const reportLayout = fs.readFileSync(path.join(__dirname, "../report-layout-v46.
 const manifest = fs.readFileSync(path.join(__dirname, "../manifest.webmanifest"), "utf8");
 
 assert(html.includes('id="homeView"') && html.includes('id="checkView"'), "Home of checkview ontbreekt");
+assert(!html.includes('class="report-shortcut" id="checkReportBtn"') && html.includes('<button type="button" class="primary" id="checkReportBtn">Rapportage opstellen</button>'), "Rapportageknop staat niet onderaan bij de workflow-acties");
 assert(html.includes('id="openCheckBtn"') && html.includes('id="openCovertBtn"') && html.includes('id="openOverviewBtn"') && html.includes('id="openSettingsBtn"'), "Vier homepage-tegels ontbreken");
 assert(html.includes('id="likelihoodCards"') && html.includes("Likelihood-indicatie"), "Likelihoodweergave ontbreekt");
 assert(html.includes('id="observationsMount"') && !html.includes('id="includeArbeid"') && !html.includes('id="includeSeksueel"') && !html.includes('id="includeCrimineel"'), "Oude driedeling is nog aanwezig");
