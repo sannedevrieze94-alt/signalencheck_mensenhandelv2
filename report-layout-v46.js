@@ -101,16 +101,17 @@
 
     const wordmark = document.createElement("div");
     wordmark.className = "report-wordmark";
-    const mark = document.createElement("span");
-    mark.className = "report-wordmark-mark";
-    mark.textContent = "E";
+    const logo = document.createElement("img");
+    logo.className = "report-municipality-logo";
+    logo.src = "https://upload.wikimedia.org/wikipedia/commons/8/88/Emmen-gemeente-logo.png";
+    logo.alt = "Gemeente Emmen";
+    logo.width = 176;
+    logo.height = 64;
     const wordCopy = document.createElement("span");
-    const brand = document.createElement("span");
-    brand.textContent = "Gemeente Emmen";
     const sub = document.createElement("small");
     sub.textContent = "Toezicht & signalering";
-    wordCopy.append(brand, sub);
-    wordmark.append(mark, wordCopy);
+    wordCopy.append(sub);
+    wordmark.append(logo, wordCopy);
 
     const status = document.createElement("span");
     status.className = "report-status-badge";
