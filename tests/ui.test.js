@@ -13,6 +13,7 @@ const reportLayout = fs.readFileSync(path.join(__dirname, "../report-layout-v46.
 const manifest = fs.readFileSync(path.join(__dirname, "../manifest.webmanifest"), "utf8");
 
 assert(html.includes('id="homeView"') && html.includes('id="checkView"'), "Home of checkview ontbreekt");
+assert(!html.includes('class="home-summary') && html.includes('id="resumeBtn"') && html.includes("Verder met huidige sessie"), "Huidige sessieblok is niet vervangen door conditionele hervatknop");
 assert(!html.includes('class="report-shortcut" id="checkReportBtn"') && html.includes('<button type="button" class="primary" id="checkReportBtn">Rapportage opstellen</button>'), "Rapportageknop staat niet onderaan bij de workflow-acties");
 assert(html.includes('id="openCheckBtn"') && html.includes('id="openCovertBtn"') && html.includes('id="openOverviewBtn"') && html.includes('id="openSettingsBtn"'), "Vier homepage-tegels ontbreken");
 assert(html.includes('id="likelihoodCards"') && html.includes(">Signaalbeeld</h2>") && html.includes("matchscore"), "Signaalbeeld of matchscore ontbreekt");
@@ -46,6 +47,6 @@ assert(reportLayout.includes("report-municipality-logo") && reportLayout.include
 assert(manifest.includes('"theme_color": "#e30613"'), "PWA-themakleur wijkt af");
 assert(html.includes("geen gevalideerde kansberekening"), "Methodische waarschuwing ontbreekt");
 
-assert(!html.includes('id="summaryAnswered"'), "0/34-voortgangsteller staat nog op homepage");
+assert(!html.includes('id="summaryAnswered"') && !html.includes('id="summaryYes"') && !html.includes('id="summaryLocation"') && !html.includes('id="summaryLastCheck"'), "Voortgangsblok staat nog op homepage");
 assert(script.includes("yesSignalIds") && script.includes("Signalen over afgeronde checks") && script.includes("history-signal-summary"), "Geaggregeerd signalenoverzicht ontbreekt");
-console.log("UI-regressies geslaagd: tabs, signaalbeeld, rustig dashboard, signalenoverzicht en instellingen aanwezig.");
+console.log("UI-regressies geslaagd: tabs, signaalbeeld, dashboard zonder voortgangsblok, conditionele hervatknop, signalenoverzicht en instellingen aanwezig.");
