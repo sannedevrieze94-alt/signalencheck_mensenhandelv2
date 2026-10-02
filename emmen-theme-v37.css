@@ -73,6 +73,77 @@ html[data-theme="dark"] .report-toolbar button{
   border-color:var(--emmen-border)!important;
 }
 
+
+/* Donker thema: alle interactieve knoppen en acties krijgen voldoende contrast. */
+html[data-theme="dark"] button:not(.home-tile),
+html[data-theme="dark"] .back-button,
+html[data-theme="dark"] .report-shortcut,
+html[data-theme="dark"] .app-mobile-nav button,
+html[data-theme="dark"] .sticky-workflow-actions button,
+html[data-theme="dark"] .observation-tab,
+html[data-theme="dark"] .photo-clear-button{
+  background:var(--emmen-surface-soft)!important;
+  color:var(--emmen-ink)!important;
+  border-color:var(--emmen-border)!important;
+}
+html[data-theme="dark"] button:not(.home-tile):hover,
+html[data-theme="dark"] .back-button:hover,
+html[data-theme="dark"] .report-shortcut:hover,
+html[data-theme="dark"] .app-mobile-nav button:hover,
+html[data-theme="dark"] .sticky-workflow-actions button:hover,
+html[data-theme="dark"] .observation-tab:hover,
+html[data-theme="dark"] .photo-clear-button:hover{
+  background:#303742!important;
+  color:#fff!important;
+  border-color:#4a5360!important;
+}
+html[data-theme="dark"] button.primary,
+html[data-theme="dark"] .sticky-workflow-actions button.primary,
+html[data-theme="dark"] .report-toolbar button.primary,
+html[data-theme="dark"] .pga-x-export-button,
+html[data-theme="dark"] .photo-upload-button{
+  background:linear-gradient(135deg,var(--emmen-red),#9e0009)!important;
+  color:#fff!important;
+  border-color:#8d0008!important;
+  box-shadow:0 10px 24px rgba(227,6,19,.24)!important;
+}
+html[data-theme="dark"] .observation-tab.active,
+html[data-theme="dark"] .observation-tab[aria-selected="true"]{
+  background:var(--emmen-red)!important;
+  color:#fff!important;
+  border-color:var(--emmen-red)!important;
+}
+html[data-theme="dark"] .yes-no-choice button{
+  background:var(--emmen-surface-soft)!important;
+  color:var(--emmen-ink)!important;
+  border-color:var(--emmen-border)!important;
+}
+html[data-theme="dark"] .yes-no-choice button.yes.selected{
+  background:var(--emmen-seen)!important;
+  color:#fff!important;
+  border-color:var(--emmen-seen)!important;
+}
+html[data-theme="dark"] .yes-no-choice button.no.selected{
+  background:#68717d!important;
+  color:#fff!important;
+  border-color:#68717d!important;
+}
+html[data-theme="dark"] .link-button{
+  background:transparent!important;
+  color:#ff8b92!important;
+  border-color:transparent!important;
+  box-shadow:none!important;
+}
+html[data-theme="dark"] .photo-remove-button{
+  background:rgba(12,15,19,.80)!important;
+  color:#fff!important;
+  border-color:rgba(255,255,255,.34)!important;
+}
+html[data-theme="dark"] .app-mobile-nav button.active{
+  background:var(--emmen-red-soft)!important;
+  color:#ff7a82!important;
+}
+
 .app-topbar{border-top:5px solid var(--emmen-red);background:color-mix(in srgb,var(--emmen-surface) 96%,transparent);box-shadow:0 8px 25px rgba(25,34,48,.08);}
 .brand .municipality-logo{width:176px;height:58px;padding:2px .95rem 2px 0;object-fit:contain;object-position:left center;}
 html[data-theme="dark"] .brand .municipality-logo{background:#fff;border-radius:8px;padding:5px 10px;margin-right:.5rem;}
