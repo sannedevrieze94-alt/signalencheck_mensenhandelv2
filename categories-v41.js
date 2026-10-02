@@ -349,14 +349,14 @@
 
   function buildPgaXPayload() {
     const observations = [...document.querySelectorAll(".observation-card")].map(card => ({id:card.dataset.itemId||"",status:card.dataset.status||"unknown",observation:card.querySelector(".observation-text")?.textContent||"",note:card.querySelector("textarea")?.value||""}));
-    const likelihood = [...document.querySelectorAll(".likelihood-card")].map(card => ({domain:card.querySelector(".likelihood-card-top span")?.textContent||"",indication:card.querySelector(".likelihood-card-top strong")?.textContent||""}));
+    const signalPicture = [...document.querySelectorAll(".likelihood-card")].map(card => ({domain:card.querySelector(".likelihood-card-top span")?.textContent||"",strength:card.querySelector(".likelihood-card-top strong")?.textContent||"",matchScore:card.querySelector(".likelihood-card small")?.textContent||""}));
     const covertFields = ["covertCaseCode","covertObservedAt","covertLocation","covertDuration","covertThirdPartyControl","covertExchange","covertArrivals","covertVehicles","covertPattern","covertAds","covertNotes"];
     const photoAttachments = observationPhotos.map((photo,index) => ({index:index+1,name:photo.file.name||("foto-"+(index+1)),type:photo.file.type,sizeBytes:photo.file.size,includedInExport:false}));
     return {
       exportType:"PGA-x prototype export",prototype:true,transmitted:false,generatedAt:new Date().toISOString(),source:"Signalencheck Mensenhandel – Gemeente Emmen onderzoeksprototype",
       warning:"Demo-export. Dit bestand is niet naar PGA-x verzonden en vormt geen operationele koppeling. Fotobijlagen worden niet meegestuurd.",
       controlContext:{caseCode:fieldValue("caseCode"),observedAt:fieldValue("observedAt"),observer:fieldValue("observer"),location:fieldValue("location"),controlType:fieldValue("controlType"),locationType:fieldValue("locationType"),acuteConcern:fieldValue("acuteConcern")},
-      observations,likelihood,covertObservation:Object.fromEntries(covertFields.map(id => [id,fieldValue(id)])),photoAttachments
+      observations,signalPicture,covertObservation:Object.fromEntries(covertFields.map(id => [id,fieldValue(id)])),photoAttachments
     };
   }
 
