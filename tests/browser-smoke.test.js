@@ -26,6 +26,7 @@ function change(id, value) { const el=document.getElementById(id); assert(el,`Ve
 // 1. Homepage en gecombineerde check.
 assert(!document.getElementById("homeView").hidden, "Homepage opent niet als eerste scherm");
 for (const id of ["openCheckBtn","openCovertBtn","openOverviewBtn","openSettingsBtn"]) assert(document.getElementById(id), "Homepage-tegel ontbreekt: " + id);
+assert(document.getElementById("resumeBtn")?.hidden === true, "Hervatknop is zichtbaar zonder actieve sessie");
 click("openCheckBtn");
 assert(!document.getElementById("checkView").hidden, "Nieuwe check opent niet");
 assert(document.querySelectorAll(".observation-card").length >= 30, "Gecombineerde observatielijst is niet gerenderd");
@@ -48,6 +49,7 @@ assert(likelihoodPanel.querySelector(".section-number").textContent === "03", "L
 const threatCard = document.getElementById("card-obs-threat-violence");
 assert(threatCard, "Gedeelde dreiging/dwang-waarneming ontbreekt");
 threatCard.querySelector('button[data-status="yes"]').click();
+assert(document.getElementById("resumeBtn")?.hidden === false, "Hervatknop verschijnt niet bij actieve sessie");
 const matchScoresAfterThreat = [...document.querySelectorAll(".likelihood-card small")].map(el => Number((el.textContent.match(/Matchscore\s+(\d+)\/100/)||[])[1] || 0));
 assert(matchScoresAfterThreat.every(score => score > 0), "Gedeelde waarneming verhoogt niet alle drie matchscores");
 
@@ -105,8 +107,8 @@ assert(printCalls === 1, "Print/PDF-knop roept printdialoog niet exact één kee
 
 // 7. Nieuwe check reset invoer maar niet geschiedenis/instellingen.
 click("newCheckBtn");
-assert(document.getElementById("summaryYes").textContent === "0", "Nieuwe check wist Ja-antwoorden niet");
+assert(document.getElementById("resumeBtn")?.hidden === true, "Hervatknop blijft zichtbaar na nieuwe lege sessie");
 assert(JSON.parse(window.localStorage.getItem("signalencheck:history:v4") || "[]").length === 1, "Nieuwe check wist geschiedenis");
 assert(document.documentElement.dataset.theme === "dark", "Nieuwe check wist thema-instelling");
 
-console.log("Browser-smoketest geslaagd: tabs, donker thema, signaalbeeld/matchscore, totaaloverzicht, observatie, rapport, Print/PDF en reset.");
+console.log("Browser-smoketest geslaagd: rustige homepage, conditionele hervatknop, tabs, signaalbeeld/matchscore, totaaloverzicht, observatie, rapport, Print/PDF en reset.");
