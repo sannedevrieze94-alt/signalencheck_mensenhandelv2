@@ -9,6 +9,7 @@ const categories = fs.readFileSync(path.join(__dirname, "../categories-v41.js"),
 const signals = fs.readFileSync(path.join(__dirname, "../signals.js"), "utf8");
 const theme = fs.readFileSync(path.join(__dirname, "../emmen-theme-v37.css"), "utf8");
 const categoryTheme = fs.readFileSync(path.join(__dirname, "../categories-v41.css"), "utf8");
+const reportLayout = fs.readFileSync(path.join(__dirname, "../report-layout-v46.js"), "utf8");
 const manifest = fs.readFileSync(path.join(__dirname, "../manifest.webmanifest"), "utf8");
 
 assert(html.includes('id="homeView"') && html.includes('id="checkView"'), "Home of checkview ontbreekt");
@@ -35,7 +36,9 @@ assert(html.includes('id="overviewView"') && html.includes('id="historyMount"'),
 assert(script.includes("HISTORY_KEY") && script.includes("SETTINGS_KEY") && script.includes("completeCheck"), "Lokale historie/instellingen ontbreken");
 assert(script.includes("Notification.requestPermission") && script.includes("showNotification"), "Browsermeldinglogica ontbreekt");
 assert(theme.includes('html[data-theme="dark"]') && theme.includes(".likelihood-grid") && theme.includes(".yes-no-choice"), "Donker thema of nieuwe checkvisualisatie ontbreekt");
-assert(html.includes("Emmen-gemeente-logo.png"), "Gemeente Emmen-logo ontbreekt");
+assert(theme.includes('html[data-theme="dark"] .report-toolbar') && theme.includes("color:var(--emmen-ink)!important"), "Lichte tekstcorrectie voor donker thema ontbreekt");
+assert(html.includes("Emmen-gemeente-logo.png"), "Gemeente Emmen-logo ontbreekt in appkop");
+assert(reportLayout.includes("report-municipality-logo") && reportLayout.includes("Emmen-gemeente-logo.png"), "Echt Gemeente Emmen-logo ontbreekt in rapportlayout");
 assert(manifest.includes('"theme_color": "#e30613"'), "PWA-themakleur wijkt af");
 assert(html.includes("geen gevalideerde kansberekening"), "Methodische waarschuwing ontbreekt");
 
