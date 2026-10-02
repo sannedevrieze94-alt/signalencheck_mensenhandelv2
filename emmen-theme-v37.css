@@ -146,7 +146,13 @@ html[data-theme="dark"] .app-mobile-nav button.active{
 
 .app-topbar{border-top:5px solid var(--emmen-red);background:color-mix(in srgb,var(--emmen-surface) 96%,transparent);box-shadow:0 8px 25px rgba(25,34,48,.08);}
 .brand .municipality-logo{width:176px;height:58px;padding:2px .95rem 2px 0;object-fit:contain;object-position:left center;}
-html[data-theme="dark"] .brand .municipality-logo{background:#fff;border-radius:8px;padding:5px 10px;margin-right:.5rem;}
+html[data-theme="dark"] .brand .municipality-logo{
+  background:transparent!important;
+  border-radius:0!important;
+  padding:2px .95rem 2px 0!important;
+  margin-right:0!important;
+  box-shadow:none!important;
+}
 .brand .tool-mark{border-radius:13px;box-shadow:0 7px 18px rgba(25,34,48,.12);}
 .brand-copy strong{color:var(--emmen-ink);font-size:1rem;}
 .brand-copy span{color:var(--emmen-ink-soft);}
@@ -182,6 +188,26 @@ button.primary,.sticky-workflow-actions button.primary,.report-toolbar button.pr
 .link-button{color:var(--emmen-red)!important;}.notice{border-radius:14px;}
 
 .summary-grid-four{grid-template-columns:repeat(4,1fr);}
+
+
+/* Donker thema: voortgangskaarten volledig donker, geen witte vlakken. */
+html[data-theme="dark"] .home-summary .summary-grid>div,
+html[data-theme="dark"] .summary-grid-four>div,
+html[data-theme="dark"] .summary-grid>div{
+  background:var(--emmen-surface-soft)!important;
+  border-color:var(--emmen-border)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03)!important;
+}
+html[data-theme="dark"] .home-summary .summary-grid span,
+html[data-theme="dark"] .summary-grid-four span,
+html[data-theme="dark"] .summary-grid span{
+  color:var(--emmen-ink-soft)!important;
+}
+html[data-theme="dark"] .home-summary .summary-grid strong,
+html[data-theme="dark"] .summary-grid-four strong,
+html[data-theme="dark"] .summary-grid strong{
+  color:var(--emmen-ink)!important;
+}
 
 .likelihood-panel{position:relative;overflow:hidden;}
 .likelihood-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.85rem;margin-top:.4rem;}
