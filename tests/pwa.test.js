@@ -38,7 +38,7 @@ async function run() {
   assert(stored.some(url => url.endsWith("report-v45.css")), "Rapportagevelden ontbreken in offlinecache");
   assert(stored.some(url => url.endsWith("report-layout-v46.css")) && stored.some(url => url.endsWith("report-layout-v46.js")), "A4-rapportlayout ontbreekt in offlinecache");
   assert(stored.some(url => url.endsWith("signals.js")) && stored.some(url => url.endsWith("model.js")), "Checklogica ontbreekt in cache");
-  assert(opened.includes("4.6.3-prototype"), "Cacheversie 4.6.1 ontbreekt");
+  assert(opened.includes("4.6.4-prototype"), "Cacheversie 4.6.1 ontbreekt");
   assert(skipWaitingCalled, "Nieuwe PWA-versie neemt niet direct de wachtstatus over");
 
   events.activate({waitUntil(promise){waiting=promise;}}); await waiting;
@@ -66,6 +66,6 @@ async function run() {
   await notificationWait;
   assert(focused,"Meldingklik opent/focust app niet");
 
-  console.log("PWA-logica geslaagd: versie 4.6.3-cache, directe update-activatie, tabs, rapportage, A4/PDF-layout, offlinebestanden en meldingklik.");
+  console.log("PWA-logica geslaagd: versie 4.6.4-cache, directe update-activatie, tabs, rapportage, A4/PDF-layout, offlinebestanden en meldingklik.");
 }
 run();
