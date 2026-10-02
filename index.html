@@ -77,14 +77,10 @@
       </button>
     </div>
 
-    <section class="home-summary card-lite" aria-labelledby="summaryTitle">
-      <div class="summary-heading"><div><span class="section-kicker">Huidige sessie</span><h2 id="summaryTitle">Voortgang</h2></div><button type="button" class="link-button" id="resumeBtn">Doorgaan</button></div>
-      <div class="summary-grid">
-        <div><span>Ja</span><strong id="summaryYes">0</strong></div>
-        <div><span>Locatie</span><strong id="summaryLocation">Niet ingevuld</strong></div>
-        <div><span>Laatste check</span><strong id="summaryLastCheck">Nog geen</strong></div>
-      </div>
-    </section>
+    <button type="button" class="resume-session-button" id="resumeBtn" hidden>
+      <span class="resume-session-icon" aria-hidden="true">↗</span>
+      <span><strong>Verder met huidige sessie</strong><small>Ga terug naar de controle die je nog aan het invullen bent</small></span>
+    </button>
   </section>
 
   <section id="checkView" class="app-view" hidden aria-labelledby="checkTitle">
