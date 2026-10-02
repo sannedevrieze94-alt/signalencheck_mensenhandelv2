@@ -38,6 +38,8 @@ assert(script.includes("Notification.requestPermission") && script.includes("sho
 assert(theme.includes('html[data-theme="dark"]') && theme.includes(".likelihood-grid") && theme.includes(".yes-no-choice"), "Donker thema of nieuwe checkvisualisatie ontbreekt");
 assert(theme.includes('html[data-theme="dark"] .report-toolbar') && theme.includes("color:var(--emmen-ink)!important"), "Lichte tekstcorrectie voor donker thema ontbreekt");
 assert(theme.includes('html[data-theme="dark"] button:not(.home-tile)') && theme.includes('html[data-theme="dark"] .yes-no-choice button.yes.selected') && theme.includes('html[data-theme="dark"] .observation-tab.active'), "Donker thema dekt niet alle knopvarianten");
+assert(theme.includes('html[data-theme="dark"] .summary-grid>div') && theme.includes('background:var(--emmen-surface-soft)!important'), "Voortgangskaarten blijven wit in donker thema");
+assert(theme.includes('html[data-theme="dark"] .brand .municipality-logo') && theme.includes('background:transparent!important'), "Logo houdt witte achtergrond in donker thema");
 assert(html.includes("Emmen-gemeente-logo.png"), "Gemeente Emmen-logo ontbreekt in appkop");
 assert(reportLayout.includes("report-municipality-logo") && reportLayout.includes("Emmen-gemeente-logo.png"), "Echt Gemeente Emmen-logo ontbreekt in rapportlayout");
 assert(manifest.includes('"theme_color": "#e30613"'), "PWA-themakleur wijkt af");
