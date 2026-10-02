@@ -48,8 +48,8 @@ assert(likelihoodPanel.querySelector(".section-number").textContent === "03", "L
 const threatCard = document.getElementById("card-obs-threat-violence");
 assert(threatCard, "Gedeelde dreiging/dwang-waarneming ontbreekt");
 threatCard.querySelector('button[data-status="yes"]').click();
-const scoresAfterThreat = [...document.querySelectorAll(".likelihood-card-top strong")].map(el => Number(el.textContent.replace("%","")));
-assert(scoresAfterThreat.every(score => score > 0), "Gedeelde waarneming verhoogt niet alle drie likelihoods");
+const matchScoresAfterThreat = [...document.querySelectorAll(".likelihood-card small")].map(el => Number((el.textContent.match(/Matchscore\s+(\d+)\/100/)||[])[1] || 0));
+assert(matchScoresAfterThreat.every(score => score > 0), "Gedeelde waarneming verhoogt niet alle drie matchscores");
 
 // 4. Beoordeel resterende waarnemingen met Nee en rond check af.
 for (const card of document.querySelectorAll(".observation-card")) {
@@ -63,6 +63,8 @@ assert(JSON.parse(window.localStorage.getItem("signalencheck:history:v4") || "[]
 click("openOverviewBtn");
 assert(!document.getElementById("overviewView").hidden, "Overzicht opent niet");
 assert(document.querySelectorAll(".history-card").length === 1, "Opgeslagen check niet zichtbaar in overzicht");
+assert(document.querySelector(".history-signal-summary"), "Geaggregeerd signalenoverzicht ontbreekt");
+assert(document.querySelectorAll(".history-signal-row").length >= 30, "Niet alle signalen staan in totaaloverzicht");
 
 // 5. Instellingen wijzigen thema en in-appmelding.
 click("openSettingsBtn");
@@ -87,7 +89,8 @@ click("checkReportBtn");
 const report = document.getElementById("reportPreview").textContent;
 assert(report.includes("HEIMELIJKE WAARNEMING"), "Observatie ontbreekt in rapportbron");
 assert(report.includes("AB-12-CD"), "Kenteken ontbreekt in rapport");
-assert(report.includes("INDICATIEVE LIKELIHOOD"), "Likelihood ontbreekt in rapport");
+assert(report.includes("SIGNAALBEELD – INTERNE SIGNAALDUIDING"), "Signaalbeeld ontbreekt in rapport");
+assert(report.includes("matchscore"), "Matchscore ontbreekt in rapport");
 assert(!report.includes("Loonstrook gezien"), "Nee-waarneming wordt onterecht gerapporteerd");
 const formatted = document.getElementById("formattedReport");
 assert(formatted, "Dossierwaardige rapportweergave ontbreekt");
@@ -106,4 +109,4 @@ assert(document.getElementById("summaryYes").textContent === "0", "Nieuwe check 
 assert(JSON.parse(window.localStorage.getItem("signalencheck:history:v4") || "[]").length === 1, "Nieuwe check wist geschiedenis");
 assert(document.documentElement.dataset.theme === "dark", "Nieuwe check wist thema-instelling");
 
-console.log("Browser-smoketest geslaagd: tabs, donker thema, likelihood, observatie, echt Emmen-logo, A4-rapportweergave, Print/PDF en reset.");
+console.log("Browser-smoketest geslaagd: tabs, donker thema, signaalbeeld/matchscore, totaaloverzicht, observatie, rapport, Print/PDF en reset.");
