@@ -134,3 +134,12 @@ node tests/pwa.test.js
 ```
 
 Deze tests vervangen geen inhoudelijke validatie, juridische/privacybeoordeling, browser- en toesteltest of formele gemeentelijke vrijgave.
+
+
+## Dashboard-update 4.6.7
+
+Het startscherm heeft een zichtbare titel, korte toelichting per tegel en een hervatknop voor een actieve sessie. Mobiel staat de navigatie vast onderaan, met vier gelijk verdeelde knoppen; op desktop staat de navigatie bovenaan. De actieve pagina is ook voor hulpsoftware gemarkeerd. Herhaald afronden werkt dezelfde samenvatting bij; pas Nieuwe check start een nieuwe registratie.
+
+Let op: de eerdere beschrijving van gegevensopslag hierboven beschrijft versie 3.5. De huidige versie bewaart instellingen en afgeronde samenvattingen in localStorage op dit apparaat. Lopende invoer staat in het paginageheugen. Dit dashboard verandert de onderzoeksstatus of inhoudelijke validatie niet.
+
+Validatie van deze update: 8 modelcontroles, UI-regressies, PWA-controles en de uitgebreide JSDOM-interactietest slagen. De interactietest controleert ook dubbel afronden, het bijwerken van een bestaande check, een nieuwe sessie en focus/actieve navigatie. Visuele browsertests en fysieke Android/iOS-tests zijn nog niet uitgevoerd; de browserdownload in de ontwikkelomgeving mislukte.

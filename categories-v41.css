@@ -108,7 +108,13 @@
 }
 
 /* Home: contrastrijk app-dashboard. Nieuwe check is primair rood; overige tegels antraciet. */
-#homeView .home-hero{display:none!important;}
+#homeView .home-hero{display:flex!important;background:none;box-shadow:none;border-radius:0;padding:1rem 0 1.25rem;color:var(--emmen-ink);}
+#homeView .home-hero::after{display:none;}
+#homeView .home-hero h1{font-size:clamp(1.65rem,3vw,2.4rem)!important;}
+#homeView .home-hero p{color:var(--emmen-ink-soft);font-size:.9rem;}
+#homeView .home-eyebrow{color:var(--emmen-ink-soft);}
+#homeView .session-pill{color:var(--emmen-ink);background:var(--emmen-surface);border-color:var(--emmen-border);}
+#homeView .session-dot{background:var(--emmen-ink-soft);box-shadow:none;}
 .home-tiles-four{
   grid-template-columns:repeat(4,minmax(0,1fr))!important;
   gap:1rem!important;
@@ -209,7 +215,7 @@
   letter-spacing:-.01em;
   line-height:1.2;
 }
-.home-tile .tile-copy small{display:none!important;}
+.home-tile .tile-copy small{display:block!important;margin-top:.5rem;color:#e2e5eb;font-size:.78rem;font-weight:500;line-height:1.4;}
 
 html[data-theme="dark"] .home-tile,
 html[data-theme="dark"] .home-tile.tile-covert,
@@ -466,4 +472,26 @@ html[data-theme="dark"] .resume-session-button:focus-visible{
 @media(max-width:380px){
   .home-tile{padding:.75rem!important;gap:.55rem!important;}
   .home-tile .tile-icon{width:3rem;height:3rem;}
+}
+
+/* Appnavigatie: één zichtbare navigatie per schermformaat. */
+@media screen {
+  .app-mobile-nav{display:none;}
+  body[data-view="home"] #newCheckBtn{display:none;}
+  .top-nav-btn[aria-current="page"]{background:var(--emmen-red-soft)!important;color:var(--emmen-red)!important;}
+}
+@media screen and (max-width:800px){
+  body{padding-bottom:calc(84px + env(safe-area-inset-bottom));}
+  .app-mobile-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))!important;position:fixed;inset:auto 0 0;z-index:40;gap:.25rem;border-top:1px solid var(--emmen-border);padding:.45rem max(.5rem,env(safe-area-inset-right)) calc(.45rem + env(safe-area-inset-bottom)) max(.5rem,env(safe-area-inset-left));background:var(--emmen-surface);}
+  .app-mobile-nav small{font-size:.65rem;}
+  .app-mobile-nav button{min-width:0;min-height:54px;}
+  .app-topbar{position:relative;gap:.5rem;}
+  .app-topbar #newCheckBtn{font-size:.75rem;width:auto;min-height:44px;padding:.5rem .65rem;}
+  .app-topbar #newCheckBtn::after{content:none;}
+  #homeView .home-hero{gap:.75rem;}
+  .home-tile .tile-copy small{font-size:.72rem;}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto;}
+  .app-view,.home-tile{animation:none!important;transition:none!important;}
 }
