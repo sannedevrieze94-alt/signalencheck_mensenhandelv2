@@ -10,6 +10,7 @@
 
   let state = M.createState(catalog);
   let installPrompt = null;
+  let savedCheckId = null;
   let currentView = "home";
   let settings = loadSettings();
 
@@ -67,7 +68,16 @@
   function showView(viewId, navKey) {
     for (const view of all(".app-view")) view.hidden = view.id !== viewId;
     currentView = navKey || currentView;
-    for (const btn of all("[data-mobile-view]")) btn.classList.toggle("active", btn.dataset.mobileView === currentView);
+    document.body.dataset.view = currentView;
+    for (const btn of all("[data-mobile-view], .top-nav-btn")) {
+      const key = btn.dataset.mobileView || ({topHomeBtn:"home",topOverviewBtn:"overview",topSettingsBtn:"settings"})[btn.id];
+      const active = key === currentView;
+      btn.classList.toggle("active", active);
+      if (active) btn.setAttribute("aria-current", "page");
+      else btn.removeAttribute("aria-current");
+    }
+    const heading = $(viewId)?.querySelector("h1");
+    if (heading) { heading.tabIndex = -1; heading.focus({preventScroll:true}); }
     window.scrollTo({top:0, behavior:"smooth"});
   }
 
@@ -250,7 +260,7 @@
   function historySummary() {
     const likelihood = M.likelihood(state, catalog);
     return {
-      id: "check-" + Date.now(),
+      id: savedCheckId || "check-" + (window.crypto?.randomUUID?.() || Date.now() + "-" + Math.random().toString(36).slice(2)),
       savedAt: new Date().toISOString(),
       caseCode: state.context.caseCode.trim(),
       observedAt: state.context.observedAt,
@@ -273,8 +283,12 @@
       return false;
     }
     const history = loadHistory();
-    history.unshift(historySummary());
+    const summary = historySummary();
+    const existing = history.findIndex(item => item.id === summary.id);
+    if (existing >= 0) history[existing] = summary;
+    else history.unshift(summary);
     saveHistory(history);
+    savedCheckId = summary.id;
     updateHomeSummary();
     renderHistory();
     toast("Check afgerond en lokaal aan het overzicht toegevoegd.", "success");
@@ -393,6 +407,7 @@
   function resetSession() {
     if (state.dirty && !window.confirm("Huidige invoer wissen en een nieuwe check starten?")) return;
     state = M.createState(catalog);
+    savedCheckId = null;
     syncContextFields();
     renderObservations();
     updateLikelihood();
@@ -551,3 +566,4 @@
 
   document.addEventListener("DOMContentLoaded", init);
 })();
+

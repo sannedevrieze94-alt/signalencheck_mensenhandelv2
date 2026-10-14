@@ -62,8 +62,15 @@ change("caseCode", "OOV-TEST-001");
 change("location", "Testlocatie");
 click("saveCheckBtn");
 assert(JSON.parse(window.localStorage.getItem("signalencheck:history:v4") || "[]").length === 1, "Afgeronde check niet lokaal opgeslagen");
+click("saveCheckBtn");
+assert(JSON.parse(window.localStorage.getItem("signalencheck:history:v4") || "[]").length === 1, "Herhaald afronden maakt een dubbele check");
+change("caseCode", "OOV-TEST-001-HERZIEN");
+click("saveCheckBtn");
+assert(JSON.parse(window.localStorage.getItem("signalencheck:history:v4") || "[]")[0].caseCode === "OOV-TEST-001-HERZIEN", "Herhaald afronden werkt de bestaande check niet bij");
 click("openOverviewBtn");
 assert(!document.getElementById("overviewView").hidden, "Overzicht opent niet");
+assert(document.querySelector('[data-mobile-view="overview"]').getAttribute("aria-current") === "page", "Actieve navigatie ontbreekt");
+assert(document.activeElement.id === "overviewTitle", "Focus verhuist niet naar de schermtitel");
 assert(document.querySelectorAll(".history-card").length === 1, "Opgeslagen check niet zichtbaar in overzicht");
 assert(document.querySelector(".history-signal-summary"), "Geaggregeerd signalenoverzicht ontbreekt");
 assert(document.querySelectorAll(".history-signal-row").length >= 30, "Niet alle signalen staan in totaaloverzicht");
@@ -110,5 +117,9 @@ click("newCheckBtn");
 assert(document.getElementById("resumeBtn")?.hidden === true, "Hervatknop blijft zichtbaar na nieuwe lege sessie");
 assert(JSON.parse(window.localStorage.getItem("signalencheck:history:v4") || "[]").length === 1, "Nieuwe check wist geschiedenis");
 assert(document.documentElement.dataset.theme === "dark", "Nieuwe check wist thema-instelling");
+
+for (const card of document.querySelectorAll(".observation-card")) card.querySelector('button[data-status="no"]').click();
+click("saveCheckBtn");
+assert(JSON.parse(window.localStorage.getItem("signalencheck:history:v4") || "[]").length === 2, "Nieuwe sessie overschrijft oude check");
 
 console.log("Browser-smoketest geslaagd: rustige homepage, conditionele hervatknop, tabs, signaalbeeld/matchscore, totaaloverzicht, observatie, rapport, Print/PDF en reset.");
